@@ -1,4 +1,4 @@
-local TaskList = CreateFrame('Frame', nil, UIParent, BackdropTemplateMixin and 'BackdropTemplate' or nil)
+local TaskList = CreateFrame('Frame', 'MageTaxiTaskList', UIParent, BackdropTemplateMixin and 'BackdropTemplate' or nil)
 MageTaxi.taskList = TaskList
 
 function TaskList:DrawUIs()
@@ -8,16 +8,17 @@ function TaskList:DrawUIs()
 	self:RegisterEvent('CHAT_MSG_SYSTEM')
 	self:RegisterEvent('WHO_LIST_UPDATE')
 
-	self:SetPoint('CENTER')
+	if not self:IsUserPlaced() then
+		self:SetPoint('CENTER')
+	end
 	self:SetSize(210, 350)
 	self:SetBackdrop(BACKDROP_DIALOG_32_32)
 	self:SetMovable(true)
 	self:EnableMouse(true)
 	self:SetUserPlaced(true)
 	self:RegisterForDrag('LeftButton')
-
-	-- local closeButton = CreateFrame('BUTTON', nil, self, 'UIPanelCloseButton');
-    -- closeButton:SetPoint('TOPRIGHT', self, 'TOPRIGHT', -4, -4)
+	self:SetScript("OnDragStart", self.StartMoving)
+	self:SetScript("OnDragStop", self.StopMovingOrSizing)
 
     local header = self:CreateTexture('$parentHeader', 'OVERLAY')
     header:SetPoint('TOP', 0, 12)
@@ -42,10 +43,11 @@ function TaskList:DrawUIs()
     background:SetHeight(138)
     background:SetTexture('Interface\\PaperDollInfoFrame\\UI-Character-Reputation-DetailBackground')
 
-	local portrait = self:CreateTexture(nil, 'BACKGROUND')
+	local portrait = CreateFrame('Button', nil, self, 'ActionButtonTemplate')
 	portrait:SetHeight(40)
 	portrait:SetWidth(40)
 	portrait:SetPoint('TOPLEFT', 32, -36)
+	portrait:SetEnabled(false)
 	self.portrait = portrait
 
 	local playerNameText = self:CreateFontString()
@@ -90,6 +92,7 @@ function TaskList:DrawUIs()
 	end)
 	self.endButton = endButton
 
+	-- Create tasks
 	local inviteTask = self:CreateTask('Invite into group', 'Invite')
 	self.inviteTask = inviteTask
 
@@ -127,12 +130,15 @@ function TaskList:SetJob(playerName, message, portal)
 	self.job = job
 	self:SetState('SETTED_JOB')
 
-	SetPortraitTexture(self.portrait, playerName)
+	local texture = GetSpellTexture(portal.portalSpellID)
+	getglobal(self:GetName() .. "Icon"):SetTexture(texture)
+
 	self.playerNameText:SetText(playerName)
 	self.portalText:SetText(portal.name)
 	self.messageText:SetText('"'..message..'"')
 
 	self.inviteTask.actionButton:SetScript('OnClick', function(self)
+		TaskList.inviteTask.actionButton:SetEnabled(false)
 		TaskList:SetState('WAITING_FOR_INVITE_RESPONSE')
 		InviteUnit(job.playerName)
 	end)
@@ -235,6 +241,7 @@ function TaskList:FindPortal(name)
 	return nil
 end
 
+-- EVENTS
 function TaskList:UNIT_SPELLCAST_SUCCEEDED(target, castGUID, spellID)
 	if self.state == 'CREATING_PORTAL'
 		and spellID == self.job.sellingPortal.portalSpellID then
