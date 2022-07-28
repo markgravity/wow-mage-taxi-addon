@@ -1,0 +1,16 @@
+<Ui xmlns="http://www.blizzard.com/wow/ui/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.blizzard.com/wow/ui/
+..\FrameXML\UI.xsd">
+    <Script file="Libs\Ace3\LibStub\LibStub.lua"/>
+    <Include file="Libs\Ace3\AceAddon-3.0\AceAddon-3.0.xml"/>
+    <Include file="Libs\Ace3\AceConsole-3.0\AceConsole-3.0.xml"/>
+    <Include file="Libs\Ace3\AceConfig-3.0\AceConfig-3.0.xml"/>
+    <Include file="Libs\Ace3\AceLocale-3.0\AceLocale-3.0.xml"/>
+    <Include file="Libs\Ace3\AceDB-3.0\AceDB-3.0.xml"/>
+    <Include file="Libs\Ace3\AceDBOptions-3.0\AceDBOptions-3.0.xml"/>
+    <Include file="Libs\Ace3\AceEvent-3.0\AceEvent-3.0.xml"/>
+    <Include file="Libs\Ace3\AceHook-3.0\AceHook-3.0.xml"/>
+	<Script file="Extensions\String+Split.lua"/>
+    <Script file="MageTaxi.lua"/>
+	<Script file="TaskList.lua"/>
+	<Script file="Data\Portals.lua"/>
+</Ui>
