@@ -16,11 +16,11 @@ function WorkWork:Init()
 	self.isPaused = false
 	self.isOn = false
 
-	self.taskList:DrawUIs()
-	self.taskList:Hide()
+	self.peon:DrawUIs()
+	self.peon:Hide()
 
-	self.taskList:Show()
-	self.taskList:SetJob('Iina', 'text', self.portals[1])
+	self.peon:Show()
+	self.peon:SetWork('Iina', 'text', self.portals[1])
 	-- self:On()
 end
 
@@ -123,6 +123,6 @@ function WorkWork:OnChat(playerName, guid, text)
 	}
 
 	self:Pause()
-	self.taskList:Show()
-	self.taskList:SetJob(playerName, text, portal)
+	self.peon:Show()
+	self.peon:SetWork(playerName, text, portal)
 end

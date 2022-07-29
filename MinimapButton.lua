@@ -12,7 +12,7 @@ function MinimapButton:Init()
 		{
 			type = "data source",
 			text = "WorkWork",
-			icon = "Interface\\MINIMAP\\TRACKING\\FlightMaster",
+			icon = "Interface\\ICONS\\RACIAL_ORC_BERSERKERSTRENGTH",
 			iconR = 1,
 			iconG = 1,
 			iconB = 1,
@@ -31,12 +31,12 @@ function MinimapButton:OnClick()
 	WorkWork:Toggle()
 
 	if WorkWork.isOn then
-		dbIconData.iconR = 0.2;
-		dbIconData.iconG = 1;
-		dbIconData.iconB = 0.2;
-	else
 		dbIconData.iconR = 1;
 		dbIconData.iconG = 1;
 		dbIconData.iconB = 1;
+	else
+		dbIconData.iconR = 0.7;
+		dbIconData.iconG = 0.7;
+		dbIconData.iconB = 0.7;
 	end
 end

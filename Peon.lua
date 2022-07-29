@@ -1,7 +1,7 @@
-local TaskList = CreateFrame('Frame', 'WorkWorkTaskList', UIParent, BackdropTemplateMixin and 'BackdropTemplate' or nil)
-WorkWork.taskList = TaskList
+local Peon = CreateFrame('Frame', 'WorkWorkPeon', UIParent, BackdropTemplateMixin and 'BackdropTemplate' or nil)
+WorkWork.peon = Peon
 
-function TaskList:DrawUIs()
+function Peon:DrawUIs()
 	self.isAutoInvite = true
 	self:SetState('INITIALIZED')
 	self:RegisterEvent('UNIT_SPELLCAST_SUCCEEDED')
@@ -84,9 +84,9 @@ function TaskList:DrawUIs()
 	endButton:SetPoint('TOP', self, 'TOP', 0, -110)
 	endButton:SetText('End')
 	endButton:SetScript('OnClick', function(self)
-		TaskList.job = nil
-		TaskList:SetState('ENDED')
-		TaskList:Hide()
+		Peon.job = nil
+		Peon:SetState('ENDED')
+		Peon:Hide()
 		WorkWork:Resume()
 		LeaveParty()
 	end)
@@ -99,7 +99,7 @@ function TaskList:DrawUIs()
 	local moveTask = self:CreateTask('Move', nil, contactTask)
 	moveTask:SetAttribute('type', 'macro')
 	moveTask:HookScript('OnClick', function(self)
-		TaskList:SetState('CREATING_PORTAL')
+		Peon:SetState('CREATING_PORTAL')
 	end)
 	self.moveTask = moveTask
 
@@ -115,7 +115,7 @@ function TaskList:DrawUIs()
 
 end
 
-function TaskList:SetJob(targetName, message, portal)
+function Peon:SetWork(targetName, message, portal)
 	PlaySound(5274)
 	FlashClientIcon()
 
@@ -135,7 +135,7 @@ function TaskList:SetJob(targetName, message, portal)
 	self.messageText:SetText('"'..message..'"')
 
 	self.contactTask:SetScript('OnClick', function(self)
-		TaskList:SetState('WAITING_FOR_INVITE_RESPONSE')
+		Peon:SetState('WAITING_FOR_INVITE_RESPONSE')
 		InviteUnit(job.targetName)
 	end)
 	self:SetTaskDescription(self.contactTask, '|c60808080Invite |r|cffffd100'..job.targetName..'|r|c60808080 into the party|r')
@@ -145,7 +145,7 @@ function TaskList:SetJob(targetName, message, portal)
 	self.makeTask:SetAttribute('type', 'macro')
 	self.makeTask:SetAttribute('macrotext', '/cast '..job.sellingPortal.portalSpellName)
 	self.makeTask:HookScript('OnClick', function(self)
-		TaskList:SetState('CREATING_PORTAL')
+		Peon:SetState('CREATING_PORTAL')
 	end)
 	self:SetTaskDescription(self.makeTask, '|c60808080Create a |r|cffffd100'..job.sellingPortal.name..'|r|c60808080 portal|r')
 
@@ -162,11 +162,11 @@ function TaskList:SetJob(targetName, message, portal)
 	end
 end
 
-function TaskList:SetState(state)
+function Peon:SetState(state)
 	self.state = state
 end
 
-function TaskList:CreateTask(titleText, descriptionText, previousTask)
+function Peon:CreateTask(titleText, descriptionText, previousTask)
 	local backdrop = {
 		bgFile = "Interface\\ChatFrame\\ChatFrameBackground",
 		edgeFile = "Interface\\Tooltips\\UI-Tooltip-Border",
@@ -224,20 +224,21 @@ function TaskList:CreateTask(titleText, descriptionText, previousTask)
 	return task
 end
 
-function TaskList:SetTaskDescription(task, description)
+function Peon:SetTaskDescription(task, description)
 	task.description:SetText(description)
 
 	local totalHeight = 6 + task.title:GetStringHeight() + 6 + task.description:GetStringHeight() + 6 + 4
 	task:SetHeight(totalHeight)
 end
 
-function TaskList:Complete(task)
-	task:SetBackdropColor(0.055, 0.306, 0.576, 0.7) -- blue, attune
-	task:SetBackdropBorderColor(1, 1, 1)
+function Peon:Complete(task)
+	task:SetBackdropColor(0.373, 0.729, 0.275, 0.3) -- green, to match website colors
+	task:SetBackdropBorderColor(0.373, 0.729, 0.275)
 	task.line:SetColorTexture(0.388, 0.686, 0.388, 1) -- green
 end
 
-function TaskList:DisableTask(task, isFinish)
+function Peon:DisableTask(task, isFinish)
+	task:SetEnabled(false)
 	if isFinish then
 		task:SetBackdropColor(0.557, 0.055, 0.075, 0.7	) -- red
 		task:SetBackdropBorderColor(1, 1, 1)
@@ -250,20 +251,21 @@ function TaskList:DisableTask(task, isFinish)
 	task.line:SetDrawLayer("ARTWORK",0)
 end
 
-function TaskList:EnableTask(task)
+function Peon:EnableTask(task)
+	task:SetEnabled(true)
 	task:SetBackdropColor(0.851, 0.608, 0.0, 0.3) -- yellow
 	task:SetBackdropBorderColor(0.851, 0.608, 0.0, 1)
 	task.line:SetColorTexture(0.851, 0.608, 0.0, 1) -- yellow
 	task.line:SetDrawLayer("ARTWORK",1)
 end
 
-function TaskList:SendWho(command)
+function Peon:SendWho(command)
 	C_FriendList.SetWhoToUi(true)
 	FriendsFrame:UnregisterEvent("WHO_LIST_UPDATE")
 	C_FriendList.SendWho(command);
 end
 
-function TaskList:FindPortal(name)
+function Peon:FindPortal(name)
 	for _, portal in ipairs(WorkWork.portals) do
 		if portal.name == name then
 			return portal
@@ -272,7 +274,7 @@ function TaskList:FindPortal(name)
 	return nil
 end
 
-function TaskList:DetectTargetZone()
+function Peon:DetectTargetZone()
 	local targetZone = GetPartyMemberZone(self.job.targetName)
 	local playerZone = GetZoneText()
 	print(targetZone, playerZone)
@@ -288,6 +290,8 @@ function TaskList:DetectTargetZone()
 		self:SetState('MOVED_TO_PLAYER_ZONE')
 		self:Complete(self.moveTask)
 		self:EnableTask(self.makeTask)
+		self:SetTaskDescription(self.moveTask, '|c60808080Moved to |r|cffffd100'..playerZone..'|r')
+		return
 	end
 
 	self.job.movingPortal = portal
@@ -296,14 +300,14 @@ function TaskList:DetectTargetZone()
 	self:EnableTask(self.moveTask)
 end
 
-function TaskList:CompleteContactTask()
+function Peon:CompleteContactTask()
 	self:Complete(self.contactTask)
 	self:SetState("INVITED_PLAYER")
-	self:DetectTargetZone()
+	C_Timer.After(1, self.DetectTargetZone)
 end
 
 -- EVENTS
-function TaskList:UNIT_SPELLCAST_SUCCEEDED(target, castGUID, spellID)
+function Peon:UNIT_SPELLCAST_SUCCEEDED(target, castGUID, spellID)
 	if self.state == 'CREATING_PORTAL'
 		and spellID == self.job.sellingPortal.portalSpellID then
 		self:Complete(self.makeTask)
@@ -321,7 +325,7 @@ function TaskList:UNIT_SPELLCAST_SUCCEEDED(target, castGUID, spellID)
 	end
 end
 
-function TaskList:CHAT_MSG_SYSTEM(text, playerName, languageName, channelName, playerName2, specialFlags, zoneChannelID, channelIndex, channelBaseName, languageID, lineID, guid, bnSenderID, isMobile, isSubtitle, hideSenderInLetterbox, supressRaidIcons)
+function Peon:CHAT_MSG_SYSTEM(text, playerName, languageName, channelName, playerName2, specialFlags, zoneChannelID, channelIndex, channelBaseName, languageID, lineID, guid, bnSenderID, isMobile, isSubtitle, hideSenderInLetterbox, supressRaidIcons)
 	if self.state == 'WAITING_FOR_INVITE_RESPONSE' then
 		if text == self.job.targetName..' is already in a group.' then
 			SendChatMessage(
