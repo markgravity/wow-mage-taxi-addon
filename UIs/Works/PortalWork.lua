@@ -2,14 +2,14 @@ local PortalWork = {}
 PortalWork.__index = PortalWork
 
 function CreatePortalWork(targetName, message, portal)
-	local job = {
+	local info = {
 		targetName = targetName,
 		sellingPortal = portal
 	}
 	local work = {}
 	setmetatable(work, PortalWork)
 	work.isAutoInvite = true
-	work.job = job
+	work.info = info
 	work:SetState('INITIALIZED')
 
 	local frame = CreateFrame('Frame', 'WorkWorkPortalWork'..targetName..portal.name, UIParent, BackdropTemplateMixin and 'BackdropTemplate' or nil)
@@ -97,7 +97,7 @@ function CreatePortalWork(targetName, message, portal)
 	endButton:SetPoint('TOP', frame, 'TOP', 0, -110)
 	endButton:SetText('End')
 	endButton:SetScript('OnClick', function(self)
-		work.job = nil
+		work.info = nil
 		work:SetState('ENDED')
 		work:Complete()
 		WorkWork:Resume()
@@ -106,10 +106,9 @@ function CreatePortalWork(targetName, message, portal)
 	work.endButton = endButton
 
 	-- Create tasks
-	work.contactTask = CreateWorkTask(frame, 'Contact', '|c60808080Invite |r|cffffd100'..job.targetName..'|r|c60808080 into the party|r')
+	work.contactTask = CreateWorkTask(frame, 'Contact', '|c60808080Invite |r|cffffd100'..info.targetName..'|r|c60808080 into the party|r')
 	work.contactTask:SetScript('OnClick', function(self)
 		work:SetState('WAITING_FOR_INVITE_RESPONSE')
-		InviteUnit(job.targetName)
 	end)
 	work.contactTask:SetPoint('TOP', divider, 'BOTTOM', 0, 16)
 
@@ -118,13 +117,13 @@ function CreatePortalWork(targetName, message, portal)
 		work:SetState('CREATING_PORTAL')
 	end)
 
-	work.makeTask = CreateWorkTask(frame, 'Make', '|c60808080Create a |r|cffffd100'..job.sellingPortal.name..'|r|c60808080 portal|r', work.moveTask)
-	work.makeTask:SetSpell(job.sellingPortal.portalSpellName)
+	work.makeTask = CreateWorkTask(frame, 'Make', '|c60808080Create a |r|cffffd100'..info.sellingPortal.name..'|r|c60808080 portal|r', work.moveTask)
+	work.makeTask:SetSpell(info.sellingPortal.portalSpellName)
 	work.makeTask:HookScript('OnClick', function(self)
 		work:SetState('CREATING_PORTAL')
 	end)
 
-	work.finishTask = CreateWorkTask(frame, 'Finish', '|c60808080Waiting for |r|cffffd100'..job.targetName..'|r|c60808080 to enter the portal|r', work.makeTask)
+	work.finishTask = CreateWorkTask(frame, 'Finish', '|c60808080Waiting for |r|cffffd100'..info.targetName..'|r|c60808080 to enter the portal|r', work.makeTask)
 
 	work.moveTask:Disable()
 	work.makeTask:Disable()
@@ -185,13 +184,40 @@ end
 
 function PortalWork:SetState(state)
 	self.state = state
-end
-
-function PortalWork:CompleteContactTask()
-	self.contactTask:Complete()
-	self:SetState("INVITED_PLAYER")
 	local work = self
-	C_Timer.After(1, function() work:DetectTargetZone() end)
+
+	if state == 'WAITING_FOR_INVITE_RESPONSE' then
+		InviteUnit(self.info.targetName)
+		return
+	end
+
+	if state == 'INVITED_TARGET' then
+		SendPartyMessage('Hi, I\'m coming!!')
+		self.contactTask:Complete()
+		C_Timer.After(1, function() work:DetectTargetZone() end)
+		return
+	end
+
+	if state == 'MOVING_TO_TARGET_ZONE' then
+		return
+	end
+
+	if state == 'MOVED_TO_TARGET_ZONE' then
+		self.moveTask:Complete()
+		self.makeTask:Enable()
+		return
+	end
+
+	if state == 'CREATING_PORTAL' then
+		return
+	end
+
+	if state == 'WAITING_FOR_TARGET_ENTER_PORTAL' then
+		self.makeTask:Complete()
+		self.finishTask:Enable()
+		self:WaitingForTargetEnterPortal()
+		return
+	end
 end
 
 function PortalWork:SendWho(command)
@@ -211,7 +237,7 @@ end
 
 function PortalWork:DetectTargetZone()
 	local work = self
-	local targetZone = GetPartyMemberZone(self.job.targetName)
+	local targetZone = GetPartyMemberZone(self.info.targetName)
 	if targetZone == nil then
 		C_Timer.After(1, function() work:DetectTargetZone() end)
 		return
@@ -221,35 +247,34 @@ function PortalWork:DetectTargetZone()
 	local work = self
 
 	if playerZone == targetZone then
-		self:SetState('MOVED_TO_PLAYER_ZONE')
-		self.moveTask:Complete()
-		self.makeTask:Enable()
+		self:SetState('MOVED_TO_TARGET_ZONE')
 		return
 	end
 
 	local portal = self:FindPortal(targetZone)
 	if portal == nil then
-		self:SetState('MOVING_TO_PLAYER_ZONE')
+		self:SetState('MOVING_TO_TARGET_ZONE')
 		self.moveTask:SetDescription('|c60808080Move to |r|cffffd100'..targetZone..'|r|c60808080 manually|r')
+		self.moveTask:Enable()
 		return
 	end
 
-	self.job.movingPortal = portal
+	self.info.movingPortal = portal
 	self.moveTask:SetSpell(portal.teleportSpellName)
 	self.moveTask:HookScript('OnClick', function()
-		work:SetState('MOVING_TO_PLAYER_ZONE')
+		work:SetState('MOVING_TO_TARGET_ZONE')
 	end)
 	self.moveTask:SetDescription('|c60808080Teleport to |r|cffffd100'..portal.name..'|r')
 	self.moveTask:Enable()
 end
 
 function PortalWork:WaitingForTargetEnterPortal()
-	if self.job == nil then
+	if self.info == nil then
 		return
 	end
 
-	local targetZone = GetPartyMemberZone(self.job.targetName)
-	if targetZone ~= self.job.sellingPortal.zoneName then
+	local targetZone = GetPartyMemberZone(self.info.targetName)
+	if targetZone ~= self.info.sellingPortal.zoneName then
 		local work = self
 		C_Timer.After(1, function() work:WaitingForTargetEnterPortal() end)
 		return
@@ -260,40 +285,30 @@ end
 -- EVENTS
 function PortalWork:UNIT_SPELLCAST_SUCCEEDED(target, castGUID, spellID)
 	if self.state == 'CREATING_PORTAL'
-		and spellID == self.job.sellingPortal.portalSpellID then
-		self.makeTask:Complete()
-		self:SetState('WAITING_FOR_PLAYER_ENTER_PORTAL')
-		self.finishTask:Enable()
-		self:WaitingForTargetEnterPortal()
+		and spellID == self.info.sellingPortal.portalSpellID then
+		self:SetState('WAITING_FOR_TARGET_ENTER_PORTAL')
 		return
 	end
 
-	if self.state == 'MOVING_TO_PLAYER_ZONE'
-		and spellID == self.job.movingPortal.teleportSpellID then
-		self.moveTask:Complete()
-		self:SetState('MOVED_TO_PLAYER_ZONE')
-		self.makeTask:Enable()
+	if self.state == 'MOVING_TO_TARGET_ZONE'
+		and spellID == self.info.movingPortal.teleportSpellID then
+		self:SetState('MOVED_TO_TARGET_ZONE')
 		return
 	end
 end
 
 function PortalWork:CHAT_MSG_SYSTEM(text, playerName, languageName, channelName, playerName2, specialFlags, zoneChannelID, channelIndex, channelBaseName, languageID, lineID, guid, bnSenderID, isMobile, isSubtitle, hideSenderInLetterbox, supressRaidIcons)
 	if self.state == 'WAITING_FOR_INVITE_RESPONSE' then
-		if text == self.job.targetName..' is already in a group.' then
-			SendChatMessage(
-				"Hey, please invite me for a portal to "..self.job.sellingPortal.name ,
-				"WHISPER" ,
-				 nil,
-				 self.job.targetName
-		 	)
-			self.contactTask:SetDescription('|c60808080Waiting for |r|cffffd100'..self.job.targetName..'|r|c60808080 invites you into the party|r')
+		if text == self.info.targetName..' is already in a group.' then
+			Whisper(self.info.targetName, "Hey, please invite me for a portal to "..self.info.sellingPortal.name)
+			self.contactTask:SetDescription('|c60808080Waiting for |r|cffffd100'..self.info.targetName..'|r|c60808080 invites you into the party|r')
 			WorkWorkAutoAcceptInvite:SetEnabled(true, function ()
 				self:CompleteContactTask()
 			end)
 			return
 		end
 
-		if text == self.job.targetName..' joins the party.' then
+		if text == self.info.targetName..' joins the party.' then
 			self:CompleteContactTask()
 			return
 		end
@@ -301,7 +316,7 @@ function PortalWork:CHAT_MSG_SYSTEM(text, playerName, languageName, channelName,
 	end
 
 
-	if self.state == 'WAITING_FOR_PLAYER_ENTER_PORTAL' then
+	if self.state == 'WAITING_FOR_TARGET_ENTER_PORTAL' then
 		if text == 'Your group has been disbanded.' then
 			self.endButton:Click()
 			return
@@ -310,14 +325,12 @@ function PortalWork:CHAT_MSG_SYSTEM(text, playerName, languageName, channelName,
 end
 
 function PortalWork:ZONE_CHANGED_NEW_AREA()
-	if self.state == 'MOVING_TO_PLAYER_ZONE' then
+	if self.state == 'MOVING_TO_TARGET_ZONE' then
 		local playerZone = GetRealZoneText()
-		local targetZone = GetPartyMemberZone(self.job.targetName)
+		local targetZone = GetPartyMemberZone(self.info.targetName)
 
 		if playerZone == targetZone then
-			self.moveTask:Complete()
-			self:SetState('MOVED_TO_PLAYER_ZONE')
-			self.makeTask:Enable()
+			self:SetState('MOVED_TO_TARGET_ZONE')
 		end
 	end
 end
