@@ -210,7 +210,13 @@ function PortalWork:FindPortal(zoneName)
 end
 
 function PortalWork:DetectTargetZone()
+	local work = self
 	local targetZone = GetPartyMemberZone(self.job.targetName)
+	if targetZone == nil then
+		C_Timer.After(1, function() work:DetectTargetZone() end)
+		return
+	end
+
 	local playerZone = GetRealZoneText()
 	local work = self
 
@@ -238,6 +244,10 @@ function PortalWork:DetectTargetZone()
 end
 
 function PortalWork:WaitingForTargetEnterPortal()
+	if self.job == nil then
+		return
+	end
+
 	local targetZone = GetPartyMemberZone(self.job.targetName)
 	if targetZone ~= self.job.sellingPortal.zoneName then
 		local work = self
@@ -306,7 +316,7 @@ function PortalWork:ZONE_CHANGED_NEW_AREA()
 
 		if playerZone == targetZone then
 			self.moveTask:Complete()
-			self.SetState('MOVED_TO_PLAYER_ZONE')
+			self:SetState('MOVED_TO_PLAYER_ZONE')
 			self.makeTask:Enable()
 		end
 	end

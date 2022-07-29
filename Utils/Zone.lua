@@ -1,5 +1,4 @@
 function GetPartyMemberZone(playerName)
-	local unknownText = 'Unknown'
 	local unitID
 	for i = 1, 4 do
 		local tmpUnitID = 'party'..i
@@ -10,13 +9,13 @@ function GetPartyMemberZone(playerName)
 	end
 
 	if unitID == nil then
-		return unknownText
+		return nil
 	end
 
 	local mapID = C_Map.GetBestMapForUnit(unitID);
 
 	if mapID == nil then
-		return unknownText
+		return nil
 	end
 
 	return GetZone(mapID)
