@@ -34,6 +34,7 @@ function PortalWork:DrawUIs()
 	self:SetState('INITIALIZED')
 	self:RegisterEvent('UNIT_SPELLCAST_SUCCEEDED')
 	self:RegisterEvent('CHAT_MSG_SYSTEM')
+	self:RegisterEvent('ZONE_CHANGED_NEW_AREA')
 
 	if not self:IsUserPlaced() then
 		self:SetPoint('CENTER')
@@ -57,7 +58,6 @@ function PortalWork:DrawUIs()
     headerText:SetText('Portal')
 
 	local divider = self:CreateTexture(nil, 'OVERLAY')
-    divider:SetHeight(32)
 	divider:SetPoint('TOP', 0, -139)
 	divider:SetPoint('LEFT', 10, 0)
 	divider:SetPoint('RIGHT', 52, 0)
@@ -121,22 +121,15 @@ function PortalWork:DrawUIs()
 	self.endButton = endButton
 
 	-- Create tasks
-	local contactTask = self:CreateTask('Contact')
-	self.contactTask = contactTask
+	self.contactTask = CreateWorkTask(self, 'Contact', nil)
+	self.contactTask:SetPoint('TOP', divider, 'BOTTOM', 0, 16)
+	self.moveTask = CreateWorkTask(self, 'Move', nil, self.contactTask)
+	self.makeTask = CreateWorkTask(self, 'Make', nil, self.moveTask)
+	self.finishTask = CreateWorkTask(self, 'Finish', nil, self.makeTask)
 
-	local moveTask = self:CreateTask('Move', nil, contactTask)
-	moveTask:SetAttribute('type', 'macro')
-	moveTask:HookScript('OnClick', function(self)
+	self.moveTask:HookScript('OnClick', function(self)
 		PortalWork:SetState('CREATING_PORTAL')
 	end)
-	self.moveTask = moveTask
-
-	local makeTask = self:CreateTask('Make', nil, moveTask)
-	makeTask:SetAttribute('type', 'macro')
-	self.makeTask = makeTask
-
-	local finishTask = self:CreateTask('Finish', nil, makeTask)
-	self.finishTask = finishTask
 
     self:SetScript('OnEvent', function(self, event, ...)
         self[event](self, ...)
@@ -163,30 +156,31 @@ function PortalWork:SetWork(targetName, message, portal)
 	self.portalText:SetText(portal.name)
 	self.messageText:SetText('"'..message..'"')
 
+	-- Config tasks
 	self.contactTask:SetScript('OnClick', function(self)
 		PortalWork:SetState('WAITING_FOR_INVITE_RESPONSE')
 		InviteUnit(job.targetName)
 	end)
-	self:SetTaskDescription(self.contactTask, '|c60808080Invite |r|cffffd100'..job.targetName..'|r|c60808080 into the party|r')
+	self.contactTask:SetDescription('|c60808080Invite |r|cffffd100'..job.targetName..'|r|c60808080 into the party|r')
 
-	self:SetTaskDescription(self.moveTask, '|c60808080Waiting for contact|r')
+	self.moveTask:SetDescription('|c60808080Waiting for contact|r')
 
-	self.makeTask:SetAttribute('macrotext', '/cast '..job.sellingPortal.portalSpellName)
+	self.makeTask:SetSpell(job.sellingPortal.portalSpellName)
+	self.makeTask:SetDescription('|c60808080Create a |r|cffffd100'..job.sellingPortal.name..'|r|c60808080 portal|r')
 	self.makeTask:HookScript('OnClick', function(self)
 		PortalWork:SetState('CREATING_PORTAL')
 	end)
-	self:SetTaskDescription(self.makeTask, '|c60808080Create a |r|cffffd100'..job.sellingPortal.name..'|r|c60808080 portal|r')
 
-	self:SetTaskDescription(self.finishTask, '|c60808080Waiting for |r|cffffd100'..job.targetName..'|r|c60808080 to enter the portal|r')
+	self.finishTask:SetDescription('|c60808080Waiting for |r|cffffd100'..job.targetName..'|r|c60808080 to enter the portal|r')
 
-	self:DisableTask(self.contactTask)
-	self:DisableTask(self.moveTask)
-	self:DisableTask(self.makeTask)
-	self:DisableTask(self.finishTask, true)
+	self.contactTask:Disable()
+	self.moveTask:Disable()
+	self.makeTask:Disable()
+	self.finishTask:Disable(true)
 
-	self:EnableTask(self.contactTask)
+	self.contactTask:Enable()
 	if self.isAutoInvite then
-		self.contactTask:Click()
+		self.contactTask:Run()
 	end
 end
 
@@ -194,101 +188,8 @@ function PortalWork:SetState(state)
 	self.state = state
 end
 
-function PortalWork:CreateTask(titleText, descriptionText, previousTask)
-	local backdrop = {
-		bgFile = "Interface\\ChatFrame\\ChatFrameBackground",
-		edgeFile = "Interface\\Tooltips\\UI-Tooltip-Border",
-		tile = true, tileSize = 16, edgeSize = 16,
-		insets = { left = 3, right = 3, top = 3, bottom = 3 }
-	}
-
-	local task = CreateFrame('Button', nil, self, BackdropTemplateMixin and "InSecureActionButtonTemplate, BackdropTemplate" or nil)
-	task:SetBackdrop(backdrop)
-	task:SetPoint('LEFT', 16, 0)
-	task:SetPoint('RIGHT', -16, 0)
-	if previousTask ~= nil then
-		task:SetPoint('TOP', previousTask, 'BOTTOM', 0, -16)
-	else
-		task:SetPoint('TOP', self.divider, 'BOTTOM', 0, 16)
-	end
-
-	local texture = task:CreateTexture()
-	texture:SetColorTexture(0.5, 0.5, 0.5, 1)
-	texture:SetBlendMode('BLEND')
-	texture:SetPoint('TOPLEFT', 1, -1)
-	texture:SetPoint('BOTTOMRIGHT', -1, 1)
-	texture:SetGradientAlpha('HORIZONTAL', .5, .5, .5, .8, .5, .5, .5, 0)
-	task:SetHighlightTexture(texture)
-
-	local title = task:CreateFontString()
-	title:SetFont(GameFontNormal:GetFont(), 11)
-	title:SetText(titleText)
-	title:SetPoint('LEFT', task, 'LEFT', 16, 0)
-	title:SetPoint('RIGHT', task, 'RIGHT', -16, 0)
-	title:SetPoint('TOP', task, 'TOP', 0, -8)
-	title:SetJustifyH('CENTER')
-	title:SetTextColor(1, 1, 1)
-	task.title = title
-
-	local description = task:CreateFontString()
-	description:SetFont(GameFontNormal:GetFont(), 9)
-	description:SetPoint('LEFT', task, 'LEFT', 16, 0)
-	description:SetPoint('RIGHT', task, 'RIGHT', -16, 0)
-	description:SetPoint('TOP', title, 'BOTTOM', 0, -4)
-	description:SetJustifyH('CENTER')
-	task.description = description
-	self:SetTaskDescription(task, descriptionText)
-
-	local line = task:CreateLine()
-	line:SetDrawLayer("ARTWORK",2)
-	line:SetThickness(6)
-	line:SetStartPoint("TOP", 0, 0)
-	line:SetEndPoint("TOP", 0, 16)
-	line:Hide()
-	task.line = line
-	if previousTask ~= nil then
-		line:Show()
-	end
-	return task
-end
-
-function PortalWork:SetTaskDescription(task, description)
-	task.description:SetText(description)
-
-	local totalHeight = 6 + task.title:GetStringHeight() + 6 + task.description:GetStringHeight() + 6 + 4
-	task:SetHeight(totalHeight)
-end
-
-function PortalWork:Complete(task)
-	task:SetBackdropColor(0.373, 0.729, 0.275, 0.3) -- green, to match website colors
-	task:SetBackdropBorderColor(0.373, 0.729, 0.275)
-	task.line:SetColorTexture(0.388, 0.686, 0.388, 1) -- green
-end
-
-function PortalWork:DisableTask(task, isFinish)
-	task:SetEnabled(false)
-	if isFinish then
-		task:SetBackdropColor(0.557, 0.055, 0.075, 0.7	) -- red
-		task:SetBackdropBorderColor(1, 1, 1)
-	else
-		task:SetBackdropColor(0.1, 0.1, 0.1, 0.5) -- gray
-		task:SetBackdropBorderColor(0.4, 0.4, 0.4)
-	end
-
-	task.line:SetColorTexture(0.2, 0.2, 0.2, 1)
-	task.line:SetDrawLayer("ARTWORK",0)
-end
-
-function PortalWork:EnableTask(task)
-	task:SetEnabled(true)
-	task:SetBackdropColor(0.851, 0.608, 0.0, 0.3) -- yellow
-	task:SetBackdropBorderColor(0.851, 0.608, 0.0, 1)
-	task.line:SetColorTexture(0.851, 0.608, 0.0, 1) -- yellow
-	task.line:SetDrawLayer("ARTWORK",1)
-end
-
 function PortalWork:CompleteContactTask()
-	self:Complete(self.contactTask)
+	self.contactTask:Complete()
 	self:SetState("INVITED_PLAYER")
 	C_Timer.After(1, function() PortalWork:DetectTargetZone() end)
 end
@@ -314,24 +215,25 @@ function PortalWork:DetectTargetZone()
 
 	if playerZone == targetZone then
 		self:SetState('MOVED_TO_PLAYER_ZONE')
-		self:Complete(self.moveTask)
-		self:EnableTask(self.makeTask)
+		self.moveTask:Complete()
+		self.makeTask:Enable()
 		return
 	end
 
 	local portal = self:FindPortal(targetZone)
 	if portal == nil then
-		self:SetState('MOVED_TO_PLAYER_ZONE')
-		self:Complete(self.moveTask)
-		self:EnableTask(self.makeTask)
-		self:SetTaskDescription(self.moveTask, '|c60808080Moved to |r|cffffd100'..playerZone..'|r')
+		self:SetState('MOVING_TO_PLAYER_ZONE')
+		self.moveTask:SetDescription('|c60808080Move to |r|cffffd100'..targetZone..'|r|c60808080 manually|r')
 		return
 	end
 
 	self.job.movingPortal = portal
-	self.moveTask:SetAttribute('macrotext', '/cast '..portal.teleportSpellName)
-	self:SetTaskDescription(self.moveTask, '|c60808080Teleport to |r|cffffd100'..portal.name..'|r')
-	self:EnableTask(self.moveTask)
+	self.moveTask:SetSpell(portal.teleportSpellName)
+	self.moveTask:HookScript('OnClick', function(self)
+		self:SetState('MOVING_TO_PLAYER_ZONE')
+	end)
+	self.moveTask:SetDescription('|c60808080Teleport to |r|cffffd100'..portal.name..'|r')
+	self.moveTask:Enable()
 end
 
 function PortalWork:WaitingForTargetEnterPortal()
@@ -347,18 +249,18 @@ end
 function PortalWork:UNIT_SPELLCAST_SUCCEEDED(target, castGUID, spellID)
 	if self.state == 'CREATING_PORTAL'
 		and spellID == self.job.sellingPortal.portalSpellID then
-		self:Complete(self.makeTask)
+		self.makeTask:Complete()
 		self:SetState('WAITING_FOR_PLAYER_ENTER_PORTAL')
-		self:EnableTask(self.finishTask)
+		self.finishTask:Enable()
 		self:WaitingForTargetEnterPortal()
 		return
 	end
 
 	if self.state == 'MOVING_TO_PLAYER_ZONE'
 		and spellID == self.job.movingPortal.teleportSpellID then
-		self:Complete(self.moveTask)
+		self.moveTask:Complete()
 		self:SetState('MOVED_TO_PLAYER_ZONE')
-		self:EnableTask(self.makeTask)
+		self.makeTask:Enable()
 		return
 	end
 end
@@ -372,7 +274,7 @@ function PortalWork:CHAT_MSG_SYSTEM(text, playerName, languageName, channelName,
 				 nil,
 				 self.job.targetName
 		 	)
-			self:SetTaskDescription(self.contactTask, '|c60808080Waiting for |r|cffffd100'..self.job.targetName..'|r|c60808080 invites you into the party|r')
+			self.contactTask:SetDescription('|c60808080Waiting for |r|cffffd100'..self.job.targetName..'|r|c60808080 invites you into the party|r')
 			WorkWorkAutoAcceptInvite:SetEnabled(true, function ()
 				self:CompleteContactTask()
 			end)
@@ -391,6 +293,19 @@ function PortalWork:CHAT_MSG_SYSTEM(text, playerName, languageName, channelName,
 		if text == 'Your group has been disbanded.' then
 			self.endButton:Click()
 			return
+		end
+	end
+end
+
+function PortalWork:ZONE_CHANGED_NEW_AREA()
+	if self.state == 'MOVING_TO_PLAYER_ZONE' then
+		local playerZone = GetRealZoneText()
+		local targetZone = GetPartyMemberZone(self.job.targetName)
+
+		if playerZone == targetZone then
+			self.moveTask:Complete()
+			self.SetState('MOVED_TO_PLAYER_ZONE')
+			self.makeTask:Enable()
 		end
 	end
 end

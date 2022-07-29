@@ -19,7 +19,7 @@ WorkWork.portals = {
 	},
 	{
 		name = 'Theramore',
-		zoneName = 'Theramore',
+		zoneName = 'Theramore Isle',
 		keywords = {'thera', 'theremore', 'Theramore' },
 		portalSpellName = 'Portal: Theramore',
 		portalSpellID = 49360,
@@ -102,7 +102,7 @@ function Portals:PLAYER_ENTERING_WORLD()
 	if faction == 'Alliance' then
 		table.insert(WorkWork.portals, {
 			name = 'Shattrath',
-			zoneName = 'Shattrath',
+			zoneName = 'Shattrath City',
 			keywords = {'shatt', 'shat', 'shattrath' },
 			portalSpellName = 'Portal: Shattrath',
 			portalSpellID = 33691,
@@ -115,7 +115,7 @@ function Portals:PLAYER_ENTERING_WORLD()
 	if faction == 'Horde' then
 		table.insert(WorkWork.portals, {
 			name = 'Shattrath',
-			zoneName = 'Shattrath',
+			zoneName = 'Shattrath City',
 			keywords = {'shatt', 'shat', 'shattrath' },
 			portalSpellName = 'Portal: Shattrath',
 			portalSpellID = 35717,
