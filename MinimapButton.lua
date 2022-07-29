@@ -8,29 +8,29 @@ function MinimapButton:Init()
 
 	-- Create minimap button config
 	dbIconData = dataBroker:NewDataObject(
-		"MageTaxi",
+		"WorkWork",
 		{
 			type = "data source",
-			text = "MageTaxi",
+			text = "WorkWork",
 			icon = "Interface\\MINIMAP\\TRACKING\\FlightMaster",
 			iconR = 1,
 			iconG = 1,
 			iconB = 1,
 			OnClick = self.OnClick,
 			OnTooltipShow = function (tooltip)
-				tooltip:AddLine("MageTaxi", 1, 1, 1);
+				tooltip:AddLine("WorkWork", 1, 1, 1);
 			end,
 		}
 	);
 
 	-- Add button
-	dbIcon:Register("MageTaxi", dbIconData, MageTaxiConfigCharacter);
+	dbIcon:Register("WorkWork", dbIconData, WorkWorkConfigCharacter);
 end
 
 function MinimapButton:OnClick()
-	MageTaxi:Toggle()
+	WorkWork:Toggle()
 
-	if MageTaxi.isOn then
+	if WorkWork.isOn then
 		dbIconData.iconR = 0.2;
 		dbIconData.iconG = 1;
 		dbIconData.iconB = 0.2;

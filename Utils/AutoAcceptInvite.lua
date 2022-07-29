@@ -1,10 +1,10 @@
-MageTaxiAutoAcceptInvite = CreateFrame('Frame')
+WorkWorkAutoAcceptInvite = CreateFrame('Frame')
 
-MageTaxiAutoAcceptInvite:SetScript('OnEvent', function(self, event, ...)
+WorkWorkAutoAcceptInvite:SetScript('OnEvent', function(self, event, ...)
 	self[event](self, ...)
 end)
 
-function MageTaxiAutoAcceptInvite:AcceptInvite()
+function WorkWorkAutoAcceptInvite:AcceptInvite()
 	AcceptGroup()
 	for i = 1, STATICPOPUP_NUMDIALOGS do
 		local dialog = _G["StaticPopup" .. i]
@@ -19,15 +19,15 @@ function MageTaxiAutoAcceptInvite:AcceptInvite()
 	end
 end
 
-function MageTaxiAutoAcceptInvite:PARTY_INVITE_REQUEST(eventName, inviter)
+function WorkWorkAutoAcceptInvite:PARTY_INVITE_REQUEST(eventName, inviter)
 	self:AcceptInvite()
 end
 
-function MageTaxiAutoAcceptInvite:GROUP_JOINED()
+function WorkWorkAutoAcceptInvite:GROUP_JOINED()
 
 end
 
-function MageTaxiAutoAcceptInvite:SetEnabled(isEnabled, callback)
+function WorkWorkAutoAcceptInvite:SetEnabled(isEnabled, callback)
 	if isEnabled then
 		self.callback = callback
 		self:RegisterEvent("PARTY_INVITE_REQUEST")

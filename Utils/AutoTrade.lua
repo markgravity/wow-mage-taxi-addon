@@ -1,5 +1,5 @@
 local AutoTrade = CreateFrame('Frame')
-MageTaxi.autoTrade = AutoTrade
+WorkWork.autoTrade = AutoTrade
 
 AutoTrade.isEnabled = false
 AutoTrade:SetScript('OnEvent', function(self, event, ...)

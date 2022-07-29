@@ -12,7 +12,7 @@
 	<Include file="Libs\LibDBIcon-1.0\embeds.xml"/>
 	<Script file="Utils\Zone.lua"/>
 	<Script file="Utils\AutoAcceptInvite.lua"/>
-    <Script file="MageTaxi.lua"/>
+    <Script file="WorkWork.lua"/>
 	<Script file="TaskList.lua"/>
 	<Script file="MinimapButton.lua"/>
 	<Script file="Data\Portals.lua"/>

@@ -1,14 +1,14 @@
 local AceEvent = LibStub('AceEvent-3.0')
 
-MageTaxi = CreateFrame('Frame', nil, UIParent, BackdropTemplateMixin and 'BackdropTemplate' or nil)
-MageTaxiAddon = LibStub('AceAddon-3.0'):NewAddon('MageTaxi', 'AceConsole-3.0')
+WorkWork = CreateFrame('Frame', nil, UIParent, BackdropTemplateMixin and 'BackdropTemplate' or nil)
+WorkWorkAddon = LibStub('AceAddon-3.0'):NewAddon('WorkWork', 'AceConsole-3.0')
 
-function MageTaxiAddon:OnInitialize()
-	MageTaxi:Init()
+function WorkWorkAddon:OnInitialize()
+	WorkWork:Init()
 	MinimapButton:Init()
 end
 
-function MageTaxi:Init()
+function WorkWork:Init()
 	self:SetScript('OnEvent', function(self, event, ...)
         self[event](self, ...)
     end)
@@ -24,7 +24,7 @@ function MageTaxi:Init()
 	-- self:On()
 end
 
-function MageTaxi:On()
+function WorkWork:On()
 	self.isPaused = false
 	self.isOn = true
     self:RegisterEvent('CHAT_MSG_SAY')
@@ -33,7 +33,7 @@ function MageTaxi:On()
 	self:RegisterEvent('CHAT_MSG_CHANNEL')
 end
 
-function MageTaxi:Off()
+function WorkWork:Off()
 	self.isOn = false
     self:UnregisterEvent('CHAT_MSG_SAY')
     self:UnregisterEvent('CHAT_MSG_YELL')
@@ -41,7 +41,7 @@ function MageTaxi:Off()
 	self:UnregisterEvent('CHAT_MSG_CHANNEL')
 end
 
-function MageTaxi:Toggle()
+function WorkWork:Toggle()
 	self.isOn = not self.isOn
 	if self.isOn then
 		self:On()
@@ -50,34 +50,34 @@ function MageTaxi:Toggle()
 	end
 end
 
-function MageTaxi:Pause()
+function WorkWork:Pause()
     self.isPaused = true
 end
 
-function MageTaxi:Resume()
+function WorkWork:Resume()
     self.isPaused = false
 end
 
-function MageTaxi:CHAT_MSG_SAY(text, playerName, languageName, channelName, playerName2, specialFlags, zoneChannelID, channelIndex, channelBaseName, languageID, lineID, guid, bnSenderID, isMobile, isSubtitle, hideSenderInLetterbox, supressRaidIcons)
+function WorkWork:CHAT_MSG_SAY(text, playerName, languageName, channelName, playerName2, specialFlags, zoneChannelID, channelIndex, channelBaseName, languageID, lineID, guid, bnSenderID, isMobile, isSubtitle, hideSenderInLetterbox, supressRaidIcons)
     self:OnChat(playerName2, guid, text)
 end
 
-function MageTaxi:CHAT_MSG_YELL(text, playerName, languageName, channelName, playerName2, specialFlags, zoneChannelID, channelIndex, channelBaseName, languageID, lineID, guid, bnSenderID, isMobile, isSubtitle, hideSenderInLetterbox, supressRaidIcons)
+function WorkWork:CHAT_MSG_YELL(text, playerName, languageName, channelName, playerName2, specialFlags, zoneChannelID, channelIndex, channelBaseName, languageID, lineID, guid, bnSenderID, isMobile, isSubtitle, hideSenderInLetterbox, supressRaidIcons)
     self:OnChat(playerName2, guid, text)
 end
 
-function MageTaxi:CHAT_MSG_WHISPER(text, playerName, languageName, channelName, playerName2, specialFlags, zoneChannelID, channelIndex, channelBaseName, languageID, lineID, guid, bnSenderID, isMobile, isSubtitle, hideSenderInLetterbox, supressRaidIcons)
+function WorkWork:CHAT_MSG_WHISPER(text, playerName, languageName, channelName, playerName2, specialFlags, zoneChannelID, channelIndex, channelBaseName, languageID, lineID, guid, bnSenderID, isMobile, isSubtitle, hideSenderInLetterbox, supressRaidIcons)
     self:OnChat(playerName2, guid, text)
 end
 
-function MageTaxi:CHAT_MSG_CHANNEL(text, playerName, languageName, channelName, playerName2, specialFlags, zoneChannelID, channelIndex, channelBaseName, languageID, lineID, guid, bnSenderID, isMobile, isSubtitle, hideSenderInLetterbox, supressRaidIcons)
+function WorkWork:CHAT_MSG_CHANNEL(text, playerName, languageName, channelName, playerName2, specialFlags, zoneChannelID, channelIndex, channelBaseName, languageID, lineID, guid, bnSenderID, isMobile, isSubtitle, hideSenderInLetterbox, supressRaidIcons)
 	if zoneChannelID ~= 2 then
 		return
 	end
     self:OnChat(playerName2, guid, text)
 end
 
-function MageTaxi:FindPortal(playerName, guid, message)
+function WorkWork:FindPortal(playerName, guid, message)
     -- if playerName == UnitName('player') then
     --     return nil
     -- end
@@ -104,7 +104,7 @@ function MageTaxi:FindPortal(playerName, guid, message)
 end
 
 
-function MageTaxi:OnChat(playerName, guid, text)
+function WorkWork:OnChat(playerName, guid, text)
 	if self.isPaused then
 		return
 	end

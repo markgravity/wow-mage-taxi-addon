@@ -1,4 +1,4 @@
-MageTaxi.portals = {
+WorkWork.portals = {
 	{
 		name = 'Stormwind',
 		zoneName = 'Stormwind City',
@@ -100,7 +100,7 @@ Portals:RegisterEvent('PLAYER_ENTERING_WORLD')
 function Portals:PLAYER_ENTERING_WORLD()
 	local faction = UnitFactionGroup('player')
 	if faction == 'Alliance' then
-		table.insert(MageTaxi.portals, {
+		table.insert(WorkWork.portals, {
 			name = 'Shattrath',
 			zoneName = 'Shattrath',
 			keywords = {'shatt', 'shattrath' },
@@ -113,7 +113,7 @@ function Portals:PLAYER_ENTERING_WORLD()
 	end
 
 	if faction == 'Horde' then
-		table.insert(MageTaxi.portals, {
+		table.insert(WorkWork.portals, {
 			name = 'Shattrath',
 			zoneName = 'Shattrath',
 			keywords = {'shatt', 'shattrath' },

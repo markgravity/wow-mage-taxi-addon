@@ -1,7 +1,0 @@
-## Interface: 11302
-## Title: MageTaxi
-## Notes: Selling portals
-## SavedVariables: MageTaxiConfig
-## SavedVariablesPerCharacter: MageTaxiConfigCharacter
-
-MageTaxi.xml

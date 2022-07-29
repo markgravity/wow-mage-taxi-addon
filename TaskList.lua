@@ -1,5 +1,5 @@
-local TaskList = CreateFrame('Frame', 'MageTaxiTaskList', UIParent, BackdropTemplateMixin and 'BackdropTemplate' or nil)
-MageTaxi.taskList = TaskList
+local TaskList = CreateFrame('Frame', 'WorkWorkTaskList', UIParent, BackdropTemplateMixin and 'BackdropTemplate' or nil)
+WorkWork.taskList = TaskList
 
 function TaskList:DrawUIs()
 	self.isAutoInvite = true
@@ -26,7 +26,7 @@ function TaskList:DrawUIs()
 
     local headerText = self:CreateFontString('$parentHeaderText', 'OVERLAY', 'GameFontNormal')
     headerText:SetPoint('TOP', header, 0, -14)
-    headerText:SetText('MageTaxi')
+    headerText:SetText('WorkWork')
 
 	local divider = self:CreateTexture(nil, 'OVERLAY')
     divider:SetHeight(32)
@@ -87,7 +87,7 @@ function TaskList:DrawUIs()
 		TaskList.job = nil
 		TaskList:SetState('ENDED')
 		TaskList:Hide()
-		MageTaxi:Resume()
+		WorkWork:Resume()
 		LeaveParty()
 	end)
 	self.endButton = endButton
@@ -264,7 +264,7 @@ function TaskList:SendWho(command)
 end
 
 function TaskList:FindPortal(name)
-	for _, portal in ipairs(MageTaxi.portals) do
+	for _, portal in ipairs(WorkWork.portals) do
 		if portal.name == name then
 			return portal
 		end
@@ -331,7 +331,7 @@ function TaskList:CHAT_MSG_SYSTEM(text, playerName, languageName, channelName, p
 				 self.job.targetName
 		 	)
 			self:SetTaskDescription(self.contactTask, '|c60808080Waiting for |r|cffffd100'..self.job.targetName..'|r|c60808080 invites you into the party|r')
-			MageTaxiAutoAcceptInvite:SetEnabled(true, function ()
+			WorkWorkAutoAcceptInvite:SetEnabled(true, function ()
 				self:CompleteContactTask()
 			end)
 			return

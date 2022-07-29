@@ -1,0 +1,7 @@
+## Interface: 11302
+## Title: WorkWork
+## Notes: Ready to work! Work! Work!
+## SavedVariables: WorkWorkConfig
+## SavedVariablesPerCharacter: WorkWorkConfigCharacter
+
+WorkWork.xml
