@@ -50,18 +50,18 @@ function TaskList:DrawUIs()
 	portrait:SetEnabled(false)
 	self.portrait = portrait
 
-	local playerNameText = self:CreateFontString()
-	playerNameText:SetFontObject('GameFontNormal')
-	playerNameText:ClearAllPoints()
-	playerNameText:SetPoint('LEFT', portrait, 'RIGHT', 10, 8)
-	self.playerNameText = playerNameText
+	local targetNameText = self:CreateFontString()
+	targetNameText:SetFontObject('GameFontNormal')
+	targetNameText:ClearAllPoints()
+	targetNameText:SetPoint('LEFT', portrait, 'RIGHT', 10, 8)
+	self.targetNameText = targetNameText
 
 	local toText = self:CreateFontString()
 	toText:SetFontObject('GameFontNormal')
 	toText:SetTextColor(0.7, 0.7, 0.7)
-	toText:SetText('to')
+	toText:SetText('port to')
 	toText:ClearAllPoints()
-	toText:SetPoint('TOPLEFT', playerNameText, 'BOTTOMLEFT', 0, -8)
+	toText:SetPoint('TOPLEFT', targetNameText, 'BOTTOMLEFT', 0, -8)
 
 	local portalText = self:CreateFontString()
 	portalText:SetFontObject('GameFontNormal')
@@ -72,7 +72,7 @@ function TaskList:DrawUIs()
 
 	local messageText = self:CreateFontString()
 	messageText:SetFontObject('GameFontNormalSmall')
-	messageText:SetTextColor(0.7, 0.7, 0.7)
+	messageText:SetTextColor(0.75, 0.75, 0.75)
 	messageText:ClearAllPoints()
 	messageText:SetPoint('TOP', portrait, 'BOTTOM', 0, -8)
 	messageText:SetPoint('LEFT', 20, 0)
@@ -89,6 +89,7 @@ function TaskList:DrawUIs()
 		TaskList:SetState('ENDED')
 		TaskList:Hide()
 		MageTaxi:Resume()
+		LeaveParty()
 	end)
 	self.endButton = endButton
 
@@ -96,20 +97,20 @@ function TaskList:DrawUIs()
 	local inviteTask = self:CreateTask('Invite into group', 'Invite')
 	self.inviteTask = inviteTask
 
-	local detectZoneTask = self:CreateTask('Check player zone', 'Detect', inviteTask)
+	local detectZoneTask = self:CreateTask('Check the target\'s zone', 'Detect', inviteTask)
 	self.detectZoneTask = detectZoneTask
 
-	local movingTask = self:CreateTask('Move to player zone', 'Teleport', detectZoneTask)
+	local movingTask = self:CreateTask('Move to the target\'s zone', 'Teleport', detectZoneTask)
 	movingTask.actionButton:SetAttribute('type', 'macro')
 	movingTask.actionButton:HookScript('OnClick', function(self)
 		TaskList:SetState('CREATING_PORTAL')
 	end)
 	self.movingTask = movingTask
 
-	local createPortalTask = self:CreateTask('Create the portal', 'Create', movingTask)
+	local createPortalTask = self:CreateTask('Open the portal', 'Cast', movingTask)
 	self.createPortalTask = createPortalTask
 
-	local finishTask = self:CreateTask('Waiting for the player enter the portal', nil, createPortalTask)
+	local finishTask = self:CreateTask('Waiting for the target to enter the portal', nil, createPortalTask)
 	self.finishTask = finishTask
 
     self:SetScript('OnEvent', function(self, event, ...)
@@ -118,12 +119,12 @@ function TaskList:DrawUIs()
 
 end
 
-function TaskList:SetJob(playerName, message, portal)
+function TaskList:SetJob(targetName, message, portal)
 	PlaySound(5274)
 	FlashClientIcon()
 
 	local job = {
-		playerName = playerName,
+		targetName = targetName,
 		sellingPortal = portal
 	}
 
@@ -133,19 +134,19 @@ function TaskList:SetJob(playerName, message, portal)
 	local texture = GetSpellTexture(portal.portalSpellID)
 	getglobal(self:GetName() .. "Icon"):SetTexture(texture)
 
-	self.playerNameText:SetText(playerName)
+	self.targetNameText:SetText(targetName)
 	self.portalText:SetText(portal.name)
 	self.messageText:SetText('"'..message..'"')
 
 	self.inviteTask.actionButton:SetScript('OnClick', function(self)
 		TaskList.inviteTask.actionButton:SetEnabled(false)
 		TaskList:SetState('WAITING_FOR_INVITE_RESPONSE')
-		InviteUnit(job.playerName)
+		InviteUnit(job.targetName)
 	end)
 
 	self.detectZoneTask.actionButton:SetScript('OnClick', function(self)
 		TaskList:SetState('WAITING_FOR_DETECT_PLAYER_ZONE')
-		TaskList:SendWho('n-"' .. job.playerName .. '"')
+		TaskList:SendWho('n-"' .. job.targetName .. '"')
 	end)
 
 	self.createPortalTask.actionButton:SetAttribute('type', 'macro')
@@ -262,17 +263,17 @@ end
 
 function TaskList:CHAT_MSG_SYSTEM(text, playerName, languageName, channelName, playerName2, specialFlags, zoneChannelID, channelIndex, channelBaseName, languageID, lineID, guid, bnSenderID, isMobile, isSubtitle, hideSenderInLetterbox, supressRaidIcons)
 	if self.state == 'WAITING_FOR_INVITE_RESPONSE' then
-		if text == self.job.playerName..' is already in a group.' then
+		if text == self.job.targetName..' is already in a group.' then
 			SendChatMessage(
 				"Hey, please invite me for a portal to "..self.job.sellingPortal.name ,
 				"WHISPER" ,
 				 nil,
-				 self.job.playerName
+				 self.job.targetName
 		 	)
 			return
 		end
 
-		if text == self.job.playerName..' joins the party.' then
+		if text == self.job.targetName..' joins the party.' then
 			self:MarkAsComplete(self.inviteTask)
 			self:EnableTask(self.detectZoneTask)
 			self:SetState("INVITED_PLAYER")
@@ -292,19 +293,19 @@ end
 
 function TaskList:WHO_LIST_UPDATE()
 	FriendsFrame:RegisterEvent("WHO_LIST_UPDATE")
-	local playerName = self.job.playerName
+	local targetName = self.job.targetName
 	local numWhos, totalCount = C_FriendList.GetNumWhoResults()
 
 	for i = 1, totalCount do
 		local whoPlayer = C_FriendList.GetWhoInfo(i)
-		if whoPlayer.fullName == playerName then
-			foundPlayerName = whoPlayer.fullName
+		if whoPlayer.fullName == targetName then
+			foundTargetName = whoPlayer.fullName
 			foundZone = whoPlayer.area
 		end
 	end
 
 	if self.state == 'WAITING_FOR_DETECT_PLAYER_ZONE' then
-		if foundPlayerName == nil then
+		if foundTargetName == nil then
 			return
 		end
 		self.job.playerZone = foundZone
