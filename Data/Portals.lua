@@ -2,7 +2,7 @@ WorkWork.portals = {
 	{
 		name = 'Stormwind',
 		zoneName = 'Stormwind City',
-		keywords = {'sw', 'stormwind' },
+		keywords = { 'sw', 'stormwind' },
 		portalSpellName = 'Portal: Stormwind',
 		portalSpellID = 10059,
 		teleportSpellName = 'Teleport: Stormwind',
@@ -11,7 +11,7 @@ WorkWork.portals = {
 	{
 		name = 'Stonard',
 		zoneName = 'Stonard',
-		keywords = {'stonard' },
+		keywords = { 'stonard' },
 		portalSpellName = 'Portal: Stonard',
 		portalSpellID = 49361,
 		teleportSpellName = 'Teleport: Stonard',
@@ -20,7 +20,7 @@ WorkWork.portals = {
 	{
 		name = 'Theramore',
 		zoneName = 'Theramore Isle',
-		keywords = {'thera', 'theremore', 'Theramore' },
+		keywords = { 'thera', 'theremore', 'teramore', 'Theramore' },
 		portalSpellName = 'Portal: Theramore',
 		portalSpellID = 49360,
 		teleportSpellName = 'Teleport: Theramore',
@@ -29,7 +29,7 @@ WorkWork.portals = {
 	{
 		name = 'Undercity',
 		zoneName = 'Undercity',
-		keywords = {'under', 'undercity' },
+		keywords = { 'under', 'undercity' },
 		portalSpellName = 'Portal: Undercity',
 		portalSpellID = 11418,
 		teleportSpellName = 'Teleport: Undercity',
@@ -38,7 +38,7 @@ WorkWork.portals = {
 	{
 		name = 'Exodar',
 		zoneName = 'Exodar',
-		keywords = {'exo', 'exodar' },
+		keywords = { 'exo', 'exodar' },
 		portalSpellName = 'Portal: Exodar',
 		portalSpellID = 32266,
 		teleportSpellName = 'Teleport: Exodar',
@@ -47,7 +47,7 @@ WorkWork.portals = {
 	{
 		name = 'Orgrimmar',
 		zoneName = 'Orgrimmar',
-		keywords = {'org', 'orgim', 'Orgrimmar' },
+		keywords = { 'org', 'orgim', 'Orgrimmar' },
 		portalSpellName = 'Portal: Orgrimmar',
 		portalSpellID = 11417,
 		teleportSpellName = 'Teleport: Orgrimmar',
@@ -56,7 +56,7 @@ WorkWork.portals = {
 	{
 		name = 'Thunder Bluff',
 		zoneName = 'Thunder Bluff',
-		keywords = {'bluff', 'thunder bluff' },
+		keywords = { 'bluff', 'thunder bluff' },
 		portalSpellName = 'Portal: Thunder Bluff',
 		portalSpellID = 11420,
 		teleportSpellName = 'Teleport: Thunder Bluff',
@@ -65,7 +65,7 @@ WorkWork.portals = {
 	{
 		name = 'Silvermoon',
 		zoneName = 'Silvermoon',
-		keywords = {'silver', 'silvermoon' },
+		keywords = { 'silver', 'silvermoon' },
 		portalSpellName = 'Portal: Silvermoon',
 		portalSpellID = 32267,
 		teleportSpellName = 'Teleport: Silvermoon',
@@ -74,7 +74,7 @@ WorkWork.portals = {
 	{
 		name = 'Darnassus',
 		zoneName = 'Darnassus',
-		keywords = {'darns', 'darn', 'darnassus' },
+		keywords = { 'darns', 'darn', 'darnassus' },
 		portalSpellName = 'Portal: Darnassus',
 		portalSpellID = 11419,
 		teleportSpellName = 'Teleport: Darnassus',
@@ -83,7 +83,7 @@ WorkWork.portals = {
 	{
 		name = 'Ironforge',
 		zoneName = 'City of Ironforge',
-		keywords = {'if', 'ironforge' },
+		keywords = { 'if', 'ironforge' },
 		portalSpellName = 'Portal: Ironforge',
 		portalSpellID = 11416,
 		teleportSpellName = 'Teleport: Ironforge',
@@ -103,7 +103,7 @@ function Portals:PLAYER_ENTERING_WORLD()
 		table.insert(WorkWork.portals, {
 			name = 'Shattrath',
 			zoneName = 'Shattrath City',
-			keywords = {'shatt', 'shat', 'shattrath' },
+			keywords = { 'shatt', 'shat', 'shattrath' },
 			portalSpellName = 'Portal: Shattrath',
 			portalSpellID = 33691,
 			teleportSpellName = 'Teleport: Shattrath',
@@ -116,7 +116,7 @@ function Portals:PLAYER_ENTERING_WORLD()
 		table.insert(WorkWork.portals, {
 			name = 'Shattrath',
 			zoneName = 'Shattrath City',
-			keywords = {'shatt', 'shat', 'shattrath' },
+			keywords = { 'shatt', 'shat', 'shattrath' },
 			portalSpellName = 'Portal: Shattrath',
 			portalSpellID = 35717,
 			teleportSpellName = 'Teleport: Shattrath',

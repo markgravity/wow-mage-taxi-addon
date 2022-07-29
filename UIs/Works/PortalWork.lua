@@ -12,7 +12,7 @@ function CreatePortalWork(targetName, message, portal)
 	work.job = job
 	work:SetState('INITIALIZED')
 
-	local frame = CreateFrame('Frame', 'WorkWorkPortalWork'..targetName, UIParent, BackdropTemplateMixin and 'BackdropTemplate' or nil)
+	local frame = CreateFrame('Frame', 'WorkWorkPortalWork'..targetName..portal.name, UIParent, BackdropTemplateMixin and 'BackdropTemplate' or nil)
 	frame:RegisterEvent('UNIT_SPELLCAST_SUCCEEDED')
 	frame:RegisterEvent('CHAT_MSG_SYSTEM')
 	frame:RegisterEvent('ZONE_CHANGED_NEW_AREA')
@@ -97,9 +97,9 @@ function CreatePortalWork(targetName, message, portal)
 	endButton:SetPoint('TOP', frame, 'TOP', 0, -110)
 	endButton:SetText('End')
 	endButton:SetScript('OnClick', function(self)
-		PortalWork.job = nil
-		PortalWork:SetState('ENDED')
-		PortalWork:Hide()
+		work.job = nil
+		work:SetState('ENDED')
+		work:Complete()
 		WorkWork:Resume()
 		LeaveParty()
 	end)
@@ -108,7 +108,7 @@ function CreatePortalWork(targetName, message, portal)
 	-- Create tasks
 	work.contactTask = CreateWorkTask(frame, 'Contact', '|c60808080Invite |r|cffffd100'..job.targetName..'|r|c60808080 into the party|r')
 	work.contactTask:SetScript('OnClick', function(self)
-		PortalWork:SetState('WAITING_FOR_INVITE_RESPONSE')
+		work:SetState('WAITING_FOR_INVITE_RESPONSE')
 		InviteUnit(job.targetName)
 	end)
 	work.contactTask:SetPoint('TOP', divider, 'BOTTOM', 0, 16)
@@ -121,7 +121,7 @@ function CreatePortalWork(targetName, message, portal)
 	work.makeTask = CreateWorkTask(frame, 'Make', '|c60808080Create a |r|cffffd100'..job.sellingPortal.name..'|r|c60808080 portal|r', work.moveTask)
 	work.makeTask:SetSpell(job.sellingPortal.portalSpellName)
 	work.makeTask:HookScript('OnClick', function(self)
-		PortalWork:SetState('CREATING_PORTAL')
+		work:SetState('CREATING_PORTAL')
 	end)
 
 	work.finishTask = CreateWorkTask(frame, 'Finish', '|c60808080Waiting for |r|cffffd100'..job.targetName..'|r|c60808080 to enter the portal|r', work.makeTask)
@@ -179,6 +179,10 @@ function PortalWork:Start()
 	self.frame:Show()
 end
 
+function PortalWork:Complete()
+	self.frame:Hide()
+end
+
 function PortalWork:SetState(state)
 	self.state = state
 end
@@ -186,7 +190,8 @@ end
 function PortalWork:CompleteContactTask()
 	self.contactTask:Complete()
 	self:SetState("INVITED_PLAYER")
-	C_Timer.After(1, function() PortalWork:DetectTargetZone() end)
+	local work = self
+	C_Timer.After(1, function() work:DetectTargetZone() end)
 end
 
 function PortalWork:SendWho(command)
@@ -207,6 +212,7 @@ end
 function PortalWork:DetectTargetZone()
 	local targetZone = GetPartyMemberZone(self.job.targetName)
 	local playerZone = GetRealZoneText()
+	local work = self
 
 	if playerZone == targetZone then
 		self:SetState('MOVED_TO_PLAYER_ZONE')
@@ -224,8 +230,8 @@ function PortalWork:DetectTargetZone()
 
 	self.job.movingPortal = portal
 	self.moveTask:SetSpell(portal.teleportSpellName)
-	self.moveTask:HookScript('OnClick', function(self)
-		self:SetState('MOVING_TO_PLAYER_ZONE')
+	self.moveTask:HookScript('OnClick', function()
+		work:SetState('MOVING_TO_PLAYER_ZONE')
 	end)
 	self.moveTask:SetDescription('|c60808080Teleport to |r|cffffd100'..portal.name..'|r')
 	self.moveTask:Enable()
@@ -234,7 +240,8 @@ end
 function PortalWork:WaitingForTargetEnterPortal()
 	local targetZone = GetPartyMemberZone(self.job.targetName)
 	if targetZone ~= self.job.sellingPortal.zoneName then
-		C_Timer.After(1, function() PortalWork:WaitingForTargetEnterPortal() end)
+		local work = self
+		C_Timer.After(1, function() work:WaitingForTargetEnterPortal() end)
 		return
 	end
 	self.endButton:Click()

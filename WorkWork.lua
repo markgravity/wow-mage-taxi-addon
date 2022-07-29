@@ -18,6 +18,12 @@ function WorkWork:Init()
 
 	local work = CreatePortalWork('Iina', 'text', self.portals[1])
 	work:Start()
+
+	local workList = CreateWorkList()
+	workList.frame:SetPoint('CENTER')
+	work.frame:ClearAllPoints()
+	work.frame:SetPoint('TOPLEFT', workList.frame, 'TOPRIGHT', 0, 0)
+
 	self:On()
 end
 
