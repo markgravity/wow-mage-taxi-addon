@@ -6,12 +6,11 @@ function TaskList:DrawUIs()
 	self:SetState('INITIALIZED')
 	self:RegisterEvent('UNIT_SPELLCAST_SUCCEEDED')
 	self:RegisterEvent('CHAT_MSG_SYSTEM')
-	self:RegisterEvent('WHO_LIST_UPDATE')
 
 	if not self:IsUserPlaced() then
 		self:SetPoint('CENTER')
 	end
-	self:SetSize(210, 350)
+	self:SetSize(210, 400)
 	self:SetBackdrop(BACKDROP_DIALOG_32_32)
 	self:SetMovable(true)
 	self:EnableMouse(true)
@@ -94,23 +93,20 @@ function TaskList:DrawUIs()
 	self.endButton = endButton
 
 	-- Create tasks
-	local inviteTask = self:CreateTask('Invite into group', 'Invite')
-	self.inviteTask = inviteTask
+	local contactTask = self:CreateTask('Contact')
+	self.contactTask = contactTask
 
-	local detectZoneTask = self:CreateTask('Check the target\'s zone', 'Detect', inviteTask)
-	self.detectZoneTask = detectZoneTask
-
-	local movingTask = self:CreateTask('Move to the target\'s zone', 'Teleport', detectZoneTask)
-	movingTask.actionButton:SetAttribute('type', 'macro')
-	movingTask.actionButton:HookScript('OnClick', function(self)
+	local moveTask = self:CreateTask('Move', nil, contactTask)
+	moveTask:SetAttribute('type', 'macro')
+	moveTask:HookScript('OnClick', function(self)
 		TaskList:SetState('CREATING_PORTAL')
 	end)
-	self.movingTask = movingTask
+	self.moveTask = moveTask
 
-	local createPortalTask = self:CreateTask('Open the portal', 'Cast', movingTask)
-	self.createPortalTask = createPortalTask
+	local makeTask = self:CreateTask('Make', nil, moveTask)
+	self.makeTask = makeTask
 
-	local finishTask = self:CreateTask('Waiting for the target to enter the portal', nil, createPortalTask)
+	local finishTask = self:CreateTask('Finish', nil, makeTask)
 	self.finishTask = finishTask
 
     self:SetScript('OnEvent', function(self, event, ...)
@@ -138,32 +134,31 @@ function TaskList:SetJob(targetName, message, portal)
 	self.portalText:SetText(portal.name)
 	self.messageText:SetText('"'..message..'"')
 
-	self.inviteTask.actionButton:SetScript('OnClick', function(self)
-		TaskList.inviteTask.actionButton:SetEnabled(false)
+	self.contactTask:SetScript('OnClick', function(self)
 		TaskList:SetState('WAITING_FOR_INVITE_RESPONSE')
 		InviteUnit(job.targetName)
 	end)
+	self:SetTaskDescription(self.contactTask, '|c60808080Invite |r|cffffd100'..job.targetName..'|r|c60808080 into the party|r')
 
-	self.detectZoneTask.actionButton:SetScript('OnClick', function(self)
-		TaskList:SetState('WAITING_FOR_DETECT_PLAYER_ZONE')
-		TaskList:SendWho('n-"' .. job.targetName .. '"')
-	end)
+	self:SetTaskDescription(self.moveTask, '|c60808080Waiting for contact|r')
 
-	self.createPortalTask.actionButton:SetAttribute('type', 'macro')
-	self.createPortalTask.actionButton:SetAttribute('macrotext', '/cast '..job.sellingPortal.portalSpellName)
-	self.createPortalTask.actionButton:HookScript('OnClick', function(self)
+	self.makeTask:SetAttribute('type', 'macro')
+	self.makeTask:SetAttribute('macrotext', '/cast '..job.sellingPortal.portalSpellName)
+	self.makeTask:HookScript('OnClick', function(self)
 		TaskList:SetState('CREATING_PORTAL')
 	end)
+	self:SetTaskDescription(self.makeTask, '|c60808080Create a |r|cffffd100'..job.sellingPortal.name..'|r|c60808080 portal|r')
 
-	self:DisableTask(self.inviteTask)
-	self:DisableTask(self.detectZoneTask)
-	self:DisableTask(self.movingTask)
-	self:DisableTask(self.createPortalTask)
-	self:DisableTask(self.finishTask)
+	self:SetTaskDescription(self.finishTask, '|c60808080Waiting for |r|cffffd100'..job.targetName..'|r|c60808080 to enter the portal|r')
 
-	self:EnableTask(self.inviteTask)
+	self:DisableTask(self.contactTask)
+	self:DisableTask(self.moveTask)
+	self:DisableTask(self.makeTask)
+	self:DisableTask(self.finishTask, true)
+
+	self:EnableTask(self.contactTask)
 	if self.isAutoInvite then
-		self.inviteTask.actionButton:Click()
+		self.contactTask:Click()
 	end
 end
 
@@ -171,60 +166,95 @@ function TaskList:SetState(state)
 	self.state = state
 end
 
-function TaskList:CreateTask(message, action, previousTask)
-	local task = CreateFrame('Frame', nil, self)
-	task:SetPoint('LEFT')
-	task:SetPoint('RIGHT')
+function TaskList:CreateTask(titleText, descriptionText, previousTask)
+	local backdrop = {
+		bgFile = "Interface\\ChatFrame\\ChatFrameBackground",
+		edgeFile = "Interface\\Tooltips\\UI-Tooltip-Border",
+		tile = true, tileSize = 16, edgeSize = 16,
+		insets = { left = 3, right = 3, top = 3, bottom = 3 }
+	}
+
+	local task = CreateFrame('Button', nil, self, BackdropTemplateMixin and "InSecureActionButtonTemplate, BackdropTemplate" or nil)
+	task:SetBackdrop(backdrop)
+	task:SetPoint('LEFT', 16, 0)
+	task:SetPoint('RIGHT', -16, 0)
 	if previousTask ~= nil then
-		task:SetPoint('TOP', previousTask, 'BOTTOM', 0, 16)
+		task:SetPoint('TOP', previousTask, 'BOTTOM', 0, -16)
 	else
 		task:SetPoint('TOP', self.divider, 'BOTTOM', 0, 16)
 	end
-	task:SetHeight(50)
 
-	if action ~= nil then
-		local actionButton = CreateFrame('Button', nil, task, 'GameMenuButtonTemplate, InSecureActionButtonTemplate')
-		actionButton:SetSize(64, 24)
-		actionButton:ClearAllPoints()
-		actionButton:SetPoint('RIGHT', task, 'RIGHT', -16, 0)
-		actionButton:SetText(action)
-		task.actionButton = actionButton
+	local texture = task:CreateTexture()
+	texture:SetColorTexture(0.5, 0.5, 0.5, 1)
+	texture:SetBlendMode('BLEND')
+	texture:SetPoint('TOPLEFT', 1, -1)
+	texture:SetPoint('BOTTOMRIGHT', -1, 1)
+	texture:SetGradientAlpha('HORIZONTAL', .5, .5, .5, .8, .5, .5, .5, 0)
+	task:SetHighlightTexture(texture)
+
+	local title = task:CreateFontString()
+	title:SetFont(GameFontNormal:GetFont(), 11)
+	title:SetText(titleText)
+	title:SetPoint('LEFT', task, 'LEFT', 16, 0)
+	title:SetPoint('RIGHT', task, 'RIGHT', -16, 0)
+	title:SetPoint('TOP', task, 'TOP', 0, -8)
+	title:SetJustifyH('CENTER')
+	title:SetTextColor(1, 1, 1)
+	task.title = title
+
+	local description = task:CreateFontString()
+	description:SetFont(GameFontNormal:GetFont(), 9)
+	description:SetPoint('LEFT', task, 'LEFT', 16, 0)
+	description:SetPoint('RIGHT', task, 'RIGHT', -16, 0)
+	description:SetPoint('TOP', title, 'BOTTOM', 0, -4)
+	description:SetJustifyH('CENTER')
+	task.description = description
+	self:SetTaskDescription(task, descriptionText)
+
+	local line = task:CreateLine()
+	line:SetDrawLayer("ARTWORK",2)
+	line:SetThickness(6)
+	line:SetStartPoint("TOP", 0, 0)
+	line:SetEndPoint("TOP", 0, 16)
+	line:Hide()
+	task.line = line
+	if previousTask ~= nil then
+		line:Show()
 	end
-
-	local messageText = task:CreateFontString()
-	messageText:SetFontObject('GameFontNormal')
-	messageText:SetText(message)
-	messageText:ClearAllPoints()
-	messageText:SetPoint('LEFT', task, 'LEFT', 16, 0)
-	if task.actionButton ~= nil then
-		messageText:SetPoint('RIGHT', task.actionButton, 'LEFT', -8, 0)
-	else
-		messageText:SetPoint('RIGHT', task, 'RIGHT', -16, 0)
-	end
-
-	messageText:SetJustifyH('LEFT')
-	messageText:SetTextColor(1, 1, 1)
-	task.messageText = messageText
-
 	return task
 end
 
-function TaskList:MarkAsComplete(task)
-	self:DisableTask(task)
+function TaskList:SetTaskDescription(task, description)
+	task.description:SetText(description)
+
+	local totalHeight = 6 + task.title:GetStringHeight() + 6 + task.description:GetStringHeight() + 6 + 4
+	task:SetHeight(totalHeight)
 end
 
-function TaskList:DisableTask(task)
-	if task.actionButton ~= nil then
-		task.actionButton:SetEnabled(false)
+function TaskList:Complete(task)
+	task:SetBackdropColor(0.055, 0.306, 0.576, 0.7) -- blue, attune
+	task:SetBackdropBorderColor(1, 1, 1)
+	task.line:SetColorTexture(0.388, 0.686, 0.388, 1) -- green
+end
+
+function TaskList:DisableTask(task, isFinish)
+	if isFinish then
+		task:SetBackdropColor(0.557, 0.055, 0.075, 0.7	) -- red
+		task:SetBackdropBorderColor(1, 1, 1)
+	else
+		task:SetBackdropColor(0.1, 0.1, 0.1, 0.5) -- gray
+		task:SetBackdropBorderColor(0.4, 0.4, 0.4)
 	end
-	task.messageText:SetTextColor(0.7, 0.7, 0.7)
+
+	task.line:SetColorTexture(0.2, 0.2, 0.2, 1)
+	task.line:SetDrawLayer("ARTWORK",0)
 end
 
 function TaskList:EnableTask(task)
-	if task.actionButton ~= nil then
-		task.actionButton:SetEnabled(true)
-	end
-	task.messageText:SetTextColor(1, 1, 1)
+	task:SetBackdropColor(0.851, 0.608, 0.0, 0.3) -- yellow
+	task:SetBackdropBorderColor(0.851, 0.608, 0.0, 1)
+	task.line:SetColorTexture(0.851, 0.608, 0.0, 1) -- yellow
+	task.line:SetDrawLayer("ARTWORK",1)
 end
 
 function TaskList:SendWho(command)
@@ -242,11 +272,41 @@ function TaskList:FindPortal(name)
 	return nil
 end
 
+function TaskList:DetectTargetZone()
+	local targetZone = GetPartyMemberZone(self.job.targetName)
+	local playerZone = GetZoneText()
+	print(targetZone, playerZone)
+	if string.find(playerZone, targetZone) ~= nil then
+		self:SetState('MOVED_TO_PLAYER_ZONE')
+		self:Complete(self.moveTask)
+		self:EnableTask(self.makeTask)
+		return
+	end
+
+	local portal = self:FindPortal(targetZone)
+	if portal == nil then
+		self:SetState('MOVED_TO_PLAYER_ZONE')
+		self:Complete(self.moveTask)
+		self:EnableTask(self.makeTask)
+	end
+
+	self.job.movingPortal = portal
+	self.moveTask:SetAttribute('macrotext', '/cast '..portal.teleportSpellID)
+	self:SetTaskDescription(self.moveTask, '|c60808080Teleport to |r|cffffd100'..portal.name..'|r')
+	self:EnableTask(self.moveTask)
+end
+
+function TaskList:CompleteContactTask()
+	self:Complete(self.contactTask)
+	self:SetState("INVITED_PLAYER")
+	self:DetectTargetZone()
+end
+
 -- EVENTS
 function TaskList:UNIT_SPELLCAST_SUCCEEDED(target, castGUID, spellID)
 	if self.state == 'CREATING_PORTAL'
 		and spellID == self.job.sellingPortal.portalSpellID then
-		self:MarkAsComplete(self.createPortalTask)
+		self:Complete(self.makeTask)
 		self:SetState('WAITING_FOR_PLAYER_ENTER_PORTAL')
 		self:EnableTask(self.finishTask)
 		return
@@ -254,9 +314,9 @@ function TaskList:UNIT_SPELLCAST_SUCCEEDED(target, castGUID, spellID)
 
 	if self.state == 'MOVING_TO_PLAYER_ZONE'
 		and spellID == self.job.movingPortal.teleportSpellID then
-		self:MarkAsComplete(self.movingTask)
+		self:Complete(self.moveTask)
 		self:SetState('MOVED_TO_PLAYER_ZONE')
-		self:EnableTask(self.createPortalTask)
+		self:EnableTask(self.makeTask)
 		return
 	end
 end
@@ -270,13 +330,15 @@ function TaskList:CHAT_MSG_SYSTEM(text, playerName, languageName, channelName, p
 				 nil,
 				 self.job.targetName
 		 	)
+			self:SetTaskDescription(self.contactTask, '|c60808080Waiting for |r|cffffd100'..self.job.targetName..'|r|c60808080 invites you into the party|r')
+			MageTaxiAutoAcceptInvite:SetEnabled(true, function ()
+				self:CompleteContactTask()
+			end)
 			return
 		end
 
 		if text == self.job.targetName..' joins the party.' then
-			self:MarkAsComplete(self.inviteTask)
-			self:EnableTask(self.detectZoneTask)
-			self:SetState("INVITED_PLAYER")
+			self:CompleteContactTask()
 			return
 		end
 		return
@@ -288,40 +350,5 @@ function TaskList:CHAT_MSG_SYSTEM(text, playerName, languageName, channelName, p
 			self.endButton:Click()
 			return
 		end
-	end
-end
-
-function TaskList:WHO_LIST_UPDATE()
-	FriendsFrame:RegisterEvent("WHO_LIST_UPDATE")
-	local targetName = self.job.targetName
-	local numWhos, totalCount = C_FriendList.GetNumWhoResults()
-
-	for i = 1, totalCount do
-		local whoPlayer = C_FriendList.GetWhoInfo(i)
-		if whoPlayer.fullName == targetName then
-			foundTargetName = whoPlayer.fullName
-			foundZone = whoPlayer.area
-		end
-	end
-
-	if self.state == 'WAITING_FOR_DETECT_PLAYER_ZONE' then
-		if foundTargetName == nil then
-			return
-		end
-		self.job.playerZone = foundZone
-		self:MarkAsComplete(self.detectZoneTask)
-		local myZone = GetZoneText()
-		if string.find(myZone, foundZone) ~= nil then
-			self:SetState('MOVED_TO_PLAYER_ZONE')
-			self:MarkAsComplete(self.movingTask)
-			self:EnableTask(self.createPortalTask)
-			return
-		end
-
-		local portal = self:FindPortal(foundZone)
-		self.job.movingPortal = portal
-		self.movingTask.actionButton:SetAttribute('macrotext', '/cast '..portal.portalSpellName)
-		self:EnableTask(self.movingTask)
-		return
 	end
 end

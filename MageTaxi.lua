@@ -2,6 +2,7 @@ local AceEvent = LibStub('AceEvent-3.0')
 
 MageTaxi = CreateFrame('Frame', nil, UIParent, BackdropTemplateMixin and 'BackdropTemplate' or nil)
 MageTaxiAddon = LibStub('AceAddon-3.0'):NewAddon('MageTaxi', 'AceConsole-3.0')
+
 function MageTaxiAddon:OnInitialize()
 	MageTaxi:Init()
 	MinimapButton:Init()
