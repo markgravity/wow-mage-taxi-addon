@@ -9,14 +9,12 @@ function GetPartyMemberZone(playerName)
 		end
 	end
 
-	print(unitID)
 	if unitID == nil then
 		return unknownText
 	end
 
 	local mapID = C_Map.GetBestMapForUnit(unitID);
 
-	print(mapID)
 	if mapID == nil then
 		return unknownText
 	end
@@ -26,7 +24,7 @@ end
 
 function GetZone(mapID)
 	local map = C_Map.GetMapInfo(mapID);
-	print(map.mapType, map.name)
+
 	if map.mapType > 3 then
 		return GetZone(map.parentMapID)
 	end

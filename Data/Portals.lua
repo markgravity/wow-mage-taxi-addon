@@ -103,7 +103,7 @@ function Portals:PLAYER_ENTERING_WORLD()
 		table.insert(WorkWork.portals, {
 			name = 'Shattrath',
 			zoneName = 'Shattrath',
-			keywords = {'shatt', 'shattrath' },
+			keywords = {'shatt', 'shat', 'shattrath' },
 			portalSpellName = 'Portal: Shattrath',
 			portalSpellID = 33691,
 			teleportSpellName = 'Teleport: Shattrath',
@@ -116,7 +116,7 @@ function Portals:PLAYER_ENTERING_WORLD()
 		table.insert(WorkWork.portals, {
 			name = 'Shattrath',
 			zoneName = 'Shattrath',
-			keywords = {'shatt', 'shattrath' },
+			keywords = {'shatt', 'shat', 'shattrath' },
 			portalSpellName = 'Portal: Shattrath',
 			portalSpellID = 35717,
 			teleportSpellName = 'Teleport: Shattrath',

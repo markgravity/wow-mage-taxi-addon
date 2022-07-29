@@ -13,7 +13,7 @@
 	<Script file="Utils\Zone.lua"/>
 	<Script file="Utils\AutoAcceptInvite.lua"/>
     <Script file="WorkWork.lua"/>
-	<Script file="Peon.lua"/>
+	<Script file="Works\PortalWork.lua"/>
 	<Script file="MinimapButton.lua"/>
 	<Script file="Data\Portals.lua"/>
 </Ui>

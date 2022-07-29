@@ -16,12 +16,12 @@ function WorkWork:Init()
 	self.isPaused = false
 	self.isOn = false
 
-	self.peon:DrawUIs()
-	self.peon:Hide()
+	self.portalWork:DrawUIs()
+	self.portalWork:Hide()
 
-	self.peon:Show()
-	self.peon:SetWork('Iina', 'text', self.portals[1])
-	-- self:On()
+	self.portalWork:Show()
+	self.portalWork:SetWork('Iina', 'text', self.portals[1])
+	self:On()
 end
 
 function WorkWork:On()
@@ -78,14 +78,14 @@ function WorkWork:CHAT_MSG_CHANNEL(text, playerName, languageName, channelName, 
 end
 
 function WorkWork:FindPortal(playerName, guid, message)
-    -- if playerName == UnitName('player') then
-    --     return nil
-    -- end
-	--
-    -- local _, playerClass = GetPlayerInfoByGUID(guid)
-    -- if playerClass == 'MAGE' then
-    --     return nil
-    -- end
+    if playerName == UnitName('player') then
+        return nil
+    end
+
+    local _, playerClass = GetPlayerInfoByGUID(guid)
+    if playerClass == 'MAGE' then
+        return nil
+    end
 
 	local message = string.lower(message)
     if message:match('port') == nil and message:match('portal') == nil then
@@ -95,7 +95,9 @@ function WorkWork:FindPortal(playerName, guid, message)
 
 	for _, portal in ipairs(self.portals) do
 		for _, keyword in ipairs(portal.keywords) do
-			if message:match('to '..keyword) ~= nil then
+			if message:match('to '..keyword) ~= nil
+				or message:match('port '..keyword)
+				or message:match(keyword..' port') then
 				return portal
 			end
 		end
@@ -123,6 +125,6 @@ function WorkWork:OnChat(playerName, guid, text)
 	}
 
 	self:Pause()
-	self.peon:Show()
-	self.peon:SetWork(playerName, text, portal)
+	self.portalWork:Show()
+	self.portalWork:SetWork(playerName, text, portal)
 end
