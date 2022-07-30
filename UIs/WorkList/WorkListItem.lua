@@ -17,12 +17,21 @@ function CreateWorkListItem(index, work, parent, columnHeaders, previousItem)
 	item.frame = frame
 	item:SetSelected(false)
 
-	local name = frameName..'TargetName'
+	local name = frameName..'Icon'
+	local icon = _G[name] or CreateFrame('Button', name, frame)
+	icon:ClearAllPoints()
+	icon:SetPoint('LEFT', frame, 'LEFT', columnHeaders[1]:GetWidth() / 2 - 5, 0)
+	icon:SetSize(10, 10)
+	icon:SetNormalTexture('Interface\\ICONS\\Spell_Arcane_PortalShattrath')
+	icon:EnableMouse(false)
+	icon:Disable()
+
+ 	name = frameName..'TargetName'
 	local targetName = _G[name] or frame:CreateFontString(name, 'ARTWORK', 'GameFontNormalSmall')
     targetName:SetJustifyH('LEFT')
 	targetName:ClearAllPoints()
-	targetName:SetPoint('LEFT', frame, 'LEFT', 5, 0)
-	targetName:SetWidth(columnHeaders[1]:GetWidth() - 5)
+	targetName:SetPoint('LEFT', icon, 'RIGHT', 10, 0)
+	targetName:SetWidth(columnHeaders[2]:GetWidth() - 5)
     targetName:SetText(work.targetName)
 
 	name = frameName..'Status'
@@ -30,19 +39,10 @@ function CreateWorkListItem(index, work, parent, columnHeaders, previousItem)
     status:SetJustifyH('LEFT')
 	status:ClearAllPoints()
     status:SetPoint('LEFT', targetName, 'RIGHT', 5, 0)
-	status:SetWidth(columnHeaders[2]:GetWidth() - 5)
+	status:SetWidth(columnHeaders[3]:GetWidth() - 5)
     status:SetText(work.status)
 	status:SetTextColor(0.8, 0.8, 0.8)
 	item.status = status
-
-	name = frameName..'Type'
-	local type = _G[name] or frame:CreateFontString(name, 'ARTWORK', 'GameFontNormalSmall')
-    type:SetJustifyH('LEFT')
-	type:ClearAllPoints()
-	type:SetPoint('LEFT', status, 'RIGHT', 5, 0)
-	type:SetWidth(columnHeaders[3]:GetWidth() - 5)
-    type:SetText(work.typeText)
-	type:SetTextColor(0.8, 0.8, 0.8)
 
 	return item
 end

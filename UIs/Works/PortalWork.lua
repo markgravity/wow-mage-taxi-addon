@@ -92,6 +92,10 @@ function CreatePortalWork(targetName, message, portal, parent, workList)
 	end)
 	work.endButton = endButton
 
+	local taskLists = CreateFrame('Frame', nil, frame, 'InsetFrameTemplate')
+	taskLists:SetPoint('TOPLEFT', 10, -150)
+	taskLists:SetPoint('BOTTOMRIGHT', -10, 10)
+
 	-- Create tasks
 	work.contactTask = CreateWorkTask(frame, 'Contact', '|c60808080Invite |r|cffffd100'..info.targetName..'|r|c60808080 into the party|r')
 	work.contactTask:SetScript('OnClick', function(self)
@@ -175,7 +179,7 @@ function PortalWork:Complete()
 	if UnitIsGroupLeader('player') then
 		UninviteUnit(self.info.targetName)
 	else
-		LeaveGroup()
+		LeaveParty()
 	end
 
 	self.info = nil

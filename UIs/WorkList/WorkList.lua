@@ -24,14 +24,25 @@ function CreateWorkList(parent)
     bg:SetPoint('BOTTOMRIGHT', -12, 12)
     bg:SetTexture('Interface\\FrameGeneral\\UI-Background-Rock')
 
-	local columnHeaderWidth = frame:GetWidth() / 3 - 9
+	local columnHeaderWidth = (frame:GetWidth() - 20) / 2 - 9
+
+	local iconColumnHeader = CreateFrame(
+		'BUTTON',
+		frame:GetName()..'TypeColumnHeader',
+		frame,
+		'GuildFrameColumnHeaderTemplate'
+	)
+	iconColumnHeader:SetPoint('TOPLEFT', 13, -12)
+    iconColumnHeader:SetText('')
+    WhoFrameColumn_SetWidth(iconColumnHeader, 20)
+
 	local targetNameColumnHeader = CreateFrame(
 		'BUTTON',
 		frame:GetName()..'TargetNameColumnHeader',
 		frame,
 		'GuildFrameColumnHeaderTemplate'
 	)
-    targetNameColumnHeader:SetPoint('TOPLEFT', 13, -12)
+	targetNameColumnHeader:SetPoint("LEFT", iconColumnHeader, "RIGHT", 0, 0)
     targetNameColumnHeader:SetText('Target Name')
     WhoFrameColumn_SetWidth(targetNameColumnHeader, columnHeaderWidth)
 
@@ -45,19 +56,10 @@ function CreateWorkList(parent)
     statusColumnHeader:SetText('Status')
     WhoFrameColumn_SetWidth(statusColumnHeader, columnHeaderWidth)
 
-	local typeColumnHeader = CreateFrame(
-		'BUTTON',
-		frame:GetName()..'TypeColumnHeader',
-		frame,
-		'GuildFrameColumnHeaderTemplate'
-	)
-	typeColumnHeader:SetPoint("LEFT", statusColumnHeader, "RIGHT", 0, 0)
-    typeColumnHeader:SetText('Type')
-    WhoFrameColumn_SetWidth(typeColumnHeader, columnHeaderWidth)
 	workList.columnHeaders = {
+		iconColumnHeader,
 		targetNameColumnHeader,
-		statusColumnHeader,
-		typeColumnHeader
+		statusColumnHeader
 	}
 
 	local tableBody = CreateFrame('Frame', nil, frame, 'InsetFrameTemplate')
@@ -123,9 +125,14 @@ function WorkList:Remove(work)
 
 	work.item:Hide()
 	table.remove(self.works, foundIndex)
-	
+
 	self:Reload()
 	self:AutoAssign()
+
+	-- Hide when empty
+	if #self.works == 0 then
+		self.frame:Hide()
+	end
 end
 
 function WorkList:AutoAssign()

@@ -23,7 +23,8 @@ function CreateWorkTask(parent, titleText, descriptionText, previousTask)
 	end
 	task.frame = frame
 
-	local texture = frame:CreateTexture()
+	-- Highlight Texture
+ 	local texture = frame:CreateTexture()
 	texture:SetColorTexture(0.5, 0.5, 0.5, 1)
 	texture:SetBlendMode('BLEND')
 	texture:SetPoint('TOPLEFT', 1, -1)
@@ -66,7 +67,6 @@ end
 
 function WorkTask:SetDescription(description)
 	self.description:SetText(description)
-
 	local totalHeight = 6 + self.title:GetStringHeight() + 6 + self.description:GetStringHeight() + 6 + 4
 	self.frame:SetHeight(totalHeight)
 end
