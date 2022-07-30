@@ -99,7 +99,8 @@ function WorkList:TryAdd(targetName, guid, text)
 			targetName = targetName,
 			status = work:GetStateText(),
 			typeText = 'Portal',
-			controller = work
+			controller = work,
+			createdAt = GetTime()
 		})
 		return
 	end
@@ -181,7 +182,10 @@ function WorkList:Reload()
 		end)
 		work.item = item
 		work.controller:SetScript('OnStateChange', function()
+			local priorityLevel = workList:GetWorkPriorityLevel(work)
 			item:SetStatus(work.controller:GetStateText())
+
+			item:SetPriorityLevel(priorityLevel)
 		end)
 		work.controller:SetScript('OnComplete', function()
 			workList:Remove(work)
@@ -192,4 +196,14 @@ function WorkList:Reload()
 	if self.selectedWork ~= nil then
 		self.selectedWork.item:SetSelected(true)
 	end
+end
+
+function WorkList:GetWorkPriorityLevel(work)
+	local waitingTime = GetTime() - work.createdAt
+	local priorityLevel = work.controller:GetPriorityLevel()
+	if priorityLevel == 'high' and waitingTime > 60*3 then
+		priorityLevel = 'urgen'
+	end
+
+	return priorityLevel
 end

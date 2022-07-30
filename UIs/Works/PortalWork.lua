@@ -238,6 +238,10 @@ function PortalWork:SetState(state)
 	end
 end
 
+function PortalWork:GetState()
+	return self.state
+end
+
 function PortalWork:GetStateText()
 	local state = self.state
 	if state == 'WAITING_FOR_INVITE_RESPONSE' then
@@ -265,6 +269,25 @@ function PortalWork:GetStateText()
 	end
 
 	return ''
+end
+
+function PortalWork:GetPriorityLevel()
+	if self.state == 'WAITING_FOR_INVITE_RESPONSE'
+	 	or self.state == 'WAITING_FOR_TARGET_ENTER_PORTAL' then
+		return 'low'
+	end
+
+	if self.state == 'INVITED_TARGET'
+	 	or self.state == 'MOVING_TO_TARGET_ZONE' then
+		return 'medium'
+	end
+
+	if self.state == 'MOVED_TO_TARGET_ZONE'
+	 	or self.state == 'CREATING_PORTAL' then
+		return 'high'
+	end
+
+	return 'low'
 end
 
 function PortalWork:SendWho(command)
