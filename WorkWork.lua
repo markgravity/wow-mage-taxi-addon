@@ -31,10 +31,10 @@ function WorkWork:Init()
 	end
 
 	self.workList = CreateWorkList(self)
-	self.workList:TryAdd('Iina', nil, 'wtb port to SW')
+	self.workList:Hide()
+	self.workList:TryAdd('Iina', nil, 'wtf port darn to if')
 
 	self:On()
-	-- self:Off()
 end
 
 function WorkWork:On()

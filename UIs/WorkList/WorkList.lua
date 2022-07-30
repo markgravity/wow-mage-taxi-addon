@@ -91,8 +91,16 @@ function CreateWorkList(parent)
 end
 
 function WorkList:TryAdd(targetName, guid, text)
-	local work = DetectPortalWork(targetName, guid, text, self.frame:GetParent(), self)
+	-- Prevent target spams chat
+	for _, work in ipairs(self.works) do
+		if work.targetName == targetName then
+			return
+		end
+	end
+
+	local work = DetectPortalWork(targetName, guid, text, self.frame:GetParent())
 	if work then
+		work.frame:SetPoint('TOPLEFT', self.frame, 'TOPRIGHT', -11, 0)
 		work:Start()
 		self:Add({
 			id = targetName,
@@ -102,6 +110,7 @@ function WorkList:TryAdd(targetName, guid, text)
 			controller = work,
 			createdAt = GetTime()
 		})
+		self:Show()
 		return
 	end
 end
@@ -176,6 +185,8 @@ function WorkList:Reload()
 			self.columnHeaders,
 			previousItem
 		)
+		local priorityLevel = workList:GetWorkPriorityLevel(work)
+		item:SetPriorityLevel(priorityLevel)
 		item:Show()
 		item:SetScript('OnClick', function()
 			workList:Select(work)
@@ -206,4 +217,12 @@ function WorkList:GetWorkPriorityLevel(work)
 	end
 
 	return priorityLevel
+end
+
+function WorkList:Show()
+	self.frame:Show()
+end
+
+function WorkList:Hide()
+	self.frame:Hide()
 end

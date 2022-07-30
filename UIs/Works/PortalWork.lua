@@ -1,7 +1,7 @@
 local PortalWork = {}
 PortalWork.__index = PortalWork
 
-function CreatePortalWork(targetName, message, portal, parent, workList)
+function CreatePortalWork(targetName, message, portal, parent)
 	local info = {
 		targetName = targetName,
 		sellingPortal = portal
@@ -18,7 +18,6 @@ function CreatePortalWork(targetName, message, portal, parent, workList)
 	frame:RegisterEvent('ZONE_CHANGED_NEW_AREA')
 	frame:SetSize(WORK_WIDTH, WORK_HEIGHT)
 	frame:SetBackdrop(BACKDROP_DIALOG_32_32)
-	frame:SetPoint('TOPLEFT', workList.frame, 'TOPRIGHT', -11, 0)
 	frame:Hide()
 	work.frame = frame
 
@@ -128,7 +127,7 @@ function CreatePortalWork(targetName, message, portal, parent, workList)
 	return work
 end
 
-function DetectPortalWork(playerName, guid, message, parent, workList)
+function DetectPortalWork(playerName, guid, message, parent)
 	-- if playerName == UnitName('player') then
     --     return nil
     -- end
@@ -139,7 +138,7 @@ function DetectPortalWork(playerName, guid, message, parent, workList)
     -- end
 
 	local message = string.lower(message)
-	if message:match('wts') then
+	if message:match('wts') ~= nil then
 		return
 	end
 
@@ -150,14 +149,14 @@ function DetectPortalWork(playerName, guid, message, parent, workList)
 
 	for _, portal in ipairs(WorkWork.portals) do
 		for _, keyword in ipairs(portal.keywords) do
-			if message:match('to '..keyword)
-				or message:match('> '..keyword)
-				or message:match('port '..keyword)
-				or message:match(keyword..' port') then
+			if message:match('to '..keyword) ~= nil
+				or message:match('> '..keyword) ~= nil
+				or message:match(keyword..' port') ~= nil
+				or (message:match('port '..keyword) ~= nil and message:match('from') == nil) then
 				if not IsSpellKnown(portal.portalSpellID) then
 					return nil
 				end
-				return CreatePortalWork(playerName, message, portal, parent, workList)
+				return CreatePortalWork(playerName, message, portal, parent)
 			end
 		end
 	end

@@ -68,11 +68,13 @@ function WorkListItem:SetSelected(isSelected)
 		self.frame:SetNormalTexture('')
 	    self.frame:SetHighlightTexture('Interface\\QuestFrame\\UI-QuestLogTitleHighlight')
 		self.frame:GetHighlightTexture():SetVertexColor(colors[1], colors[2], colors[3])
+		self:SetHighlight(false)
 	end
 end
 
 function WorkListItem:SetHighlight(isHighlight)
 	if isHighlight then
+		self.unhiglightTargetNameColors = { self.targetName:GetTextColor() }
 		self.targetName:SetTextColor(
 			HIGHLIGHT_FONT_COLOR.r,
 		 	HIGHLIGHT_FONT_COLOR.g,
