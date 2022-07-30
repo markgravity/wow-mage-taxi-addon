@@ -1,7 +1,12 @@
 local AceEvent = LibStub('AceEvent-3.0')
 
-WorkWork = CreateFrame('Frame', nil, UIParent, BackdropTemplateMixin and 'BackdropTemplate' or nil)
+WorkWork = CreateFrame('Frame', 'WorkWorkMainFrame', UIParent, BackdropTemplateMixin and 'BackdropTemplate' or nil)
 WorkWorkAddon = LibStub('AceAddon-3.0'):NewAddon('WorkWork', 'AceConsole-3.0')
+
+WORK_LIST_WIDTH = 260
+WORK_LIST_HEIGHT = 400
+WORK_WIDTH = 210
+WORK_HEIGHT = 400
 
 function WorkWorkAddon:OnInitialize()
 	WorkWork:Init()
@@ -12,19 +17,24 @@ function WorkWork:Init()
 	self:SetScript('OnEvent', function(self, event, ...)
         self[event](self, ...)
     end)
-
 	self.isPaused = false
 	self.isOn = false
+	self:SetMovable(true)
+	self:EnableMouse(true)
+	self:SetUserPlaced(true)
+	self:RegisterForDrag('LeftButton')
+	self:SetScript("OnDragStart", self.StartMoving)
+	self:SetScript("OnDragStop", self.StopMovingOrSizing)
+	self:SetSize(WORK_LIST_WIDTH + WORK_WIDTH - 11, WORK_HEIGHT)
+	if not self:IsUserPlaced() then
+		self:SetPoint('CENTER')
+	end
 
-	local work = CreatePortalWork('Iina', 'text', self.portals[1])
-	work:Start()
-
-	local workList = CreateWorkList()
-	workList.frame:SetPoint('CENTER')
-	work.frame:ClearAllPoints()
-	work.frame:SetPoint('TOPLEFT', workList.frame, 'TOPRIGHT', 0, 0)
+	self.workList = CreateWorkList(self)
+	self.workList:TryAdd('Iina', nil, 'wtb port to SW')
 
 	self:On()
+	-- self:Off()
 end
 
 function WorkWork:On()
@@ -85,10 +95,5 @@ function WorkWork:OnChat(playerName, guid, text)
 		return
 	end
 
-	local work = DetectPortalWork(playerName, guid, text)
-	if work then
-		self:Pause()
-		work:Start()
-		return
-	end
+	self.workList:TryAdd(playerName, guid, text)
 end

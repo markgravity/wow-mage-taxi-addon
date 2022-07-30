@@ -10,7 +10,7 @@ WorkWork.portals = {
 	},
 	{
 		name = 'Stonard',
-		zoneName = 'Stonard',
+		zoneName = 'Swamp of Sorrows',
 		keywords = { 'stonard' },
 		portalSpellName = 'Portal: Stonard',
 		portalSpellID = 49361,
@@ -19,7 +19,7 @@ WorkWork.portals = {
 	},
 	{
 		name = 'Theramore',
-		zoneName = 'Theramore Isle',
+		zoneName = 'Dustwallow Marsh',
 		keywords = { 'thera', 'theremore', 'teramore', 'Theramore' },
 		portalSpellName = 'Portal: Theramore',
 		portalSpellID = 49360,
@@ -37,7 +37,7 @@ WorkWork.portals = {
 	},
 	{
 		name = 'Exodar',
-		zoneName = 'Exodar',
+		zoneName = 'The Exodar',
 		keywords = { 'exo', 'exodar' },
 		portalSpellName = 'Portal: Exodar',
 		portalSpellID = 32266,
@@ -82,7 +82,7 @@ WorkWork.portals = {
 	},
 	{
 		name = 'Ironforge',
-		zoneName = 'City of Ironforge',
+		zoneName = 'Ironforge',
 		keywords = { 'if', 'ironforge' },
 		portalSpellName = 'Portal: Ironforge',
 		portalSpellID = 11416,
@@ -99,29 +99,24 @@ Portals:RegisterEvent('PLAYER_ENTERING_WORLD')
 
 function Portals:PLAYER_ENTERING_WORLD()
 	local faction = UnitFactionGroup('player')
+	local portal = {
+		name = 'Shattrath',
+		zoneName = 'Shattrath City',
+		keywords = { 'shatt', 'shat', 'shattrath' },
+		portalSpellName = 'Portal: Shattrath',
+		teleportSpellName = 'Teleport: Shattrath'
+	}
 	if faction == 'Alliance' then
-		table.insert(WorkWork.portals, {
-			name = 'Shattrath',
-			zoneName = 'Shattrath City',
-			keywords = { 'shatt', 'shat', 'shattrath' },
-			portalSpellName = 'Portal: Shattrath',
-			portalSpellID = 33691,
-			teleportSpellName = 'Teleport: Shattrath',
-			teleportSpellID = 33690,
-		})
+		portal.portalSpellID = 33691
+		portal.teleportSpellID = 33690
+		table.insert(WorkWork.portals, portal)
 		return
 	end
 
 	if faction == 'Horde' then
-		table.insert(WorkWork.portals, {
-			name = 'Shattrath',
-			zoneName = 'Shattrath City',
-			keywords = { 'shatt', 'shat', 'shattrath' },
-			portalSpellName = 'Portal: Shattrath',
-			portalSpellID = 35717,
-			teleportSpellName = 'Teleport: Shattrath',
-			teleportSpellID = 35715,
-		})
+		portal.portalSpellID = 35717
+		portal.teleportSpellID = 35715
+		table.insert(WorkWork.portals, portal)
 		return
 	end
 end

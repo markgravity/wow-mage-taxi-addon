@@ -21,6 +21,16 @@ function GetPartyMemberZone(playerName)
 	return GetZone(mapID)
 end
 
+function GetPlayerZone()
+	local mapID = C_Map.GetBestMapForUnit('player');
+
+	if mapID == nil then
+		return nil
+	end
+
+	return GetZone(mapID)
+end
+
 function GetZone(mapID)
 	local map = C_Map.GetMapInfo(mapID);
 

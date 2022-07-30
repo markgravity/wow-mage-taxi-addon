@@ -1,7 +1,7 @@
 local PortalWork = {}
 PortalWork.__index = PortalWork
 
-function CreatePortalWork(targetName, message, portal)
+function CreatePortalWork(targetName, message, portal, parent, workList)
 	local info = {
 		targetName = targetName,
 		sellingPortal = portal
@@ -12,22 +12,13 @@ function CreatePortalWork(targetName, message, portal)
 	work.info = info
 	work:SetState('INITIALIZED')
 
-	local frame = CreateFrame('Frame', 'WorkWorkPortalWork'..targetName..portal.name, UIParent, BackdropTemplateMixin and 'BackdropTemplate' or nil)
+	local frame = CreateFrame('Frame', 'WorkWorkPortalWork'..targetName..portal.name, parent, BackdropTemplateMixin and 'BackdropTemplate' or nil)
 	frame:RegisterEvent('UNIT_SPELLCAST_SUCCEEDED')
 	frame:RegisterEvent('CHAT_MSG_SYSTEM')
 	frame:RegisterEvent('ZONE_CHANGED_NEW_AREA')
-
-	if not frame:IsUserPlaced() then
-		frame:SetPoint('CENTER')
-	end
-	frame:SetSize(210, 400)
+	frame:SetSize(WORK_WIDTH, WORK_HEIGHT)
 	frame:SetBackdrop(BACKDROP_DIALOG_32_32)
-	frame:SetMovable(true)
-	frame:EnableMouse(true)
-	frame:SetUserPlaced(true)
-	frame:RegisterForDrag('LeftButton')
-	frame:SetScript("OnDragStart", frame.StartMoving)
-	frame:SetScript("OnDragStop", frame.StopMovingOrSizing)
+	frame:SetPoint('TOPLEFT', workList.frame, 'TOPRIGHT', -11, 0)
 	frame:Hide()
 	work.frame = frame
 
@@ -97,11 +88,7 @@ function CreatePortalWork(targetName, message, portal)
 	endButton:SetPoint('TOP', frame, 'TOP', 0, -110)
 	endButton:SetText('End')
 	endButton:SetScript('OnClick', function(self)
-		work.info = nil
-		work:SetState('ENDED')
 		work:Complete()
-		WorkWork:Resume()
-		LeaveParty()
 	end)
 	work.endButton = endButton
 
@@ -130,10 +117,6 @@ function CreatePortalWork(targetName, message, portal)
 	work.finishTask:Disable(true)
 	work.contactTask:Enable()
 
-	if work.isAutoInvite then
-		work.contactTask:Run()
-	end
-
     frame:SetScript('OnEvent', function(self, event, ...)
         work[event](work, ...)
     end)
@@ -141,15 +124,15 @@ function CreatePortalWork(targetName, message, portal)
 	return work
 end
 
-function DetectPortalWork(playerName, guid, message)
-	if playerName == UnitName('player') then
-        return nil
-    end
+function DetectPortalWork(playerName, guid, message, parent, workList)
+	-- if playerName == UnitName('player') then
+    --     return nil
+    -- end
 
-    local _, playerClass = GetPlayerInfoByGUID(guid)
-    if playerClass == 'MAGE' then
-        return nil
-    end
+    -- local _, playerClass = GetPlayerInfoByGUID(guid)
+    -- if playerClass == 'MAGE' then
+    --     return nil
+    -- end
 
 	local message = string.lower(message)
     if message:match('port') == nil and message:match('portal') == nil then
@@ -165,7 +148,7 @@ function DetectPortalWork(playerName, guid, message)
 				if not IsSpellKnown(portal.portalSpellID) then
 					return nil
 				end
-				return CreatePortalWork(playerName, message, portal)
+				return CreatePortalWork(playerName, message, portal, parent, workList)
 			end
 		end
 	end
@@ -175,15 +158,41 @@ end
 function PortalWork:Start()
 	PlaySound(5274)
 	FlashClientIcon()
+	if self.isAutoInvite then
+		self.contactTask:Run()
+	end
+end
+
+function PortalWork:Hide()
+	self.frame:Hide()
+end
+
+function PortalWork:Show()
 	self.frame:Show()
 end
 
 function PortalWork:Complete()
+	if UnitIsGroupLeader('player') then
+		UninviteUnit(self.info.targetName)
+	else
+		LeaveGroup()
+	end
+
+	self.info = nil
+	self:SetState('ENDED')
 	self.frame:Hide()
+
+	if self.onComplete then
+		self.onComplete()
+	end
 end
 
 function PortalWork:SetState(state)
 	self.state = state
+	if self.onStateChange then
+		self.onStateChange()
+	end
+
 	local work = self
 
 	if state == 'WAITING_FOR_INVITE_RESPONSE' then
@@ -218,6 +227,35 @@ function PortalWork:SetState(state)
 		self:WaitingForTargetEnterPortal()
 		return
 	end
+end
+
+function PortalWork:GetStateText()
+	local state = self.state
+	if state == 'WAITING_FOR_INVITE_RESPONSE' then
+		return 'Contacting'
+	end
+
+	if state == 'INVITED_TARGET' then
+		return 'Contacted'
+	end
+
+	if state == 'MOVING_TO_TARGET_ZONE' then
+		return 'Moving'
+	end
+
+	if state == 'MOVED_TO_TARGET_ZONE' then
+		return 'Moved'
+	end
+
+	if state == 'CREATING_PORTAL' then
+		return 'Making'
+	end
+
+	if state == 'WAITING_FOR_TARGET_ENTER_PORTAL' then
+		return 'Finishing'
+	end
+
+	return ''
 end
 
 function PortalWork:SendWho(command)
@@ -282,6 +320,18 @@ function PortalWork:WaitingForTargetEnterPortal()
 	self.endButton:Click()
 end
 
+function PortalWork:SetScript(event, script)
+	if event == 'OnStateChange' then
+		self.onStateChange = script
+		return
+	end
+
+	if event == 'OnComplete' then
+		self.onComplete = script
+		return
+	end
+end
+
 -- EVENTS
 function PortalWork:UNIT_SPELLCAST_SUCCEEDED(target, castGUID, spellID)
 	if self.state == 'CREATING_PORTAL'
@@ -298,18 +348,19 @@ function PortalWork:UNIT_SPELLCAST_SUCCEEDED(target, castGUID, spellID)
 end
 
 function PortalWork:CHAT_MSG_SYSTEM(text, playerName, languageName, channelName, playerName2, specialFlags, zoneChannelID, channelIndex, channelBaseName, languageID, lineID, guid, bnSenderID, isMobile, isSubtitle, hideSenderInLetterbox, supressRaidIcons)
+	local work = self
 	if self.state == 'WAITING_FOR_INVITE_RESPONSE' then
 		if text == self.info.targetName..' is already in a group.' then
 			Whisper(self.info.targetName, "Hey, please invite me for a portal to "..self.info.sellingPortal.name)
 			self.contactTask:SetDescription('|c60808080Waiting for |r|cffffd100'..self.info.targetName..'|r|c60808080 invites you into the party|r')
 			WorkWorkAutoAcceptInvite:SetEnabled(true, function ()
-				self:CompleteContactTask()
+				work:SetState('INVITED_TARGET')
 			end)
 			return
 		end
 
 		if text == self.info.targetName..' joins the party.' then
-			self:CompleteContactTask()
+			work:SetState('INVITED_TARGET')
 			return
 		end
 		return

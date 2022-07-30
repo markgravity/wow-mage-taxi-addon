@@ -1,31 +1,22 @@
 local WorkList = {}
 WorkList.__index = WorkList
 
-function CreateWorkList()
-	local works = {
-		{
-			targetName = 'Davidsnake',
-			status = 'Contacting',
-			typeText = 'Portal'
-		},
-		{
-			targetName = 'Tobiz',
-			status = 'Trading',
-			typeText = 'Enchant'
-		}
+function CreateWorkList(parent)
+	local workList = {
+		works = {}
 	}
-	local workList = {}
 	setmetatable(workList, WorkList)
 
 	local frame = CreateFrame(
 		'Frame',
 		'WorkWorkWorkList',
-		UIParent,
+		parent,
 		BackdropTemplateMixin and 'BackdropTemplate' or nil
 	)
-    frame:SetWidth(260)
-    frame:SetHeight(220)
+    frame:SetWidth(WORK_LIST_WIDTH)
+    frame:SetHeight(WORK_LIST_HEIGHT)
     frame:SetBackdrop(BACKDROP_DIALOG_32_32)
+	frame:SetPoint('TOPLEFT', 0, 0)
 	workList.frame = frame
 
 	local bg = frame:CreateTexture(nil, 'ARTWORK')
@@ -63,6 +54,11 @@ function CreateWorkList()
 	typeColumnHeader:SetPoint("LEFT", statusColumnHeader, "RIGHT", 0, 0)
     typeColumnHeader:SetText('Type')
     WhoFrameColumn_SetWidth(typeColumnHeader, columnHeaderWidth)
+	workList.columnHeaders = {
+		targetNameColumnHeader,
+		statusColumnHeader,
+		typeColumnHeader
+	}
 
 	local tableBody = CreateFrame('Frame', nil, frame, 'InsetFrameTemplate')
     tableBody:SetPoint('TOPLEFT', 10, -33)
@@ -85,19 +81,103 @@ function CreateWorkList()
 		scrollFrame
 	)
 	scrollContent:SetPoint('TOPLEFT', scrollFrame, 0, 0)
-	scrollContent:SetSize(frame:GetWidth() - 40, WORK_LIST_ITEM_HEIGHT * #works)
+	workList.scrollContent = scrollContent
+
 	scrollFrame:SetScrollChild(scrollContent)
 
+	return workList
+end
+
+function WorkList:TryAdd(targetName, guid, text)
+	local work = DetectPortalWork(targetName, guid, text, self.frame:GetParent(), self)
+	if work then
+		work:Start()
+		self:Add({
+			id = targetName,
+			targetName = targetName,
+			status = work:GetStateText(),
+			typeText = 'Portal',
+			controller = work
+		})
+		return
+	end
+end
+
+function WorkList:Add(work)
+	table.insert(self.works, work)
+	self:Reload()
+	self:AutoAssign()
+end
+
+function WorkList:Remove(work)
+	local foundIndex
+	for i, v in ipairs(self.works) do
+		if work.id == v.id then
+			foundIndex = i
+		end
+	end
+
+	if foundIndex == nil then
+		return
+	end
+
+	work.item:Hide()
+	table.remove(self.works, foundIndex)
+	
+	self:Reload()
+	self:AutoAssign()
+end
+
+function WorkList:AutoAssign()
+	if #self.works == 0 then
+		return
+	end
+
+	if self.selectedWork == nil then
+		self:Select(self.works[1])
+		return
+	end
+end
+
+function WorkList:Select(work)
+	if self.selectedWork ~= nil then
+		self.selectedWork.controller:Hide()
+		self.selectedWork.item:SetSelected(false)
+	end
+
+	self.selectedWork = work
+	work.item:SetSelected(true)
+	work.controller:Show()
+end
+
+function WorkList:Reload()
+	local workList = self
+	self.scrollContent:SetSize(self.frame:GetWidth() - 40, WORK_LIST_ITEM_HEIGHT * #self.works)
+
 	local previousItem
-	for _, work in ipairs(works) do
+	for i, work in ipairs(self.works) do
 		local item = CreateWorkListItem(
+			i,
 			work,
-			scrollContent,
-			{ targetNameColumnHeader, statusColumnHeader, typeColumnHeader },
+			self.scrollContent,
+			self.columnHeaders,
 			previousItem
 		)
+		item:Show()
+		item:SetScript('OnClick', function()
+			workList:Select(work)
+		end)
+		work.item = item
+		work.controller:SetScript('OnStateChange', function()
+			item:SetStatus(work.controller:GetStateText())
+		end)
+		work.controller:SetScript('OnComplete', function()
+			workList:Remove(work)
+		end)
 		previousItem = item
 	end
 
-	return workList
+	if self.selectedWork ~= nil then
+		self.selectedWork.item:SetSelected(true)
+	end
 end
