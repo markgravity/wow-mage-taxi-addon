@@ -273,20 +273,20 @@ end
 function PortalWork:GetPriorityLevel()
 	if self.state == 'WAITING_FOR_INVITE_RESPONSE'
 	 	or self.state == 'WAITING_FOR_TARGET_ENTER_PORTAL' then
-		return 'low'
+		return 4
 	end
 
 	if self.state == 'INVITED_TARGET'
 	 	or self.state == 'MOVING_TO_TARGET_ZONE' then
-		return 'medium'
+		return 3
 	end
 
 	if self.state == 'MOVED_TO_TARGET_ZONE'
 	 	or self.state == 'CREATING_PORTAL' then
-		return 'high'
+		return 2
 	end
 
-	return 'low'
+	return 1
 end
 
 function PortalWork:SendWho(command)

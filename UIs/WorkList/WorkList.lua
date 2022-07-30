@@ -138,12 +138,15 @@ function WorkList:Remove(work)
 		return
 	end
 
+	if work.id == self.selectedWork.id then
+		self.selectedWork = nil
+	end
+
 	work.item:Hide()
 	table.remove(self.works, foundIndex)
 
 	self:Reload()
 	self:AutoAssign()
-
 	-- Hide when empty
 	if #self.works == 0 then
 		self.frame:Hide()
@@ -155,8 +158,10 @@ function WorkList:AutoAssign()
 		return
 	end
 
-	if self.selectedWork == nil then
-		self:Select(self.works[1])
+	if self.selectedWork == nil
+	 	or self.selectedWork.priorityLevel == 4 then
+		local work = self:FindHighestPriorityLevel()
+		self:Select(work)
 		return
 	end
 end
@@ -191,12 +196,13 @@ function WorkList:Reload()
 		item:SetScript('OnClick', function()
 			workList:Select(work)
 		end)
+		work.priorityLevel = priorityLevel
 		work.item = item
 		work.controller:SetScript('OnStateChange', function()
 			local priorityLevel = workList:GetWorkPriorityLevel(work)
 			item:SetStatus(work.controller:GetStateText())
-
 			item:SetPriorityLevel(priorityLevel)
+			work.priorityLevel = priorityLevel
 		end)
 		work.controller:SetScript('OnComplete', function()
 			workList:Remove(work)
@@ -212,11 +218,23 @@ end
 function WorkList:GetWorkPriorityLevel(work)
 	local waitingTime = GetTime() - work.createdAt
 	local priorityLevel = work.controller:GetPriorityLevel()
-	if priorityLevel == 'high' and waitingTime > 60*3 then
-		priorityLevel = 'urgen'
+	if priorityLevel == 2 and waitingTime > 60*3 then
+		priorityLevel = 1
 	end
 
 	return priorityLevel
+end
+
+function WorkList:FindHighestPriorityLevel()
+	local unpack = unpack or table.unpack
+	local sortedWorks = { unpack(self.works) }
+	table.sort(sortedWorks, function (a, b)
+		local waitingTimeA = GetTime() - a.createdAt
+		local waitingTimeB = GetTime() - b.createdAt
+		return a.priorityLevel < b.priorityLevel and waitingTimeA > waitingTimeB
+	end)
+
+	return sortedWorks[1]
 end
 
 function WorkList:Show()

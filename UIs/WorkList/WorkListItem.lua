@@ -117,19 +117,19 @@ end
 
 function WorkListItem:SetPriorityLevel(level)
 	local colors
-	if level == 'urgent' then
+	if level == 1 then
 		colors = { 1, 0.1, 0.1 } -- red
 	end
 
-	if level == 'high' then
+	if level == 2 then
 		colors = { 1, 0.5, 0.25 } -- orange
 	end
 
-	if level == 'medium' then
+	if level == 3 then
 		colors = { 1, 1, 0 } -- yellow
 	end
 
-	if level == 'low' then
+	if level == 4 then
 		colors = { 0.5, 0.5, 0.5 } -- gray
 	end
 	self.targetName:SetTextColor(colors[1], colors[2], colors[3])
