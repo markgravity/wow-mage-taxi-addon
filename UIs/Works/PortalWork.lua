@@ -6,123 +6,81 @@ function CreatePortalWork(targetName, message, portal, parent)
 		targetName = targetName,
 		sellingPortal = portal
 	}
-	local work = {}
-	setmetatable(work, PortalWork)
+	local work = CreateWork('WorkWorkPortalWork'..targetName..portal.name, parent)
+	setmetatables(work, PortalWork)
+
 	work.isAutoInvite = true
 	work.info = info
 	work:SetState('INITIALIZED')
 
-	local frame = CreateFrame('Frame', 'WorkWorkPortalWork'..targetName..portal.name, parent, BackdropTemplateMixin and 'BackdropTemplate' or nil)
+	local frame = work.frame
 	frame:RegisterEvent('UNIT_SPELLCAST_SUCCEEDED')
 	frame:RegisterEvent('CHAT_MSG_SYSTEM')
 	frame:RegisterEvent('ZONE_CHANGED_NEW_AREA')
-	frame:SetSize(WORK_WIDTH, WORK_HEIGHT)
-	frame:SetBackdrop(BACKDROP_DIALOG_32_32)
 	frame:Hide()
-	work.frame = frame
 
-    local header = frame:CreateTexture('$parentHeader', 'OVERLAY')
-    header:SetPoint('TOP', 0, 12)
-    header:SetTexture(131080) -- 'Interface\\DialogFrame\\UI-DialogBox-Header'
-    header:SetSize(290, 64)
+    work:SetTitle('Portal')
 
-    local headerText = frame:CreateFontString('$parentHeaderText', 'OVERLAY', 'GameFontNormal')
-    headerText:SetPoint('TOP', header, 0, -14)
-    headerText:SetText('Portal')
+	local texture = GetSpellTexture(info.sellingPortal.portalSpellID)
+	work:SetItem(texture, info.sellingPortal.name)
+	work:SetMessage(info.targetName, message)
 
-	local divider = frame:CreateTexture(nil, 'OVERLAY')
-	divider:SetPoint('TOP', 0, -139)
-	divider:SetPoint('LEFT', 10, 0)
-	divider:SetPoint('RIGHT', 52, 0)
-    divider:SetTexture('Interface\\DialogFrame\\UI-DialogBox-Divider')
-	work.divider = divider
-
-	local background = frame:CreateTexture(nil, 'ARTWORK')
-    background:SetPoint('TOPLEFT', 11, -11)
-    background:SetWidth(257)
-    background:SetHeight(138)
-    background:SetTexture('Interface\\PaperDollInfoFrame\\UI-Character-Reputation-DetailBackground')
-
-	local portrait = CreateFrame('Button', nil, frame, 'ActionButtonTemplate')
-	portrait:SetHeight(40)
-	portrait:SetWidth(40)
-	portrait:SetPoint('TOPLEFT', 32, -36)
-	portrait:SetEnabled(false)
-
-	local texture = GetSpellTexture(portal.portalSpellID)
-	getglobal(frame:GetName() .. "Icon"):SetTexture(texture)
-
-	local targetNameText = frame:CreateFontString()
-	targetNameText:SetFontObject('GameFontNormal')
-	targetNameText:ClearAllPoints()
-	targetNameText:SetPoint('LEFT', portrait, 'RIGHT', 10, 8)
-	targetNameText:SetText(targetName)
-
-	local toText = frame:CreateFontString()
-	toText:SetFontObject('GameFontNormal')
-	toText:SetTextColor(0.7, 0.7, 0.7)
-	toText:SetText('port to')
-	toText:ClearAllPoints()
-	toText:SetPoint('TOPLEFT', targetNameText, 'BOTTOMLEFT', 0, -8)
-
-	local portalText = frame:CreateFontString()
-	portalText:SetFontObject('GameFontNormal')
-	portalText:SetTextColor(1, 1, 1)
-	portalText:ClearAllPoints()
-	portalText:SetPoint('TOPLEFT', toText, 'TOPRIGHT', 4, 0)
-	portalText:SetText(portal.name)
-
-	local messageText = frame:CreateFontString()
-	messageText:SetFontObject('GameFontNormalSmall')
-	messageText:SetTextColor(0.75, 0.75, 0.75)
-	messageText:ClearAllPoints()
-	messageText:SetPoint('TOP', portrait, 'BOTTOM', 0, -8)
-	messageText:SetPoint('LEFT', 20, 0)
-	messageText:SetPoint('RIGHT', -20, 0)
-	messageText:SetText('"'..message..'"')
-
-	local endButton = CreateFrame('Button', nil, frame, 'GameMenuButtonTemplate')
-	endButton:SetSize(64, 24)
-	endButton:ClearAllPoints()
-	endButton:SetPoint('TOP', frame, 'TOP', 0, -110)
-	endButton:SetText('End')
-	endButton:SetScript('OnClick', function(self)
+	work.endButton:SetScript('OnClick', function(self)
 		work:Complete()
 	end)
-	work.endButton = endButton
 
-	local taskLists = CreateFrame('Frame', nil, frame, 'InsetFrameTemplate')
-	taskLists:SetPoint('TOPLEFT', 10, -150)
-	taskLists:SetPoint('BOTTOMRIGHT', -10, 10)
 
 	-- Create tasks
-	work.contactTask = CreateWorkTask(frame, 'Contact', '|c60808080Invite |r|cffffd100'..info.targetName..'|r|c60808080 into the party|r')
+	local taskListContent = work.taskListContent
+	work.contactTask = CreateWorkTask(
+		taskListContent,
+		'Contact',
+		'|c60808080Invite |r|cffffd100'..info.targetName..'|r|c60808080 into the party|r'
+	)
 	work.contactTask:SetScript('OnClick', function(self)
 		work:SetState('WAITING_FOR_INVITE_RESPONSE')
 	end)
-	work.contactTask:SetPoint('TOP', divider, 'BOTTOM', 0, 16)
+	work.contactTask:SetPoint('TOP', taskListContent, 'TOP', 0, 0)
 
-	work.moveTask = CreateWorkTask(frame, 'Move', '|c60808080Waiting for contact|r', work.contactTask)
+	work.moveTask = CreateWorkTask(
+		taskListContent,
+		'Move',
+		'|c60808080Waiting for contact|r',
+	 	work.contactTask
+	)
 	work.moveTask:HookScript('OnClick', function(self)
 		work:SetState('CREATING_PORTAL')
 	end)
 
-	work.makeTask = CreateWorkTask(frame, 'Make', '|c60808080Create a |r|cffffd100'..info.sellingPortal.name..'|r|c60808080 portal|r', work.moveTask)
+	work.makeTask = CreateWorkTask(
+		taskListContent,
+		'Make',
+		'|c60808080Create a |r|cffffd100'..info.sellingPortal.name..'|r|c60808080 portal|r',
+		work.moveTask
+	)
 	work.makeTask:SetSpell(info.sellingPortal.portalSpellName)
 	work.makeTask:HookScript('OnClick', function(self)
 		work:SetState('CREATING_PORTAL')
 	end)
 
-	work.finishTask = CreateWorkTask(frame, 'Finish', '|c60808080Waiting for |r|cffffd100'..info.targetName..'|r|c60808080 to enter the portal|r', work.makeTask)
+	work.finishTask = CreateWorkTask(
+		taskListContent,
+		'Finish',
+		'|c60808080Waiting for |r|cffffd100'..info.targetName..'|r|c60808080 to enter the portal|r',
+		work.makeTask
+	)
 
+	taskListContent:SetSize(
+		WORK_WIDTH - 30,
+		work.moveTask.frame:GetHeight()
+		+ work.makeTask.frame:GetHeight()
+		+ work.finishTask.frame:GetHeight()
+		+ work.contactTask.frame:GetHeight()
+	)
 	work.moveTask:Disable()
 	work.makeTask:Disable()
 	work.finishTask:Disable(true)
 	work.contactTask:Enable()
-
-    frame:SetScript('OnEvent', function(self, event, ...)
-        work[event](work, ...)
-    end)
 
 	return work
 end

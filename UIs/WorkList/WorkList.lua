@@ -232,13 +232,12 @@ function WorkList:FindHighestPriorityLevel()
 	table.sort(sortedWorks, function (a, b)
 		local waitingTimeA = GetTime() - a.createdAt
 		local waitingTimeB = GetTime() - b.createdAt
-		return a.priorityLevel > b.priorityLevel --and waitingTimeA < waitingTimeB
+		if a.priorityLevel <= 2 and a.priorityLevel == b.priorityLevel then
+			return waitingTimeA > waitingTimeB
+		end
+		return a.priorityLevel < b.priorityLevel
 	end)
-
-	for i,v in ipairs(sortedWorks) do
-		print(v.targetName, v.priorityLevel)
-	end
-
+	
 	return sortedWorks[1]
 end
 

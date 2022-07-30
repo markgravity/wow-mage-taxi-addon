@@ -10,11 +10,13 @@
     <Include file="Libs\Ace3\AceEvent-3.0\AceEvent-3.0.xml"/>
     <Include file="Libs\Ace3\AceHook-3.0\AceHook-3.0.xml"/>
 	<Include file="Libs\LibDBIcon-1.0\embeds.xml"/>
+	<Script file="Utils\Table.lua"/>
 	<Script file="Utils\Zone.lua"/>
 	<Script file="Utils\Chat.lua"/>
 	<Script file="Utils\AutoAcceptInvite.lua"/>
     <Script file="WorkWork.lua"/>
 	<Script file="UIs\Works\WorkTask.lua"/>
+	<Script file="UIs\Works\Work.lua"/>
 	<Script file="UIs\Works\PortalWork.lua"/>
 	<Script file="UIs\WorkList\WorkList.lua"/>
 	<Script file="UIs\WorkList\WorkListItem.lua"/>

@@ -1,4 +1,3 @@
-
 local WorkTask = {}
 WorkTask.__index = WorkTask
 
@@ -15,8 +14,8 @@ function CreateWorkTask(parent, titleText, descriptionText, previousTask)
 
 	local frame = CreateFrame('Button', nil, parent, BackdropTemplateMixin and "InSecureActionButtonTemplate, BackdropTemplate" or nil)
 	frame:SetBackdrop(backdrop)
-	frame:SetPoint('LEFT', 16, 0)
-	frame:SetPoint('RIGHT', -16, 0)
+	frame:SetPoint('LEFT', 0, 0)
+	frame:SetPoint('RIGHT', 0, 0)
 	frame:SetAttribute('type', 'macro')
 	if previousTask ~= nil then
 		frame:SetPoint('TOP', previousTask.frame, 'BOTTOM', 0, -16)
