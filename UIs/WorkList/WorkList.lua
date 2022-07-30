@@ -117,6 +117,11 @@ function WorkList:Remove(work)
 		if work.id == v.id then
 			foundIndex = i
 		end
+
+		-- Hide the rest
+		if foundIndex ~= nil then
+			v.item:Hide()
+		end
 	end
 
 	if foundIndex == nil then

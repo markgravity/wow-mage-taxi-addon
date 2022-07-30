@@ -139,6 +139,10 @@ function DetectPortalWork(playerName, guid, message, parent, workList)
     -- end
 
 	local message = string.lower(message)
+	if message:match('wts') then
+		return
+	end
+
     if message:match('port') == nil and message:match('portal') == nil then
 		return nil
 	end
@@ -146,7 +150,8 @@ function DetectPortalWork(playerName, guid, message, parent, workList)
 
 	for _, portal in ipairs(WorkWork.portals) do
 		for _, keyword in ipairs(portal.keywords) do
-			if message:match('to '..keyword) ~= nil
+			if message:match('to '..keyword)
+				or message:match('> '..keyword)
 				or message:match('port '..keyword)
 				or message:match(keyword..' port') then
 				if not IsSpellKnown(portal.portalSpellID) then
