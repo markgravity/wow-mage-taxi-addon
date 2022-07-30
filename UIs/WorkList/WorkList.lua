@@ -24,7 +24,7 @@ function CreateWorkList(parent)
     bg:SetPoint('BOTTOMRIGHT', -12, 12)
     bg:SetTexture('Interface\\FrameGeneral\\UI-Background-Rock')
 
-	local columnHeaderWidth = (frame:GetWidth() - 20) / 2 - 9
+	local tableWidth = frame:GetWidth() - 20
 
 	local iconColumnHeader = CreateFrame(
 		'BUTTON',
@@ -43,8 +43,8 @@ function CreateWorkList(parent)
 		'GuildFrameColumnHeaderTemplate'
 	)
 	targetNameColumnHeader:SetPoint("LEFT", iconColumnHeader, "RIGHT", 0, 0)
-    targetNameColumnHeader:SetText('Target Name')
-    WhoFrameColumn_SetWidth(targetNameColumnHeader, columnHeaderWidth)
+    targetNameColumnHeader:SetText('Target')
+    WhoFrameColumn_SetWidth(targetNameColumnHeader, tableWidth / 3)
 
 	local statusColumnHeader = CreateFrame(
 		'BUTTON',
@@ -54,7 +54,7 @@ function CreateWorkList(parent)
 	)
 	statusColumnHeader:SetPoint("LEFT", targetNameColumnHeader, "RIGHT", 0, 0)
     statusColumnHeader:SetText('Status')
-    WhoFrameColumn_SetWidth(statusColumnHeader, columnHeaderWidth)
+    WhoFrameColumn_SetWidth(statusColumnHeader, tableWidth * 2 / 3 - 44)
 
 	workList.columnHeaders = {
 		iconColumnHeader,
@@ -203,6 +203,7 @@ function WorkList:Reload()
 			item:SetStatus(work.controller:GetStateText())
 			item:SetPriorityLevel(priorityLevel)
 			work.priorityLevel = priorityLevel
+			workList:AutoAssign()
 		end)
 		work.controller:SetScript('OnComplete', function()
 			workList:Remove(work)
@@ -231,8 +232,12 @@ function WorkList:FindHighestPriorityLevel()
 	table.sort(sortedWorks, function (a, b)
 		local waitingTimeA = GetTime() - a.createdAt
 		local waitingTimeB = GetTime() - b.createdAt
-		return a.priorityLevel < b.priorityLevel and waitingTimeA > waitingTimeB
+		return a.priorityLevel > b.priorityLevel --and waitingTimeA < waitingTimeB
 	end)
+
+	for i,v in ipairs(sortedWorks) do
+		print(v.targetName, v.priorityLevel)
+	end
 
 	return sortedWorks[1]
 end

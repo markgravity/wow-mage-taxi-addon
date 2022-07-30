@@ -3,7 +3,7 @@ local AceEvent = LibStub('AceEvent-3.0')
 WorkWork = CreateFrame('Frame', 'WorkWorkMainFrame', UIParent, BackdropTemplateMixin and 'BackdropTemplate' or nil)
 WorkWorkAddon = LibStub('AceAddon-3.0'):NewAddon('WorkWork', 'AceConsole-3.0')
 
-WORK_LIST_WIDTH = 260
+WORK_LIST_WIDTH = 200
 WORK_LIST_HEIGHT = 400
 WORK_WIDTH = 210
 WORK_HEIGHT = 400

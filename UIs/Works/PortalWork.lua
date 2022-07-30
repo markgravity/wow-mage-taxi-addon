@@ -407,7 +407,8 @@ function PortalWork:CHAT_MSG_SYSTEM(text, playerName, languageName, channelName,
 end
 
 function PortalWork:ZONE_CHANGED_NEW_AREA()
-	if self.state == 'MOVING_TO_TARGET_ZONE' then
+	if self.state == 'MOVING_TO_TARGET_ZONE'
+	 	or self.state == 'INVITED_TARGET' then
 		local playerZone = GetRealZoneText()
 		local targetZone = GetPartyMemberZone(self.info.targetName)
 
