@@ -1,11 +1,10 @@
 local WorkList = {}
-WorkList.__index = WorkList
 
 function CreateWorkList(parent)
 	local workList = {
 		works = {}
 	}
-	setmetatable(workList, WorkList)
+	extends(workList, WorkList)
 
 	local frame = CreateFrame(
 		'Frame',

@@ -1,5 +1,4 @@
 local ContactTask = {}
-ContactTask.__index = ContactTask
 
 function CreateContactTask(
 	targetName,
@@ -10,7 +9,7 @@ function CreateContactTask(
 	previousTask
 )
 	local task = CreateTask(titleText, descriptionText, parent, previousTask)
-	setmetatables(task, ContactTask)
+	extends(task, ContactTask)
 	task.info = {
 		targetName = targetName,
 		whisperMessage = whisperMessage

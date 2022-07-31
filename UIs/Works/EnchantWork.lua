@@ -1,5 +1,4 @@
 local EnchantWork = {}
-EnchantWork.__index = EnchantWork
 
 function CreateEnchantWork(targetName, message, enchants, parent)
 	local receivedMats = {}
@@ -19,7 +18,7 @@ function CreateEnchantWork(targetName, message, enchants, parent)
 		receivedMats = receivedMats
 	}
 	local work = CreateWork('WorkWorkEnchantWork'..targetName, parent)
-	setmetatables(work, EnchantWork)
+	extends(work, EnchantWork)
 
 	work.isAutoInvite = true
 	work.info = info

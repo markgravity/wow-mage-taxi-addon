@@ -1,9 +1,8 @@
 local Task = {}
-Task.__index = Task
 
 function CreateTask(titleText, descriptionText, parent, previousTask)
 	local task = {}
-	setmetatable(task, Task)
+	extends(task, Task)
 
 	local backdrop = {
 		bgFile = "Interface\\ChatFrame\\ChatFrameBackground",

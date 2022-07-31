@@ -1,5 +1,4 @@
 local PortalWork = {}
-PortalWork.__index = PortalWork
 
 function DetectPortalWork(playerName, guid, message, parent)
 	if not WorkWork.isDebug then
@@ -45,7 +44,7 @@ function CreatePortalWork(targetName, message, portal, parent)
 		sellingPortal = portal
 	}
 	local work = CreateWork('WorkWorkPortalWork'..targetName..portal.name, parent)
-	setmetatables(work, PortalWork)
+	extends(work, PortalWork)
 
 	work.isAutoContact = true
 	work.info = info

@@ -1,10 +1,9 @@
 local WorkListItem = {}
-WorkListItem.__index = WorkListItem
 WORK_LIST_ITEM_HEIGHT = 18
 
 function CreateWorkListItem(index, work, parent, columnHeaders, previousItem)
 	local item = {}
-	setmetatable(item, WorkListItem)
+	extends(item, WorkListItem)
 	local frameName = parent:GetName()..'Item'..index
 	local frame = _G[frameName] or CreateFrame('Button', parent:GetName()..'Item'..index, parent)
     frame:SetSize(parent:GetWidth(), WORK_LIST_ITEM_HEIGHT)

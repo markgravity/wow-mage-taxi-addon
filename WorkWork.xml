@@ -14,6 +14,7 @@
 	<Script file="Data\Enchants.lua"/>
 	<Script file="Data\Portals.lua"/>
 	<Script file="Utils\Table.lua"/>
+	<Script file="Utils\Class.lua"/>
 	<Script file="Utils\Zone.lua"/>
 	<Script file="Utils\Chat.lua"/>
 	<Script file="Utils\AutoAcceptInvite.lua"/>

@@ -1,9 +1,8 @@
 local Work = {}
-Work.__index = Work
 
 function CreateWork(name, parent)
 	local work = {}
-	setmetatable(work, Work)
+	extends(work, Work)
 
 	local frame = CreateFrame('Frame', name, parent, BackdropTemplateMixin and 'BackdropTemplate' or nil)
 	frame:SetSize(WORK_WIDTH, WORK_HEIGHT)
