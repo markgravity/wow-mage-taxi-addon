@@ -15,12 +15,22 @@ function Peon:Init()
 	if not self:IsUserPlaced() then
 		self:SetPoint('CENTER')
 	end
+	self:Hide()
 
-	self.workList = CreateWorkList(self)
-	self.workList:Hide()
-	self.workList:TryAdd('Iina', nil, 'lf port to sw')
+	local peon = self
+	local workList = CreateWorkList(self)
+	workList:SetScript('OnWorksUpdate', function()
+		local count = workList:GetWorksCount()
+		if count == 0 then
+			peon:Hide()
+		else
+			peon:Show()
+		end
+	end)
+	workList:TryAdd('Iina', nil, 'lf port to sw')
 	-- self.workList:TryAdd('Iina', nil, 'lf minor speed')
 	-- self:On()
+	self.workList = workList
 end
 
 function Peon:On()

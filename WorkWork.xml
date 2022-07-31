@@ -21,6 +21,7 @@
 	<Script file="Utils\ProfessionScanner.lua"/>
 	<Script file="UIs\Tasks\Task.lua"/>
 	<Script file="UIs\Tasks\ContactTask.lua"/>
+	<Script file="UIs\Tasks\MoveTask.lua"/>
 	<Script file="UIs\Works\Work.lua"/>
 	<Script file="UIs\Works\PortalWork.lua"/>
 	<Script file="UIs\Works\EnchantWork.lua"/>

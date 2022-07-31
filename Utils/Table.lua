@@ -4,12 +4,12 @@ function setmetatables(t1, t2)
 	if t1Metatable == nil then
 		return
 	end
-	
+
 	for k,v in pairs(t1Metatable) do
-		if t1[k] ~= nil then
+		if k ~= '__index' and t1[k] ~= nil then
 			local override = t1[k]
 			t1[k] = function(self, ...)
-				override(
+				return override(
 					self,
 					function(...)
 						v(self,...)

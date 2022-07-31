@@ -14,10 +14,10 @@ function CreateContactTask(
 		targetName = targetName,
 		whisperMessage = whisperMessage
 	}
+	task:SetState('INITIALIZED')
 	task:SetScript('OnClick', function()
 		task:SetState('WAITING_FOR_CONTACT_RESPONSE')
 	end)
-	task:SetState('INITIALIZED')
 
 	local frame = task.frame
 	frame:RegisterEvent('CHAT_MSG_SYSTEM')

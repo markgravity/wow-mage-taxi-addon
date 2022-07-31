@@ -53,7 +53,6 @@ function CreatePortalWork(targetName, message, portal, parent)
 	local frame = work.frame
 	frame:RegisterEvent('UNIT_SPELLCAST_SUCCEEDED')
 	frame:RegisterEvent('CHAT_MSG_SYSTEM')
-	frame:RegisterEvent('ZONE_CHANGED_NEW_AREA')
 	frame:Hide()
 
     work:SetTitle('Portal')
@@ -83,15 +82,22 @@ function CreatePortalWork(targetName, message, portal, parent)
 			return
 		end
 	end)
-
 	work.contactTask:SetPoint('TOP', taskListContent, 'TOP', 0, 0)
 
-	work.moveTask = CreateTask(
+	work.moveTask = CreateMoveTask(
+		info.targetName,
 		'Move',
 		'|c60808080Waiting for contact|r',
 		taskListContent,
 	 	work.contactTask
 	)
+	work.moveTask:SetScript('OnStateChange', function(self)
+		local state = work.moveTask:GetState()
+		if state == 'MOVING_TO_TARGET_ZONE' or state == 'MOVED_TO_TARGET_ZONE' then
+			work:SetState(state)
+			return
+		end
+	end)
 
 	work.makeTask = CreateTask(
 		'Make',
@@ -164,9 +170,9 @@ function PortalWork:SetState(state)
 	local work = self
 
 	if state == 'CONTACTED_TARGET' then
-		SendPartyMessage('Hi, I\'m coming to you!!')
 		self.contactTask:Complete()
-		C_Timer.After(1, function() work:DetectTargetZone() end)
+		self.moveTask:Enable()
+		self.moveTask:Begin()
 		return
 	end
 
@@ -202,7 +208,7 @@ function PortalWork:GetStateText()
 		return 'Contacting'
 	end
 
-	if state == 'CONTACTED' then
+	if state == 'CONTACTED_TARGET' then
 		return 'Contacted'
 	end
 
@@ -244,54 +250,6 @@ function PortalWork:GetPriorityLevel()
 	return 1
 end
 
-function PortalWork:SendWho(command)
-	C_FriendList.SetWhoToUi(true)
-	FriendsFrame:UnregisterEvent("WHO_LIST_UPDATE")
-	C_FriendList.SendWho(command);
-end
-
-function PortalWork:FindPortal(zoneName)
-	for _, portal in ipairs(WorkWork.portals) do
-		if portal.zoneName == zoneName then
-			return portal
-		end
-	end
-	return nil
-end
-
-function PortalWork:DetectTargetZone()
-	local work = self
-	local targetZone = GetPartyMemberZone(self.info.targetName)
-	if targetZone == nil then
-		C_Timer.After(1, function() work:DetectTargetZone() end)
-		return
-	end
-
-	local playerZone = GetRealZoneText()
-	local work = self
-
-	if playerZone == targetZone then
-		self:SetState('MOVED_TO_TARGET_ZONE')
-		return
-	end
-
-	local portal = self:FindPortal(targetZone)
-	if portal == nil then
-		self:SetState('MOVING_TO_TARGET_ZONE')
-		self.moveTask:SetDescription('|c60808080Move to |r|cffffd100'..targetZone..'|r|c60808080 manually|r')
-		self.moveTask:Enable()
-		return
-	end
-
-	self.info.movingPortal = portal
-	self.moveTask:SetSpell(portal.teleportSpellName)
-	self.moveTask:HookScript('OnClick', function()
-		work:SetState('MOVING_TO_TARGET_ZONE')
-	end)
-	self.moveTask:SetDescription('|c60808080Teleport to |r|cffffd100'..portal.name..'|r')
-	self.moveTask:Enable()
-end
-
 function PortalWork:WaitingForTargetEnterPortal()
 	if self.info == nil then
 		return
@@ -325,12 +283,6 @@ function PortalWork:UNIT_SPELLCAST_SUCCEEDED(target, castGUID, spellID)
 		self:SetState('WAITING_FOR_TARGET_ENTER_PORTAL')
 		return
 	end
-
-	if self.state == 'MOVING_TO_TARGET_ZONE'
-		and spellID == self.info.movingPortal.teleportSpellID then
-		self:SetState('MOVED_TO_TARGET_ZONE')
-		return
-	end
 end
 
 function PortalWork:CHAT_MSG_SYSTEM(text)
@@ -340,18 +292,6 @@ function PortalWork:CHAT_MSG_SYSTEM(text)
 		if text == 'Your group has been disbanded.' then
 			self.endButton:Click()
 			return
-		end
-	end
-end
-
-function PortalWork:ZONE_CHANGED_NEW_AREA()
-	if self.state == 'MOVING_TO_TARGET_ZONE'
-	 	or self.state == 'CONTACTED_TARGET' then
-		local playerZone = GetRealZoneText()
-		local targetZone = GetPartyMemberZone(self.info.targetName)
-
-		if playerZone == targetZone then
-			self:SetState('MOVED_TO_TARGET_ZONE')
 		end
 	end
 end

@@ -120,7 +120,6 @@ function WorkList:TryAdd(targetName, guid, text)
 				controller = work,
 				createdAt = GetTime()
 			})
-			self:Show()
 			return
 		end
 	end
@@ -130,6 +129,9 @@ function WorkList:Add(work)
 	table.insert(self.works, work)
 	self:Reload()
 	self:AutoAssign()
+	if self.onWorksUpdate then
+		self.onWorksUpdate()
+	end
 end
 
 function WorkList:Remove(work)
@@ -158,9 +160,8 @@ function WorkList:Remove(work)
 
 	self:Reload()
 	self:AutoAssign()
-	-- Hide when empty
-	if #self.works == 0 then
-		self.frame:Hide()
+	if self.onWorksUpdate then
+		self.onWorksUpdate()
 	end
 end
 
@@ -252,10 +253,13 @@ function WorkList:FindHighestPriorityLevel()
 	return sortedWorks[1]
 end
 
-function WorkList:Show()
-	self.frame:Show()
+function WorkList:SetScript(event, script)
+	if event == 'OnWorksUpdate' then
+		self.onWorksUpdate = script
+		return
+	end
 end
 
-function WorkList:Hide()
-	self.frame:Hide()
+function WorkList:GetWorksCount()
+	return #self.works
 end

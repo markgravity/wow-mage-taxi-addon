@@ -43,22 +43,36 @@ function CreateEnchantWork(targetName, message, enchants, parent)
 
 	-- Create tasks
 	local taskListContent = work.taskListContent
-	work.contactTask = CreateTask(
+	work.contactTask = CreateContactTask(
+		info.targetName,
+		"Hey, please invite me for enchanting "..self.info.enchants[1].itemLink,
 		'Contact',
 		'|c60808080Invite |r|cffffd100'..info.targetName..'|r|c60808080 into the party|r',
 		taskListContent
 	)
-	work.contactTask:SetScript('OnClick', function(self)
-		work:SetState('WAITING_FOR_INVITE_RESPONSE')
+	work.contactTask:SetScript('OnStateChange', function(self)
+		local state = work.contactTask:GetState()
+		if state == 'WAITING_FOR_CONTACT_RESPONSE' or state == 'CONTACTED_TARGET' then
+			work:SetState(state)
+			return
+		end
 	end)
 	work.contactTask:SetPoint('TOP', taskListContent, 'TOP', 0, 0)
 
-	work.moveTask = CreateTask(
+	work.moveTask = CreateMoveTask(
+		info.targetName,
 		'Move',
 		'|c60808080Waiting for contact|r',
 		taskListContent,
 	 	work.contactTask
 	)
+	work.moveTask:SetScript('OnStateChange', function(self)
+		local state = work.moveTask:GetState()
+		if state == 'MOVING_TO_TARGET_ZONE' or state == 'MOVED_TO_TARGET_ZONE' then
+			work:SetState(state)
+			return
+		end
+	end)
 
 	work.gatherTask = CreateTask(
 		'Gather',
@@ -90,11 +104,11 @@ function CreateEnchantWork(targetName, message, enchants, parent)
 
 	taskListContent:SetSize(
 		WORK_WIDTH - 30,
-		work.moveTask.frame:GetHeight()
+		work.contact.frame:GetHeight()
+		+ work.moveTask.frame:GetHeight()
 		+ work.gatherTask.frame:GetHeight()
 		+ work.enchantTask.frame:GetHeight()
 		+ work.finishTask.frame:GetHeight()
-		+ work.contactTask.frame:GetHeight()
 	)
 	work.moveTask:Disable()
 	work.gatherTask:Disable()
@@ -245,44 +259,6 @@ function EnchantWork:FindPortal(zoneName)
 end
 
 -- Events
-function EnchantWork:CHAT_MSG_SYSTEM(
-	text,
-	playerName,
-	languageName,
-	channelName,
-	playerName2,
-	specialFlags,
-	zoneChannelID,
-	channelIndex,
-	channelBaseName,
-	languageID,
-	lineID,
-	guid,
-	bnSenderID,
-	isMobile,
-	isSubtitle,
-	hideSenderInLetterbox,
-	supressRaidIcons
-)
-	local work = self
-	if self.state == 'WAITING_FOR_INVITE_RESPONSE' then
-		if text == self.info.targetName..' is already in a group.' then
-			Whisper(self.info.targetName, "Hey, please invite me for enchanting "..self.info.enchants[1].itemLink)
-			self.contactTask:SetDescription('|c60808080Waiting for |r|cffffd100'..self.info.targetName..'|r|c60808080 invites you into the party|r')
-			WorkWorkAutoAcceptInvite:SetEnabled(true, function ()
-				work:SetState('INVITED_TARGET')
-			end)
-			return
-		end
-
-		if text == self.info.targetName..' joins the party.' then
-			work:SetState('INVITED_TARGET')
-			return
-		end
-		return
-	end
-end
-
 function EnchantWork:TRADE_SHOW()
 	if TradeFrameRecipientNameText == nil
 	 	or TradeFrameRecipientNameText:GetText() ~= self.info.targetName then
