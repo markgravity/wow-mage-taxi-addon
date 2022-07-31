@@ -28,7 +28,7 @@ function MinimapButton:Init()
 end
 
 function MinimapButton:OnClick()
-	WorkWork:Toggle()
+	WorkWorkPeon:Toggle()
 
 	if WorkWork.isOn then
 		dbIconData.iconR = 1;

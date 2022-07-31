@@ -82,18 +82,24 @@ function CreatePortalWork(targetName, message, portal, parent)
 	work.finishTask:Disable(true)
 	work.contactTask:Enable()
 
+	frame:SetScript('OnEvent', function(self, event, ...)
+		work[event](work, ...)
+	end)
+
 	return work
 end
 
 function DetectPortalWork(playerName, guid, message, parent)
-	-- if playerName == UnitName('player') then
-    --     return nil
-    -- end
+	if not WorkWork.isDebug then
+		if playerName == UnitName('player') then
+			return nil
+		end
 
-    -- local _, playerClass = GetPlayerInfoByGUID(guid)
-    -- if playerClass == 'MAGE' then
-    --     return nil
-    -- end
+		local _, playerClass = GetPlayerInfoByGUID(guid)
+		if playerClass == 'MAGE' then
+			return nil
+		end
+	end
 
 	local message = string.lower(message)
 	if message:match('wts') ~= nil then
@@ -127,14 +133,6 @@ function PortalWork:Start()
 	if self.isAutoInvite then
 		self.contactTask:Run()
 	end
-end
-
-function PortalWork:Hide()
-	self.frame:Hide()
-end
-
-function PortalWork:Show()
-	self.frame:Show()
 end
 
 function PortalWork:Complete()
@@ -336,7 +334,25 @@ function PortalWork:UNIT_SPELLCAST_SUCCEEDED(target, castGUID, spellID)
 	end
 end
 
-function PortalWork:CHAT_MSG_SYSTEM(text, playerName, languageName, channelName, playerName2, specialFlags, zoneChannelID, channelIndex, channelBaseName, languageID, lineID, guid, bnSenderID, isMobile, isSubtitle, hideSenderInLetterbox, supressRaidIcons)
+function PortalWork:CHAT_MSG_SYSTEM(
+	text,
+	playerName,
+	languageName,
+	channelName,
+	playerName2,
+	specialFlags,
+	zoneChannelID,
+	channelIndex,
+	channelBaseName,
+	languageID,
+	lineID,
+	guid,
+	bnSenderID,
+	isMobile,
+	isSubtitle,
+	hideSenderInLetterbox,
+	supressRaidIcons
+)
 	local work = self
 	if self.state == 'WAITING_FOR_INVITE_RESPONSE' then
 		if text == self.info.targetName..' is already in a group.' then

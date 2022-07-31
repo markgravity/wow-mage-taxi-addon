@@ -98,20 +98,32 @@ function WorkList:TryAdd(targetName, guid, text)
 		end
 	end
 
-	local work = DetectPortalWork(targetName, guid, text, self.frame:GetParent())
-	if work then
-		work.frame:SetPoint('TOPLEFT', self.frame, 'TOPRIGHT', -11, 0)
-		work:Start()
-		self:Add({
-			id = targetName,
-			targetName = targetName,
-			status = work:GetStateText(),
-			typeText = 'Portal',
-			controller = work,
-			createdAt = GetTime()
-		})
-		self:Show()
-		return
+	local detectors = {
+		{
+			type = 'portal',
+			func = DetectPortalWork
+		}
+		-- {
+		-- 	type = 'enchant',
+		-- 	func = DetectEnchantWork
+		-- }
+	}
+	for _, detector in ipairs(detectors) do
+		local work = detector.func(targetName, guid, text, self.frame:GetParent())
+		if work then
+			work.frame:SetPoint('TOPLEFT', self.frame, 'TOPRIGHT', -11, 0)
+			work:Start()
+			self:Add({
+				id = targetName,
+				targetName = targetName,
+				status = work:GetStateText(),
+				type = detector.type,
+				controller = work,
+				createdAt = GetTime()
+			})
+			self:Show()
+			return
+		end
 	end
 end
 
@@ -237,7 +249,7 @@ function WorkList:FindHighestPriorityLevel()
 		end
 		return a.priorityLevel < b.priorityLevel
 	end)
-	
+
 	return sortedWorks[1]
 end
 

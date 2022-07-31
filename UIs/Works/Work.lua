@@ -98,10 +98,6 @@ function CreateWork(name, parent)
 	scrollContent:SetPoint('TOPLEFT', scrollFrame, 0, 0)
 	scrollFrame:SetScrollChild(scrollContent)
 	work.taskListContent = scrollContent
-
-	frame:SetScript('OnEvent', function(self, event, ...)
-		work[event](work, ...)
-	end)
 	return work
 end
 
@@ -117,4 +113,12 @@ end
 function Work:SetMessage(targetName, message)
 	self.targetNameText:SetText(targetName)
 	self.messageText:SetText(message)
+end
+
+function Work:Hide()
+	self.frame:Hide()
+end
+
+function Work:Show()
+	self.frame:Show()
 end
