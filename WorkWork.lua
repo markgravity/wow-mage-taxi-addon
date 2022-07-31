@@ -8,8 +8,8 @@ WORK_WIDTH = 210
 WORK_HEIGHT = 400
 
 function WorkWork:OnInitialize()
-	WorkWorkPeon:Init()
-	MinimapButton:Init()
 	WorkWorkProfessionScanner:Init()
+	WorkWorkPeon:Init()
+	WorkWorkMinimapButton:Init()
 	WorkWorkProfessionScanner:SetAutoScan(true)
 end

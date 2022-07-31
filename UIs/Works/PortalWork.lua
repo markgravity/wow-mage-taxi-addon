@@ -1,94 +1,6 @@
 local PortalWork = {}
 PortalWork.__index = PortalWork
 
-function CreatePortalWork(targetName, message, portal, parent)
-	local info = {
-		targetName = targetName,
-		sellingPortal = portal
-	}
-	local work = CreateWork('WorkWorkPortalWork'..targetName..portal.name, parent)
-	setmetatables(work, PortalWork)
-
-	work.isAutoInvite = true
-	work.info = info
-	work:SetState('INITIALIZED')
-
-	local frame = work.frame
-	frame:RegisterEvent('UNIT_SPELLCAST_SUCCEEDED')
-	frame:RegisterEvent('CHAT_MSG_SYSTEM')
-	frame:RegisterEvent('ZONE_CHANGED_NEW_AREA')
-	frame:Hide()
-
-    work:SetTitle('Portal')
-
-	local texture = GetSpellTexture(info.sellingPortal.portalSpellID)
-	work:SetItem(texture, info.sellingPortal.name)
-	work:SetMessage(info.targetName, message)
-
-	work.endButton:SetScript('OnClick', function(self)
-		work:Complete()
-	end)
-
-
-	-- Create tasks
-	local taskListContent = work.taskListContent
-	work.contactTask = CreateWorkTask(
-		taskListContent,
-		'Contact',
-		'|c60808080Invite |r|cffffd100'..info.targetName..'|r|c60808080 into the party|r'
-	)
-	work.contactTask:SetScript('OnClick', function(self)
-		work:SetState('WAITING_FOR_INVITE_RESPONSE')
-	end)
-	work.contactTask:SetPoint('TOP', taskListContent, 'TOP', 0, 0)
-
-	work.moveTask = CreateWorkTask(
-		taskListContent,
-		'Move',
-		'|c60808080Waiting for contact|r',
-	 	work.contactTask
-	)
-	work.moveTask:HookScript('OnClick', function(self)
-		work:SetState('CREATING_PORTAL')
-	end)
-
-	work.makeTask = CreateWorkTask(
-		taskListContent,
-		'Make',
-		'|c60808080Create a |r|cffffd100'..info.sellingPortal.name..'|r|c60808080 portal|r',
-		work.moveTask
-	)
-	work.makeTask:SetSpell(info.sellingPortal.portalSpellName)
-	work.makeTask:HookScript('OnClick', function(self)
-		work:SetState('CREATING_PORTAL')
-	end)
-
-	work.finishTask = CreateWorkTask(
-		taskListContent,
-		'Finish',
-		'|c60808080Waiting for |r|cffffd100'..info.targetName..'|r|c60808080 to enter the portal|r',
-		work.makeTask
-	)
-
-	taskListContent:SetSize(
-		WORK_WIDTH - 30,
-		work.moveTask.frame:GetHeight()
-		+ work.makeTask.frame:GetHeight()
-		+ work.finishTask.frame:GetHeight()
-		+ work.contactTask.frame:GetHeight()
-	)
-	work.moveTask:Disable()
-	work.makeTask:Disable()
-	work.finishTask:Disable(true)
-	work.contactTask:Enable()
-
-	frame:SetScript('OnEvent', function(self, event, ...)
-		work[event](work, ...)
-	end)
-
-	return work
-end
-
 function DetectPortalWork(playerName, guid, message, parent)
 	if not WorkWork.isDebug then
 		if playerName == UnitName('player') then
@@ -127,11 +39,104 @@ function DetectPortalWork(playerName, guid, message, parent)
     return nil
 end
 
+function CreatePortalWork(targetName, message, portal, parent)
+	local info = {
+		targetName = targetName,
+		sellingPortal = portal
+	}
+	local work = CreateWork('WorkWorkPortalWork'..targetName..portal.name, parent)
+	setmetatables(work, PortalWork)
+
+	work.isAutoContact = true
+	work.info = info
+	work:SetState('INITIALIZED')
+
+	local frame = work.frame
+	frame:RegisterEvent('UNIT_SPELLCAST_SUCCEEDED')
+	frame:RegisterEvent('CHAT_MSG_SYSTEM')
+	frame:RegisterEvent('ZONE_CHANGED_NEW_AREA')
+	frame:Hide()
+
+    work:SetTitle('Portal')
+
+	local texture = GetSpellTexture(info.sellingPortal.portalSpellID)
+	work:SetItem(texture, info.sellingPortal.name)
+	work:SetMessage(info.targetName, message)
+
+	work.endButton:SetScript('OnClick', function(self)
+		work:Complete()
+	end)
+
+
+	-- Create tasks
+	local taskListContent = work.taskListContent
+	work.contactTask = CreateContactTask(
+		info.targetName,
+		"Hey, please invite me for a portal to "..info.sellingPortal.name,
+		'Contact',
+		'|c60808080Invite |r|cffffd100'..info.targetName..'|r|c60808080 into the party|r',
+		taskListContent
+	)
+	work.contactTask:SetScript('OnStateChange', function(self)
+		local state = work.contactTask:GetState()
+		if state == 'WAITING_FOR_CONTACT_RESPONSE' or state == 'CONTACTED_TARGET' then
+			work:SetState(state)
+			return
+		end
+	end)
+
+	work.contactTask:SetPoint('TOP', taskListContent, 'TOP', 0, 0)
+
+	work.moveTask = CreateTask(
+		'Move',
+		'|c60808080Waiting for contact|r',
+		taskListContent,
+	 	work.contactTask
+	)
+
+	work.makeTask = CreateTask(
+		'Make',
+		'|c60808080Create a |r|cffffd100'..info.sellingPortal.name..'|r|c60808080 portal|r',
+		taskListContent,
+		work.moveTask
+	)
+	work.makeTask:SetSpell(info.sellingPortal.portalSpellName)
+	work.makeTask:HookScript('OnClick', function(self)
+		work:SetState('CREATING_PORTAL')
+	end)
+
+	work.finishTask = CreateTask(
+		'Finish',
+		'|c60808080Waiting for |r|cffffd100'..info.targetName..'|r|c60808080 to enter the portal|r',
+		taskListContent,
+		work.makeTask
+	)
+
+	taskListContent:SetSize(
+		WORK_WIDTH - 30,
+		work.moveTask.frame:GetHeight()
+		+ work.makeTask.frame:GetHeight()
+		+ work.finishTask.frame:GetHeight()
+		+ work.contactTask.frame:GetHeight()
+	)
+	work.moveTask:Disable()
+	work.makeTask:Disable()
+	work.finishTask:Disable(true)
+	work.contactTask:Enable()
+
+	frame:SetScript('OnEvent', function(self, event, ...)
+		work[event](work, ...)
+	end)
+
+	return work
+end
+
 function PortalWork:Start()
 	PlaySound(5274)
 	FlashClientIcon()
-	if self.isAutoInvite then
-		self.contactTask:Run()
+
+	if self.isAutoContact then
+		self.contactTask:Begin()
 	end
 end
 
@@ -159,13 +164,8 @@ function PortalWork:SetState(state)
 
 	local work = self
 
-	if state == 'WAITING_FOR_INVITE_RESPONSE' then
-		InviteUnit(self.info.targetName)
-		return
-	end
-
-	if state == 'INVITED_TARGET' then
-		SendPartyMessage('Hi, I\'m coming!!')
+	if state == 'CONTACTED_TARGET' then
+		SendPartyMessage('Hi, I\'m coming to you!!')
 		self.contactTask:Complete()
 		C_Timer.After(1, function() work:DetectTargetZone() end)
 		return
@@ -199,11 +199,11 @@ end
 
 function PortalWork:GetStateText()
 	local state = self.state
-	if state == 'WAITING_FOR_INVITE_RESPONSE' then
+	if state == 'WAITING_FOR_CONTACT_RESPONSE' then
 		return 'Contacting'
 	end
 
-	if state == 'INVITED_TARGET' then
+	if state == 'CONTACTED' then
 		return 'Contacted'
 	end
 
@@ -227,12 +227,12 @@ function PortalWork:GetStateText()
 end
 
 function PortalWork:GetPriorityLevel()
-	if self.state == 'WAITING_FOR_INVITE_RESPONSE'
+	if self.state == 'WAITING_FOR_CONTACT_RESPONSE'
 	 	or self.state == 'WAITING_FOR_TARGET_ENTER_PORTAL' then
 		return 4
 	end
 
-	if self.state == 'INVITED_TARGET'
+	if self.state == 'CONTACTED_TARGET'
 	 	or self.state == 'MOVING_TO_TARGET_ZONE' then
 		return 3
 	end
@@ -334,43 +334,8 @@ function PortalWork:UNIT_SPELLCAST_SUCCEEDED(target, castGUID, spellID)
 	end
 end
 
-function PortalWork:CHAT_MSG_SYSTEM(
-	text,
-	playerName,
-	languageName,
-	channelName,
-	playerName2,
-	specialFlags,
-	zoneChannelID,
-	channelIndex,
-	channelBaseName,
-	languageID,
-	lineID,
-	guid,
-	bnSenderID,
-	isMobile,
-	isSubtitle,
-	hideSenderInLetterbox,
-	supressRaidIcons
-)
+function PortalWork:CHAT_MSG_SYSTEM(text)
 	local work = self
-	if self.state == 'WAITING_FOR_INVITE_RESPONSE' then
-		if text == self.info.targetName..' is already in a group.' then
-			Whisper(self.info.targetName, "Hey, please invite me for a portal to "..self.info.sellingPortal.name)
-			self.contactTask:SetDescription('|c60808080Waiting for |r|cffffd100'..self.info.targetName..'|r|c60808080 invites you into the party|r')
-			WorkWorkAutoAcceptInvite:SetEnabled(true, function ()
-				work:SetState('INVITED_TARGET')
-			end)
-			return
-		end
-
-		if text == self.info.targetName..' joins the party.' then
-			work:SetState('INVITED_TARGET')
-			return
-		end
-		return
-	end
-
 
 	if self.state == 'WAITING_FOR_TARGET_ENTER_PORTAL' then
 		if text == 'Your group has been disbanded.' then
@@ -382,7 +347,7 @@ end
 
 function PortalWork:ZONE_CHANGED_NEW_AREA()
 	if self.state == 'MOVING_TO_TARGET_ZONE'
-	 	or self.state == 'INVITED_TARGET' then
+	 	or self.state == 'CONTACTED_TARGET' then
 		local playerZone = GetRealZoneText()
 		local targetZone = GetPartyMemberZone(self.info.targetName)
 

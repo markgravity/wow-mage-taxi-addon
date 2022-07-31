@@ -19,11 +19,13 @@ function ProfessionScanner:SetAutoScan(isAuto)
 end
 
 function ProfessionScanner:Scan(profession)
+	local baseData = self.baseData[profession]
 	local data = {}
-	local baseData = self.baseData[self.profession]
 	local numberOfCrafts = GetNumCrafts()
 	for craftID = 1, numberOfCrafts do
 		local craftName, _, craftType = GetCraftInfo(craftID)
+		local craftItemLink = GetCraftItemLink(craftID)
+
 		if craftType ~= 'header' then
 			local numberOfReagents = GetCraftNumReagents(craftID)
 			local reagents = {}
@@ -36,22 +38,27 @@ function ProfessionScanner:Scan(profession)
 				})
 			end
 
+			local craftItem = {
+				reagents = reagents,
+				itemLink = craftItemLink or craftName
+			}
+
+			-- Append data from base data
 			for i, v in ipairs(baseData) do
 				if v.name == craftName then
-					v.reagents = reagents
-					baseData[i] = v
+					craftItem = table.merge(craftItem, v)
 				end
 			end
+
+			table.insert(data, craftItem)
 		end
 	end
 
-	if WorkWorkCacheCharacter == nil then
-		WorkWorkCacheCharacter = {
-			professions = {}
-		}
-	end
+	self.config.data[profession] = data
+end
 
-	self.config.data[self.profession] = baseData
+function ProfessionScanner:GetData(profession)
+	return self.config.data[profession] or {}
 end
 
 function ProfessionScanner:CRAFT_SHOW()

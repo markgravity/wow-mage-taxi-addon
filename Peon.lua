@@ -19,8 +19,8 @@ function Peon:Init()
 	self.workList = CreateWorkList(self)
 	self.workList:Hide()
 	self.workList:TryAdd('Iina', nil, 'lf port to sw')
-	-- self.workList:TryAdd('Iina', nil, 'markg')
-	self:On()
+	-- self.workList:TryAdd('Iina', nil, 'lf minor speed')
+	-- self:On()
 end
 
 function Peon:On()

@@ -102,11 +102,11 @@ function WorkList:TryAdd(targetName, guid, text)
 		{
 			type = 'portal',
 			func = DetectPortalWork
+		},
+		{
+			type = 'enchant',
+			func = DetectEnchantWork
 		}
-		-- {
-		-- 	type = 'enchant',
-		-- 	func = DetectEnchantWork
-		-- }
 	}
 	for _, detector in ipairs(detectors) do
 		local work = detector.func(targetName, guid, text, self.frame:GetParent())

@@ -387,7 +387,7 @@ function lib:Refresh(name, db)
 	end
 end
 
-function lib:GetMinimapButton(name)
+function lib:GetWorkWorkMinimapButton(name)
 	return lib.objects[name]
 end
 

@@ -1,9 +1,9 @@
-local WorkTask = {}
-WorkTask.__index = WorkTask
+local Task = {}
+Task.__index = Task
 
-function CreateWorkTask(parent, titleText, descriptionText, previousTask)
+function CreateTask(titleText, descriptionText, parent, previousTask)
 	local task = {}
-	setmetatable(task, WorkTask)
+	setmetatable(task, Task)
 
 	local backdrop = {
 		bgFile = "Interface\\ChatFrame\\ChatFrameBackground",
@@ -64,19 +64,22 @@ function CreateWorkTask(parent, titleText, descriptionText, previousTask)
 	return task
 end
 
-function WorkTask:SetDescription(description)
+function Task:SetDescription(description)
 	self.description:SetText(description)
 	local totalHeight = 6 + self.title:GetStringHeight() + 6 + self.description:GetStringHeight() + 6 + 4
 	self.frame:SetHeight(totalHeight)
 end
 
-function WorkTask:Complete()
+function Task:Complete()
 	self.frame:SetBackdropColor(0.373, 0.729, 0.275, 0.3) -- green, to match website colors
 	self.frame:SetBackdropBorderColor(0.373, 0.729, 0.275)
 	self.line:SetColorTexture(0.388, 0.686, 0.388, 1) -- green
+	if self.onComplete then
+		self.onComplete()
+	end
 end
 
-function WorkTask:Disable(isFinish)
+function Task:Disable(isFinish)
 	self.frame:SetEnabled(false)
 	if isFinish then
 		self.frame:SetBackdropColor(0.557, 0.055, 0.075, 0.7	) -- red
@@ -90,7 +93,7 @@ function WorkTask:Disable(isFinish)
 	self.line:SetDrawLayer("ARTWORK",0)
 end
 
-function WorkTask:Enable()
+function Task:Enable()
 	self.frame:SetEnabled(true)
 	self.frame:SetBackdropColor(0.851, 0.608, 0.0, 0.3) -- yellow
 	self.frame:SetBackdropBorderColor(0.851, 0.608, 0.0, 1)
@@ -98,22 +101,26 @@ function WorkTask:Enable()
 	self.line:SetDrawLayer("ARTWORK",1)
 end
 
-function WorkTask:HookScript(event, script)
+function Task:HookScript(event, script)
 	self.frame:HookScript(event, script)
 end
 
-function WorkTask:SetScript(event, script)
+function Task:SetScript(event, script)
+	if event == 'OnComplete' then
+		self.onComplete = script
+		return
+	end
 	self.frame:SetScript(event, script)
 end
 
-function WorkTask:SetSpell(name)
+function Task:SetSpell(name)
 	self.frame:SetAttribute('macrotext', '/cast '..name)
 end
 
-function WorkTask:Run()
+function Task:Begin()
 	self.frame:Click()
 end
 
-function WorkTask:SetPoint(...)
+function Task:SetPoint(...)
 	self.frame:SetPoint(...)
 end

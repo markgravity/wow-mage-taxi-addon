@@ -1,6 +1,6 @@
-MinimapButton = {}
+WorkWorkMinimapButton = {}
 
-function MinimapButton:Init()
+function WorkWorkMinimapButton:Init()
 	-- Initialize LibDB
 	dbIcon = LibStub("LibDBIcon-1.0");
 	---@diagnostic disable-next-line: lowercase-global
@@ -13,9 +13,9 @@ function MinimapButton:Init()
 			type = "data source",
 			text = "WorkWork",
 			icon = "Interface\\ICONS\\RACIAL_ORC_BERSERKERSTRENGTH",
-			iconR = 1,
-			iconG = 1,
-			iconB = 1,
+			iconR = 0.7,
+			iconG = 0.7,
+			iconB = 0.7,
 			OnClick = self.OnClick,
 			OnTooltipShow = function (tooltip)
 				tooltip:AddLine("WorkWork", 1, 1, 1);
@@ -27,10 +27,10 @@ function MinimapButton:Init()
 	dbIcon:Register("WorkWork", dbIconData, WorkWorkConfigCharacter);
 end
 
-function MinimapButton:OnClick()
+function WorkWorkMinimapButton:OnClick()
 	WorkWorkPeon:Toggle()
 
-	if WorkWork.isOn then
+	if WorkWorkPeon.isOn then
 		dbIconData.iconR = 1;
 		dbIconData.iconG = 1;
 		dbIconData.iconB = 1;
