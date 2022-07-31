@@ -1,8 +1,11 @@
-local Task = {}
+local Action = {}
 
-function CreateTask(titleText, descriptionText, parent, previousTask)
-	local task = {}
-	extends(task, Task)
+function CreateAction(titleText, descriptionText, parent, previousAction)
+	local action = {}
+	extends(action, Action)
+
+	action.isCompleted = false
+	action.isEnabled = true
 
 	local backdrop = {
 		bgFile = "Interface\\ChatFrame\\ChatFrameBackground",
@@ -16,10 +19,10 @@ function CreateTask(titleText, descriptionText, parent, previousTask)
 	frame:SetPoint('LEFT', 0, 0)
 	frame:SetPoint('RIGHT', 0, 0)
 	frame:SetAttribute('type', 'macro')
-	if previousTask ~= nil then
-		frame:SetPoint('TOP', previousTask.frame, 'BOTTOM', 0, -16)
+	if previousAction ~= nil then
+		frame:SetPoint('TOP', previousAction.frame, 'BOTTOM', 0, -16)
 	end
-	task.frame = frame
+	action.frame = frame
 
 	-- Highlight Texture
  	local texture = frame:CreateTexture()
@@ -38,7 +41,7 @@ function CreateTask(titleText, descriptionText, parent, previousTask)
 	title:SetPoint('TOP', frame, 'TOP', 0, -8)
 	title:SetJustifyH('CENTER')
 	title:SetTextColor(1, 1, 1)
-	task.title = title
+	action.title = title
 
 	local description = frame:CreateFontString()
 	description:SetFont(GameFontNormal:GetFont(), 9)
@@ -46,8 +49,8 @@ function CreateTask(titleText, descriptionText, parent, previousTask)
 	description:SetPoint('RIGHT', frame, 'RIGHT', -16, 0)
 	description:SetPoint('TOP', title, 'BOTTOM', 0, -4)
 	description:SetJustifyH('CENTER')
-	task.description = description
-	task:SetDescription(descriptionText)
+	action.description = description
+	action:SetDescription(descriptionText)
 
 	local line = frame:CreateLine()
 	line:SetDrawLayer("ARTWORK",2)
@@ -55,30 +58,40 @@ function CreateTask(titleText, descriptionText, parent, previousTask)
 	line:SetStartPoint("TOP", 0, 0)
 	line:SetEndPoint("TOP", 0, 16)
 	line:Hide()
-	task.line = line
-	if previousTask ~= nil then
+	action.line = line
+	if previousAction ~= nil then
 		line:Show()
 	end
 
-	return task
+	return action
 end
 
-function Task:SetDescription(description)
+function Action:SetDescription(description)
 	self.description:SetText(description)
 	local totalHeight = 6 + self.title:GetStringHeight() + 6 + self.description:GetStringHeight() + 6 + 4
 	self.frame:SetHeight(totalHeight)
 end
 
-function Task:Complete()
-	self.frame:SetBackdropColor(0.373, 0.729, 0.275, 0.3) -- green, to match website colors
-	self.frame:SetBackdropBorderColor(0.373, 0.729, 0.275)
-	self.line:SetColorTexture(0.388, 0.686, 0.388, 1) -- green
+function Action:Complete()
+	self.isCompleted = true
+	self.frame:SetEnabled(false)
+	self:SetupUIForComplete()
 	if self.onComplete then
 		self.onComplete()
 	end
 end
 
-function Task:Disable(isFinish)
+function Action:Uncomplete()
+	self.isCompleted = false
+	if self.isEnabled then
+		self:Endable()
+	else
+		self:Disable()
+	end
+end
+
+function Action:Disable(isFinish)
+	self.isEnabled = false
 	self.frame:SetEnabled(false)
 	if isFinish then
 		self.frame:SetBackdropColor(0.557, 0.055, 0.075, 0.7	) -- red
@@ -92,7 +105,13 @@ function Task:Disable(isFinish)
 	self.line:SetDrawLayer("ARTWORK",0)
 end
 
-function Task:Enable()
+function Action:Enable()
+	if self.isCompleted then
+		self:SetupUIForComplete()
+		return
+	end
+
+	self.isEnabled = true
 	self.frame:SetEnabled(true)
 	self.frame:SetBackdropColor(0.851, 0.608, 0.0, 0.3) -- yellow
 	self.frame:SetBackdropBorderColor(0.851, 0.608, 0.0, 1)
@@ -100,11 +119,18 @@ function Task:Enable()
 	self.line:SetDrawLayer("ARTWORK",1)
 end
 
-function Task:HookScript(event, script)
+function Action:SetupUIForComplete()
+	self.frame:SetEnabled(false)
+	self.frame:SetBackdropColor(0.373, 0.729, 0.275, 0.3) -- green, to match website colors
+	self.frame:SetBackdropBorderColor(0.373, 0.729, 0.275)
+	self.line:SetColorTexture(0.388, 0.686, 0.388, 1) -- green
+end
+
+function Action:HookScript(event, script)
 	self.frame:HookScript(event, script)
 end
 
-function Task:SetScript(event, script)
+function Action:SetScript(event, script)
 	if event == 'OnComplete' then
 		self.onComplete = script
 		return
@@ -112,14 +138,18 @@ function Task:SetScript(event, script)
 	self.frame:SetScript(event, script)
 end
 
-function Task:SetSpell(name)
+function Action:SetSpell(name)
 	self.frame:SetAttribute('macrotext', '/cast '..name)
 end
 
-function Task:Begin()
+function Action:SetMarcro(content)
+	self.frame:SetAttribute('macrotext', content)
+end
+
+function Action:Excute()
 	self.frame:Click()
 end
 
-function Task:SetPoint(...)
+function Action:SetPoint(...)
 	self.frame:SetPoint(...)
 end

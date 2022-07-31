@@ -1,12 +1,5 @@
 function GetPartyMemberZone(playerName)
-	local unitID
-	for i = 1, 4 do
-		local tmpUnitID = 'party'..i
-		local unitName = UnitName(tmpUnitID)
-		if unitName == playerName then
-			unitID = tmpUnitID
-		end
-	end
+	local unitID = GetUnitPartyID(playerName)
 
 	if unitID == nil then
 		return nil

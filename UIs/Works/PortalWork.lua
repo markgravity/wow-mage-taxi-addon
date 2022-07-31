@@ -17,7 +17,9 @@ function DetectPortalWork(playerName, guid, message, parent)
 		return
 	end
 
-    if message:match('port') == nil and message:match('portal') == nil then
+    if message:match('port') == nil
+		and message:match('portal') == nil
+		and message:match('por') == nil then
 		return nil
 	end
 
@@ -66,68 +68,68 @@ function CreatePortalWork(targetName, message, portal, parent)
 	end)
 
 
-	-- Create tasks
-	local taskListContent = work.taskListContent
-	work.contactTask = CreateContactTask(
+	-- Create actions
+	local actionListContent = work.actionListContent
+	work.contactAction = CreateContactAction(
 		info.targetName,
 		"Hey, please invite me for a portal to "..info.sellingPortal.name,
 		'Contact',
 		'|c60808080Invite |r|cffffd100'..info.targetName..'|r|c60808080 into the party|r',
-		taskListContent
+		actionListContent
 	)
-	work.contactTask:SetScript('OnStateChange', function(self)
-		local state = work.contactTask:GetState()
+	work.contactAction:SetScript('OnStateChange', function(self)
+		local state = work.contactAction:GetState()
 		if state == 'WAITING_FOR_CONTACT_RESPONSE' or state == 'CONTACTED_TARGET' then
 			work:SetState(state)
 			return
 		end
 	end)
-	work.contactTask:SetPoint('TOP', taskListContent, 'TOP', 0, 0)
+	work.contactAction:SetPoint('TOP', actionListContent, 'TOP', 0, 0)
 
-	work.moveTask = CreateMoveTask(
+	work.moveAction = CreateMoveAction(
 		info.targetName,
 		'Move',
 		'|c60808080Waiting for contact|r',
-		taskListContent,
-	 	work.contactTask
+		actionListContent,
+	 	work.contactAction
 	)
-	work.moveTask:SetScript('OnStateChange', function(self)
-		local state = work.moveTask:GetState()
+	work.moveAction:SetScript('OnStateChange', function(self)
+		local state = work.moveAction:GetState()
 		if state == 'MOVING_TO_TARGET_ZONE' or state == 'MOVED_TO_TARGET_ZONE' then
 			work:SetState(state)
 			return
 		end
 	end)
 
-	work.makeTask = CreateTask(
+	work.makeAction = CreateAction(
 		'Make',
 		'|c60808080Create a |r|cffffd100'..info.sellingPortal.name..'|r|c60808080 portal|r',
-		taskListContent,
-		work.moveTask
+		actionListContent,
+		work.moveAction
 	)
-	work.makeTask:SetSpell(info.sellingPortal.portalSpellName)
-	work.makeTask:HookScript('OnClick', function(self)
+	work.makeAction:SetSpell(info.sellingPortal.portalSpellName)
+	work.makeAction:HookScript('OnClick', function(self)
 		work:SetState('CREATING_PORTAL')
 	end)
 
-	work.finishTask = CreateTask(
+	work.finishAction = CreateAction(
 		'Finish',
 		'|c60808080Waiting for |r|cffffd100'..info.targetName..'|r|c60808080 to enter the portal|r',
-		taskListContent,
-		work.makeTask
+		actionListContent,
+		work.makeAction
 	)
 
-	taskListContent:SetSize(
+	actionListContent:SetSize(
 		WORK_WIDTH - 30,
-		work.moveTask.frame:GetHeight()
-		+ work.makeTask.frame:GetHeight()
-		+ work.finishTask.frame:GetHeight()
-		+ work.contactTask.frame:GetHeight()
+		work.moveAction.frame:GetHeight()
+		+ work.makeAction.frame:GetHeight()
+		+ work.finishAction.frame:GetHeight()
+		+ work.contactAction.frame:GetHeight()
 	)
-	work.moveTask:Disable()
-	work.makeTask:Disable()
-	work.finishTask:Disable(true)
-	work.contactTask:Enable()
+	work.moveAction:Disable()
+	work.makeAction:Disable()
+	work.finishAction:Disable(true)
+	work.contactAction:Enable()
 
 	frame:SetScript('OnEvent', function(self, event, ...)
 		work[event](work, ...)
@@ -141,7 +143,7 @@ function PortalWork:Start()
 	FlashClientIcon()
 
 	if self.isAutoContact then
-		self.contactTask:Begin()
+		self.contactAction:Excute()
 	end
 end
 
@@ -170,9 +172,9 @@ function PortalWork:SetState(state)
 	local work = self
 
 	if state == 'CONTACTED_TARGET' then
-		self.contactTask:Complete()
-		self.moveTask:Enable()
-		self.moveTask:Begin()
+		self.contactAction:Complete()
+		self.moveAction:Enable()
+		self.moveAction:Excute()
 		return
 	end
 
@@ -181,8 +183,8 @@ function PortalWork:SetState(state)
 	end
 
 	if state == 'MOVED_TO_TARGET_ZONE' then
-		self.moveTask:Complete()
-		self.makeTask:Enable()
+		self.moveAction:Complete()
+		self.makeAction:Enable()
 		return
 	end
 
@@ -191,8 +193,8 @@ function PortalWork:SetState(state)
 	end
 
 	if state == 'WAITING_FOR_TARGET_ENTER_PORTAL' then
-		self.makeTask:Complete()
-		self.finishTask:Enable()
+		self.makeAction:Complete()
+		self.finishAction:Enable()
 		self:WaitingForTargetEnterPortal()
 		return
 	end

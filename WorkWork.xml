@@ -15,13 +15,14 @@
 	<Script file="Data\Portals.lua"/>
 	<Script file="Utils\Table.lua"/>
 	<Script file="Utils\Class.lua"/>
+	<Script file="Utils\UnitID.lua"/>
 	<Script file="Utils\Zone.lua"/>
 	<Script file="Utils\Chat.lua"/>
 	<Script file="Utils\AutoAcceptInvite.lua"/>
 	<Script file="Utils\ProfessionScanner.lua"/>
-	<Script file="UIs\Tasks\Task.lua"/>
-	<Script file="UIs\Tasks\ContactTask.lua"/>
-	<Script file="UIs\Tasks\MoveTask.lua"/>
+	<Script file="UIs\Actions\Action.lua"/>
+	<Script file="UIs\Actions\ContactAction.lua"/>
+	<Script file="UIs\Actions\MoveAction.lua"/>
 	<Script file="UIs\Works\Work.lua"/>
 	<Script file="UIs\Works\PortalWork.lua"/>
 	<Script file="UIs\Works\EnchantWork.lua"/>

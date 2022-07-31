@@ -24,9 +24,19 @@ function setmetatables(t1, t2)
 end
 
 function table.merge(t1, t2)
-   for k,v in ipairs(t2) do
-      table.insert(t1, v)
-   end
+	if table.isArray(t1) then
+		for _, v in ipairs(t2) do
+		  table.insert(t1, v)
+		end
+		return
+	else
+		for k, v in pairs(t2) do
+			t1[k] = v
+		end
+		return
+	end
+end
 
-   return t1
+function table.isArray(t)
+  return #t > 0 and next(t, #t) == nil
 end

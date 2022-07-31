@@ -39,14 +39,15 @@ function ProfessionScanner:Scan(profession)
 			end
 
 			local craftItem = {
+				name = craftName,
 				reagents = reagents,
 				itemLink = craftItemLink or craftName
 			}
 
 			-- Append data from base data
-			for i, v in ipairs(baseData) do
+			for _, v in ipairs(baseData) do
 				if v.name == craftName then
-					craftItem = table.merge(craftItem, v)
+					table.merge(craftItem, v)
 				end
 			end
 

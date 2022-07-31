@@ -20,7 +20,7 @@ WorkWork.portals = {
 	{
 		name = 'Theramore',
 		zoneName = 'Dustwallow Marsh',
-		keywords = { 'thera', 'theremore', 'teramore', 'thara', 'Theramore' },
+		keywords = { 'thera', 'theremore', 'teramore', 'thara', 'ther', 'Theramore' },
 		portalSpellName = 'Portal: Theramore',
 		portalSpellID = 49360,
 		teleportSpellName = 'Teleport: Theramore',

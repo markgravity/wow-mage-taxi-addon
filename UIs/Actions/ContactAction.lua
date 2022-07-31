@@ -1,34 +1,34 @@
-local ContactTask = {}
+local ContactAction = {}
 
-function CreateContactTask(
+function CreateContactAction(
 	targetName,
 	whisperMessage,
 	titleText,
 	descriptionText,
 	parent,
-	previousTask
+	previousAction
 )
-	local task = CreateTask(titleText, descriptionText, parent, previousTask)
-	extends(task, ContactTask)
-	task.info = {
+	local action = CreateAction(titleText, descriptionText, parent, previousAction)
+	extends(action, ContactAction)
+	action.info = {
 		targetName = targetName,
 		whisperMessage = whisperMessage
 	}
-	task:SetState('INITIALIZED')
-	task:SetScript('OnClick', function()
-		task:SetState('WAITING_FOR_CONTACT_RESPONSE')
+	action:SetState('INITIALIZED')
+	action:SetScript('OnClick', function()
+		action:SetState('WAITING_FOR_CONTACT_RESPONSE')
 	end)
 
-	local frame = task.frame
+	local frame = action.frame
 	frame:RegisterEvent('CHAT_MSG_SYSTEM')
 	frame:SetScript('OnEvent', function(self, event, ...)
-		task[event](task, ...)
+		action[event](action, ...)
 	end)
 
-	return task
+	return action
 end
 
-function ContactTask:SetState(state)
+function ContactAction:SetState(state)
 	self.state = state
 	if self.onStateChange then
 		self.onStateChange()
@@ -44,11 +44,11 @@ function ContactTask:SetState(state)
 	end
 end
 
-function ContactTask:GetState()
+function ContactAction:GetState()
 	return self.state
 end
 
-function ContactTask:SetScript(super, event, script)
+function ContactAction:SetScript(super, event, script)
 	if event == 'OnStateChange' then
 		self.onStateChange = script
 		return
@@ -57,20 +57,20 @@ function ContactTask:SetScript(super, event, script)
 	super(event, script)
 end
 
-function ContactTask:CHAT_MSG_SYSTEM(text)
-	local work = self
+function ContactAction:CHAT_MSG_SYSTEM(text)
+	local task = self
 	if self.state == 'WAITING_FOR_CONTACT_RESPONSE' then
 		if text == self.info.targetName..' is already in a group.' then
 			Whisper(self.info.targetName, self.info.whisperMessage)
-			self.contactTask:SetDescription('|c60808080Waiting for |r|cffffd100'..self.info.targetName..'|r|c60808080 invites you into the party|r')
+			self:SetDescription('|c60808080Waiting for |r|cffffd100'..self.info.targetName..'|r|c60808080 invites you into the party|r')
 			WorkWorkAutoAcceptInvite:SetEnabled(true, function ()
-				work:SetState('CONTACTED_TARGET')
+				task:SetState('CONTACTED_TARGET')
 			end)
 			return
 		end
 
 		if text == self.info.targetName..' joins the party.' then
-			work:SetState('CONTACTED_TARGET')
+			task:SetState('CONTACTED_TARGET')
 			return
 		end
 		return

@@ -1,35 +1,46 @@
 local EnchantWork = {}
 
 function CreateEnchantWork(targetName, message, enchants, parent)
-	local receivedMats = {}
+	local work = CreateWork('WorkWorkEnchantWork'..targetName, parent)
+	extends(work, EnchantWork)
+
+	-- Setup default receivedReagents
+	local receivedReagents = {}
 	for _, enchant in ipairs(enchants) do
 		for _, reagent in ipairs(enchant.reagents) do
-			table.insert(receivedMats, {
-				name = reagent.name,
-				numRequired = reagent.numRequired,
-				numHave = 0
-			})
+			local receivedReagent = work:GetReagentByName(
+				reagent.name,
+				receivedReagents
+			)
+
+			if receivedReagent ~= nil then
+				receivedReagent.numRequired = receivedReagent.numRequired
+					+ reagent.numRequired
+			else
+				table.insert(receivedReagents, {
+					name = reagent.name,
+					numRequired = reagent.numRequired,
+					numHave = 0
+				})
+			end
 		end
 	end
 
 	local info = {
 		targetName = targetName,
- 		enchants = enchants,
-		receivedMats = receivedMats
+		enchants = enchants,
+		receivedReagents = receivedReagents
 	}
-	local work = CreateWork('WorkWorkEnchantWork'..targetName, parent)
-	extends(work, EnchantWork)
 
 	work.isAutoInvite = true
 	work.info = info
 	work:SetState('INITIALIZED')
 
 	local frame = work.frame
-	frame:RegisterEvent('UNIT_SPELLCAST_SUCCEEDED')
-	frame:RegisterEvent('CHAT_MSG_SYSTEM')
-	frame:RegisterEvent('ZONE_CHANGED_NEW_AREA')
 	frame:RegisterEvent('TRADE_SHOW')
 	frame:RegisterEvent('TRADE_ACCEPT_UPDATE')
+	frame:RegisterEvent('CRAFT_SHOW')
+	frame:RegisterEvent('UNIT_SPELLCAST_SUCCEEDED')
 	frame:Hide()
 
     work:SetTitle('Enchant')
@@ -39,83 +50,94 @@ function CreateEnchantWork(targetName, message, enchants, parent)
 	work:SetMessage(info.targetName, message)
 
 	work.endButton:SetScript('OnClick', function(self)
+		work:Complete()
 	end)
 
-	-- Create tasks
-	local taskListContent = work.taskListContent
-	work.contactTask = CreateContactTask(
+	-- Create actions
+	local actionListContent = work.actionListContent
+	work.contactAction = CreateContactAction(
 		info.targetName,
-		"Hey, please invite me for enchanting "..self.info.enchants[1].itemLink,
+		"Hey, please invite me for enchanting "..info.enchants[1].itemLink,
 		'Contact',
 		'|c60808080Invite |r|cffffd100'..info.targetName..'|r|c60808080 into the party|r',
-		taskListContent
+		actionListContent
 	)
-	work.contactTask:SetScript('OnStateChange', function(self)
-		local state = work.contactTask:GetState()
+	work.contactAction:SetScript('OnStateChange', function(self)
+		local state = work.contactAction:GetState()
 		if state == 'WAITING_FOR_CONTACT_RESPONSE' or state == 'CONTACTED_TARGET' then
 			work:SetState(state)
 			return
 		end
 	end)
-	work.contactTask:SetPoint('TOP', taskListContent, 'TOP', 0, 0)
+	work.contactAction:SetPoint('TOP', actionListContent, 'TOP', 0, 0)
 
-	work.moveTask = CreateMoveTask(
+	work.moveAction = CreateMoveAction(
 		info.targetName,
 		'Move',
 		'|c60808080Waiting for contact|r',
-		taskListContent,
-	 	work.contactTask
+		actionListContent,
+	 	work.contactAction
 	)
-	work.moveTask:SetScript('OnStateChange', function(self)
-		local state = work.moveTask:GetState()
+	work.moveAction:SetScript('OnStateChange', function(self)
+		local state = work.moveAction:GetState()
 		if state == 'MOVING_TO_TARGET_ZONE' or state == 'MOVED_TO_TARGET_ZONE' then
 			work:SetState(state)
 			return
 		end
 	end)
 
-	work.gatherTask = CreateTask(
+	work.gatherAction = CreateAction(
 		'Gather',
 		nil,
-		taskListContent,
-		work.moveTask
+		actionListContent,
+		work.moveAction
 	)
-	work.gatherTask:HookScript('OnClick', function(self)
+	work.gatherAction:SetScript('OnClick', function(self)
 		work:SetState('GATHERING_MATS')
 	end)
-	work:UpdateGather()
 
-	work.enchantTask = CreateTask(
-		'Enchant',
-		'|cffffd100'..info.enchants[1].name..'|r',
-		taskListContent,
-		work.gatherTask
-	)
-	work.enchantTask:HookScript('OnClick', function(self)
+	work.enchantActions = {
+		CreateAction(
+			'Enchant',
+			'|cffffd100'..info.enchants[1].name..'|r',
+			actionListContent,
+			work.gatherAction
+		)
+	}
+	-- work.enchantActions[1]:SetMarcro('/cast Enchanting\n/run local s for i=1,GetNumCrafts() do s=GetCraftInfo(i) if (s=="'..info.enchants[1].name..'") then print("xxx") SelectCraft(i) end end\n/click CraftCreateButton')
+	work.enchantActions[1]:SetSpell('Enchanting')
+	CraftCreateButton.IsForbidden = function() return true end
+	work.enchantActions[1]:HookScript('OnClick', function(self)
+		work.activeEnchant = work.info.enchants[1]
 		work:SetState('ENCHANTING')
 	end)
 
-	work.finishTask = CreateTask(
+	work.finishAction = CreateAction(
 		'Finish',
 		'|c60808080Uninvite |r|cffffd100'..info.targetName..'|r|c60808080 to the party|r',
-		taskListContent,
-		work.enchantTask
+		actionListContent,
+		work.enchantActions[1]
 	)
 
-	taskListContent:SetSize(
+	actionListContent:SetSize(
 		WORK_WIDTH - 30,
-		work.contact.frame:GetHeight()
-		+ work.moveTask.frame:GetHeight()
-		+ work.gatherTask.frame:GetHeight()
-		+ work.enchantTask.frame:GetHeight()
-		+ work.finishTask.frame:GetHeight()
+		work.contactAction.frame:GetHeight()
+		+ work.moveAction.frame:GetHeight()
+		+ work.gatherAction.frame:GetHeight()
+		+ work.enchantActions[1].frame:GetHeight()
+		+ work.finishAction.frame:GetHeight()
 	)
-	work.moveTask:Disable()
-	work.gatherTask:Disable()
-	work.enchantTask:Disable()
-	work.finishTask:Disable(true)
-	work.contactTask:Enable()
+	work.moveAction:Disable()
+	work.gatherAction:Disable()
+	work.enchantActions[1]:Disable()
+	work.finishAction:Disable(true)
+	work.contactAction:Enable()
 	work.frame:Show()
+
+	work:UpdateGather()
+	frame:SetScript('OnEvent', function(self, event, ...)
+		work[event](work, ...)
+	end)
 	return work
 end
 
@@ -137,9 +159,12 @@ function DetectEnchantWork(targetName, guid, message, parent)
 
 	local enchants = WorkWorkProfessionScanner:GetData('Enchanting')
 	for _, enchant in ipairs(enchants) do
-		for _, keyword in ipairs(enchant.keywords) do
-			if message:match(keyword) ~= nil
-			 	or message:match(enchant.itemLink) then
+		if message:match(enchant.itemLink) then
+			return CreateEnchantWork(targetName, message, { enchant }, parent)
+		end
+
+		for _, keyword in ipairs(enchant.keywords or {}) do
+			if message:match(keyword) ~= nil then
 				return CreateEnchantWork(targetName, message, { enchant }, parent)
 			end
 		end
@@ -148,6 +173,12 @@ function DetectEnchantWork(targetName, guid, message, parent)
 end
 
 function EnchantWork:Start()
+	PlaySound(5274)
+	FlashClientIcon()
+
+	if self.isAutoContact then
+		self.contactAction:Excute()
+	end
 end
 
 function EnchantWork:SetState(state)
@@ -158,15 +189,10 @@ function EnchantWork:SetState(state)
 
 	local work = self
 
-	if state == 'WAITING_FOR_INVITE_RESPONSE' then
-		InviteUnit(self.info.targetName)
-		return
-	end
-
-	if state == 'INVITED_TARGET' then
-		SendPartyMessage('Hi, I\'m coming!!')
-		self.contactTask:Complete()
-		C_Timer.After(1, function() work:DetectTargetZone() end)
+	if state == 'CONTACTED_TARGET' then
+		self.contactAction:Complete()
+		self.moveAction:Enable()
+		self.moveAction:Excute()
 		return
 	end
 
@@ -175,8 +201,8 @@ function EnchantWork:SetState(state)
 	end
 
 	if state == 'MOVED_TO_TARGET_ZONE' then
-		self.moveTask:Complete()
-		self.gatherTask:Enable()
+		self.moveAction:Complete()
+		self.gatherAction:Enable()
 		return
 	end
 
@@ -185,88 +211,235 @@ function EnchantWork:SetState(state)
 		return
 	end
 
-	if state == 'ENCHANTING' then
+	if state == 'READY_TO_ENCHANT' then
+		self.gatherAction:Complete()
+		self.enchantActions[1]:Enable()
 		return
 	end
 
-	if state == 'WAITING_FOR_TARGET_ENTER_PORTAL' then
-		self.makeTask:Complete()
-		self.finishTask:Enable()
-		self:WaitingForTargetEnterPortal()
+	if state == 'ENCHANTING' then
+		local unitID = GetUnitPartyID(self.info.targetZone)
+		TargetUnit(unitID);
+		InitiateTrade('target')
+		return
+	end
+
+	if state == 'ENCHANTED' then
+		AcceptTrade()
+		return
+	end
+
+	if state == 'DELIVERED' then
+		self.enchantActions[1]:Complete()
+		self.finishAction:Enable()
+		return
+	end
+
+	if state == 'FINISHING' then
+		self:Complete()
 		return
 	end
 end
 
 function EnchantWork:GetStateText(state)
+	local state = self.state
+	if state == 'WAITING_FOR_CONTACT_RESPONSE' then
+		return 'Contacting'
+	end
+
+	if state == 'CONTACTED_TARGET' then
+		return 'Contacted'
+	end
+
+	if state == 'MOVING_TO_TARGET_ZONE' then
+		return 'Moving'
+	end
+
+	if state == 'MOVED_TO_TARGET_ZONE' then
+		return 'Moved'
+	end
+
+	if state == 'GATHERING_MATS' then
+		return 'GATHERING'
+	end
+
+	if state == 'READY_TO_ENCHANT' then
+		return 'Ready'
+	end
+
+	if state == 'ENCHANTING' then
+		return 'Enchanting'
+	end
+
+	if state == 'ENCHANTED' then
+		return 'Enchanted'
+	end
+
+	if state == 'DELIVERED' then
+		return 'Delivered'
+	end
+
+	return ''
+end
+
+function EnchantWork:SetScript(event, script)
+	if event == 'OnStateChange' then
+		self.onStateChange = script
+		return
+	end
+
+	if event == 'OnComplete' then
+		self.onComplete = script
+		return
+	end
 end
 
 function EnchantWork:GetPriorityLevel()
-	return 4
-end
+	if self.state == 'WAITING_FOR_CONTACT_RESPONSE'
+	 	or self.state == 'ENCHANTED' then
+		return 4
+	end
 
-function EnchantWork:SetScript()
+	if self.state == 'CONTACTED_TARGET'
+	 	or self.state == 'MOVING_TO_TARGET_ZONE' then
+		return 3
+	end
 
+	if self.state == 'MOVED_TO_TARGET_ZONE'
+	 	or self.state == 'ENCHANTING' then
+		return 2
+	end
+
+	return 1
 end
 
 function EnchantWork:UpdateGather()
+	-- Gather Action
 	local description = '|c60808080Received Mats:|r'
-	for _, mats in ipairs(self.info.receivedMats) do
-		description = description..'\n|cffffd100 '..mats.name..'|r|cfffffff0 '..mats.numHave..'/'..mats.numRequired..'|r'
+	for _, reagent in ipairs(self.info.receivedReagents) do
+		description = description..'\n|cffffd100 '..reagent.name..'|r|cfffffff0 '..reagent.numHave..'/'..reagent.numRequired..'|r'
 	end
-	self.gatherTask:SetDescription(description)
-end
+	self.gatherAction:SetDescription(description)
 
-function EnchantWork:DetectTargetZone()
-	local work = self
-	local targetZone = GetPartyMemberZone(self.info.targetName)
-	if targetZone == nil then
-		C_Timer.After(1, function() work:DetectTargetZone() end)
-		return
-	end
-
-	local playerZone = GetRealZoneText()
-	local work = self
-
-	if playerZone == targetZone then
-		self:SetState('MOVED_TO_TARGET_ZONE')
-		return
-	end
-
-	local portal = self:FindPortal(targetZone)
-	if portal == nil then
-		self:SetState('MOVING_TO_TARGET_ZONE')
-		self.moveTask:SetDescription('|c60808080Move to |r|cffffd100'..targetZone..'|r|c60808080 manually|r')
-		self.moveTask:Enable()
-		return
-	end
-
-	self.info.movingPortal = portal
-	self.moveTask:SetSpell(portal.teleportSpellName)
-	self.moveTask:HookScript('OnClick', function()
-		work:SetState('MOVING_TO_TARGET_ZONE')
-	end)
-	self.moveTask:SetDescription('|c60808080Teleport to |r|cffffd100'..portal.name..'|r')
-	self.moveTask:Enable()
-end
-
-function EnchantWork:FindPortal(zoneName)
-	for _, portal in ipairs(WorkWork.portals) do
-		if portal.zoneName == zoneName then
-			return portal
+	local isGatherActionCompleted = true
+	for _, receivedReagent in ipairs(self.info.receivedReagents) do
+		if receivedReagent.numHave < receivedReagent.numRequired then
+			isGatherActionCompleted = false
 		end
 	end
+	if isGatherActionCompleted then
+		self:SetState('READY_TO_ENCHANT')
+	end
+
+	-- Enchant Actions
+	-- for i, enchant in ipairs(self.info.enchants) do
+	-- 	local hasAllReagentsRequired = true
+	-- 	for _, reagent in ipairs(enchant.reagents) do
+	-- 		local receivedReagent = self:GetReagentByName(
+	-- 			reagent.name,
+	-- 			self.info.receivedReagents
+	-- 		)
+	-- 		if receivedReagent.numHave < reagent.numRequired then
+	-- 			hasAllReagentsRequired = false
+	-- 		end
+	-- 	end
+	--
+	-- 	if hasAllReagentsRequired then
+	-- 		self.enchantActions[i]:Enable()
+	-- 	else
+	-- 		self.enchantActions[i]:Disable()
+	-- 	end
+	-- end
+end
+
+function EnchantWork:GatherReagents()
+	for i = 1, 7 do
+		local name, _, quantity = GetTradeTargetItemInfo(i)
+		for _, mat in ipairs(self.info.receivedReagents) do
+			if mat.name == name then
+				mat.numHave = mat.numHave + quantity
+			end
+		end
+	end
+
+	self:UpdateGatherAndEnchantActions()
+end
+
+function EnchantWork:GetTradeTargetName()
+	if TradeFrameRecipientNameText == nil then
+		return TradeFrameRecipientNameText:GetText()
+	end
+	return nil
+end
+
+function EnchantWork:GetReagentByName(name, reagents)
+	for _, reagent in ipairs(reagents) do
+		if reagent.name == name then
+			return reagent
+		end
+	end
+
 	return nil
 end
 
 -- Events
 function EnchantWork:TRADE_SHOW()
-	if TradeFrameRecipientNameText == nil
-	 	or TradeFrameRecipientNameText:GetText() ~= self.info.targetName then
+	if self:GetTradeTargetName() ~= self.info.targetName then
 		return
 	end
 
-	if self.state == 'CONTACTED' then
+	if self.state == 'ENCHANTING' then
+		return
+	end
+end
 
+function EnchantWork:TRADE_ACCEPT_UPDATE(playerAccepted, targetAccepted)
+	if self.state == 'MOVED_TO_TARGET_ZONE'
+	 	or self.state == 'GATHERING_MATS' then
+		if playerAccepted == 0 and targetAccepted == 1 then
+			AcceptTrade()
+			return
+		end
+
+		if playerAccepted == 1 and targetAccepted == 1 then
+			self:GatherReagents()
+			return
+		end
+		return
+	end
+
+	if self.state == 'ENCHANTED'
+	 	and playerAccepted == 1 and targetAccepted == 1 then
+		self:SetState('DELIVERED')
+		return
+	end
+end
+
+function EnchantWork:CRAFT_SHOW()
+	local profession = GetCraftSkillLine(1)
+	if profession ~= 'Enchanting' then
+		return
+	end
+
+	if self.state == 'ENCHANTING' then
+		local numberOfCrafts = GetNumCrafts()
+		for craftID = 1, numberOfCrafts do
+			local craftName, _, craftType = GetCraftInfo(craftID)
+			if craftType ~= 'header' and craftName == self.info.enchants[1].name then
+				SelectCraft(craftID)
+			end
+		end
+		return
+	end
+end
+
+function EnchantWork:UNIT_SPELLCAST_SUCCEEDED(target, castGUID, spellID)
+	if self.state == 'ENCHANTING' then
+		local spellName = GetSpellInfo(spellID)
+		if spellName == self.info.enchants[1].name then
+			self:SetState('ENCHANTED')
+			return
+		end
 		return
 	end
 end

@@ -27,8 +27,8 @@ function Peon:Init()
 			peon:Show()
 		end
 	end)
-	workList:TryAdd('Iina', nil, 'lf port to sw')
-	-- self.workList:TryAdd('Iina', nil, 'lf minor speed')
+	-- workList:TryAdd('Iina', nil, 'lf port to sw')
+	workList:TryAdd('Iina', nil, 'lf minor health')
 	-- self:On()
 	self.workList = workList
 end

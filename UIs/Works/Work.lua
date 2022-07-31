@@ -69,14 +69,14 @@ function CreateWork(name, parent)
 	work.endButton = endButton
 
 
-	local taskList = CreateFrame('Frame', nil, frame, 'InsetFrameTemplate')
-	taskList:SetPoint('TOPLEFT', divider, 'TOPLEFT', 0, -10)
-	taskList:SetPoint('BOTTOMRIGHT', -10, 10)
+	local actionList = CreateFrame('Frame', nil, frame, 'InsetFrameTemplate')
+	actionList:SetPoint('TOPLEFT', divider, 'TOPLEFT', 0, -10)
+	actionList:SetPoint('BOTTOMRIGHT', -10, 10)
 
 	local scrollFrame = CreateFrame(
 		'ScrollFrame',
 		frame:GetName()..'ScrollFrame',
-		taskList,
+		actionList,
 		'UIPanelScrollFrameTemplate'
 	)
 	scrollFrame:SetPoint('LEFT', 5, 0)
@@ -96,7 +96,7 @@ function CreateWork(name, parent)
 	scrollContent:SetPoint('TOPLEFT', scrollFrame, 0, 0)
 	scrollContent:SetPoint('TOPLEFT', scrollFrame, 0, 0)
 	scrollFrame:SetScrollChild(scrollContent)
-	work.taskListContent = scrollContent
+	work.actionListContent = scrollContent
 	return work
 end
 

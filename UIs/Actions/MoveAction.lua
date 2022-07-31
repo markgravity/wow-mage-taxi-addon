@@ -1,44 +1,49 @@
-local MoveTask = {}
+local MoveAction = {}
 
-function CreateMoveTask(
+function CreateMoveAction(
 	targetName,
 	titleText,
 	descriptionText,
 	parent,
-	previousTask
+	previousAction
 )
-	local task = CreateTask(titleText, descriptionText, parent, previousTask)
-	extends(task, MoveTask)
-	task.info = {
+	local action = CreateAction(titleText, descriptionText, parent, previousAction)
+	extends(action, MoveAction)
+	action.info = {
 		targetName = targetName
 	}
-	task:HookScript('OnClick', function()
-		C_Timer.After(1, function() task:DetectTargetZone() end)
+	action:HookScript('OnClick', function()
+		C_Timer.After(1, function() action:DetectTargetZone() end)
 	end)
-	task:SetState('INITIALIZED')
+	action:SetState('INITIALIZED')
 
-	local frame = task.frame
+	local frame = action.frame
 	frame:RegisterEvent('UNIT_SPELLCAST_SUCCEEDED')
 	frame:RegisterEvent('ZONE_CHANGED_NEW_AREA')
 	frame:SetScript('OnEvent', function(self, event, ...)
-		task[event](task, ...)
+		action[event](action, ...)
 	end)
 
-	return task
+	return action
 end
 
-function MoveTask:SetState(state)
+function MoveAction:SetState(state)
 	self.state = state
 	if self.onStateChange then
 		self.onStateChange()
 	end
+
+	if state == 'MOVING_TO_TARGET_ZONE' then
+		SendPartyMessage('Hi, I\'m coming to you!!')
+		return
+	end
 end
 
-function MoveTask:GetState()
+function MoveAction:GetState()
 	return self.state
 end
 
-function MoveTask:SetScript(super, event, script)
+function MoveAction:SetScript(super, event, script)
 	if event == 'OnStateChange' then
 		self.onStateChange = script
 		return
@@ -47,7 +52,7 @@ function MoveTask:SetScript(super, event, script)
 	super(event, script)
 end
 
-function MoveTask:FindPortal(zoneName)
+function MoveAction:FindPortal(zoneName)
 	for _, portal in ipairs(WorkWork.portals) do
 		if portal.zoneName == zoneName then
 			return portal
@@ -56,11 +61,15 @@ function MoveTask:FindPortal(zoneName)
 	return nil
 end
 
-function MoveTask:DetectTargetZone()
-	local task = self
+function MoveAction:DetectTargetZone()
+	if self.state ~= 'INITIALIZED' then
+		return
+	end
+	
+	local action = self
 	local targetZone = GetPartyMemberZone(self.info.targetName)
 	if targetZone == nil then
-		C_Timer.After(1, function() task:DetectTargetZone() end)
+		C_Timer.After(1, function() action:DetectTargetZone() end)
 		return
 	end
 
@@ -81,13 +90,13 @@ function MoveTask:DetectTargetZone()
 	self.info.teleportSpellID = portal.teleportSpellID
 	self:SetSpell(portal.teleportSpellName)
 	self:HookScript('OnClick', function()
-		task:SetState('MOVING_TO_TARGET_ZONE')
+		action:SetState('MOVING_TO_TARGET_ZONE')
 	end)
 	self:SetDescription('|c60808080Teleport to |r|cffffd100'..portal.name..'|r')
 end
 
 -- EVENTS
-function MoveTask:UNIT_SPELLCAST_SUCCEEDED(target, castGUID, spellID)
+function MoveAction:UNIT_SPELLCAST_SUCCEEDED(target, castGUID, spellID)
 	if self.state == 'MOVING_TO_TARGET_ZONE'
 		and spellID == self.info.teleportSpellID then
 		self:SetState('MOVED_TO_TARGET_ZONE')
@@ -95,7 +104,7 @@ function MoveTask:UNIT_SPELLCAST_SUCCEEDED(target, castGUID, spellID)
 	end
 end
 
-function MoveTask:ZONE_CHANGED_NEW_AREA()
+function MoveAction:ZONE_CHANGED_NEW_AREA()
 	if self.state == 'MOVING_TO_TARGET_ZONE' then
 		local playerZone = GetRealZoneText()
 		local targetZone = GetPartyMemberZone(self.info.targetName)
