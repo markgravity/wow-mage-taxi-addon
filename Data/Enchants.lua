@@ -1,26 +1,26 @@
 WorkWork.enchants = {
 	{
 		name = "Enchant 2H Weapon - Major Agility",
-		keyworks = {
+		keywords = {
 			"35 agi",
 			"35+ agi"
 		}
 	},
 	{
 		name = "Enchant 2H Weapon - Savagery",
-		keyworks = {
+		keywords = {
 			"savagery"
 		}
 	},
 	{
 		name = "Enchant Boots - Boar's Speed",
-		keyworks = {
+		keywords = {
 			"boar"
 		}
 	},
 	{
 		name = "Enchant Boots - Cat's Swiftness",
-		keyworks = {
+		keywords = {
 			"cats",
 			"cat's",
 			"cat swift"
@@ -28,7 +28,7 @@ WorkWork.enchants = {
 	},
 	{
 		name = "Enchant Boots - Dexterity",
-		keyworks = {
+		keywords = {
 			"dex to boots",
 			"dex to feet",
 			"12 agi to boots",
@@ -40,7 +40,7 @@ WorkWork.enchants = {
 	},
 	{
 		name = "Enchant Boots - Fortitude",
-		keyworks = {
+		keywords = {
 			"fortitude to boots",
 			"fortitude to feet",
 			"fort to boots",
@@ -52,7 +52,7 @@ WorkWork.enchants = {
 	},
 	{
 		name = "Enchant Boots - Minor Speed",
-		keyworks = {
+		keywords = {
 			"minor speed",
 			"speed to boot",
 			"speed to feet",
@@ -62,20 +62,20 @@ WorkWork.enchants = {
 	},
 	{
 		name = "Enchant Boots - Surefooted",
-		keyworks = {
+		keywords = {
 			"surefoot"
 		}
 	},
 	{
 		name = "Enchant Boots - Vitality",
-		keyworks = {
+		keywords = {
 			"vitality to feet",
 			"vitality to boots"
 		}
 	},
 	{
 		name = "Enchant Bracer - Assault",
-		keyworks = {
+		keywords = {
 			"bracers assault",
 			"assault to bracer",
 			"bracers assault",
@@ -86,7 +86,7 @@ WorkWork.enchants = {
 	},
 	{
 		name = "Enchant Bracer - Brawn",
-		keyworks = {
+		keywords = {
 			"12 strength",
 			"12 str",
 			"brawn",
@@ -96,7 +96,7 @@ WorkWork.enchants = {
 	},
 	{
 		name = "Enchant Bracer - Fortitude",
-		keyworks = {
+		keywords = {
 			"fortitude to wrist",
 			"fortitude to bracer",
 			"12 stam to bracers",
@@ -107,7 +107,7 @@ WorkWork.enchants = {
 	},
 	{
 		name = "Enchant Bracer - Healing Power",
-		keyworks = {
+		keywords = {
 			"24 healing",
 			"24 heal",
 			"healing power to wrist",
@@ -116,7 +116,7 @@ WorkWork.enchants = {
 	},
 	{
 		name = "Enchant Bracer - Major Defense",
-		keyworks = {
+		keywords = {
 			"12 def",
 			"def to bracer",
 			"def to wrist",
@@ -125,7 +125,7 @@ WorkWork.enchants = {
 	},
 	{
 		name = "Enchant Bracer - Major Intellect",
-		keyworks = {
+		keywords = {
 			"12 int to wrist",
 			"12 int to bracer",
 			"major intellect to bracer",
@@ -134,7 +134,7 @@ WorkWork.enchants = {
 	},
 	{
 		name = "Enchant Bracer - Restore Mana Prime",
-		keyworks = {
+		keywords = {
 			"mp5 to wrist",
 			"mp5 to bracer",
 			"restore mana prime"
@@ -142,7 +142,7 @@ WorkWork.enchants = {
 	},
 	{
 		name = "Enchant Bracer - Spellpower",
-		keyworks = {
+		keywords = {
 			"sp to wrist",
 			"sp to bracer",
 			"spell damage to wrist",
@@ -159,14 +159,14 @@ WorkWork.enchants = {
 	},
 	{
 		name = "Enchant Bracer - Stats",
-		keyworks = {
+		keywords = {
 			"stats to bracer",
 			"stats to wrist"
 		}
 	},
 	{
 		name = "Enchant Bracer - Superior Healing",
-		keyworks = {
+		keywords = {
 			"healing to bracer",
 			"healing to wrist",
 			"heal to bracer",
@@ -180,7 +180,7 @@ WorkWork.enchants = {
 	},
 	{
 		name = "Enchant Chest - Exceptional Health",
-		keyworks = {
+		keywords = {
 			"150 hp",
 			"150hp",
 			"exceptional health",
@@ -191,7 +191,7 @@ WorkWork.enchants = {
 	},
 	{
 		name = "Enchant Chest - Exceptional Stats",
-		keyworks = {
+		keywords = {
 			"6 stat",
 			"6 all stat",
 			"6 to stat",
@@ -200,7 +200,7 @@ WorkWork.enchants = {
 	},
 	{
 		name = "Enchant Chest - Greater Stats",
-		keyworks = {
+		keywords = {
 			"+4 stat",
 			"greater stat",
 			"4+ chest",
@@ -211,7 +211,7 @@ WorkWork.enchants = {
 	},
 	{
 		name = "Enchant Chest - Major Resilience",
-		keyworks = {
+		keywords = {
 			"resil to chest",
 			"15 resil",
 			"major resilience",
@@ -226,7 +226,7 @@ WorkWork.enchants = {
 	},
 	{
 		name = "Enchant Chest - Major Spirit",
-		keyworks = {
+		keywords = {
 			"major spirit chest",
 			"major spirit to chest",
 			"15 spirit",
@@ -235,19 +235,19 @@ WorkWork.enchants = {
 	},
 	{
 		name = "Enchant Chest - Restore Mana Prime",
-		keyworks = {
+		keywords = {
 			"mp5 to chest"
 		}
 	},
 	{
 		name = "Enchant Cloak - Dodge",
-		keyworks = {
+		keywords = {
 			"dodge"
 		}
 	},
 	{
 		name = "Enchant Cloak - Greater Agility",
-		keyworks = {
+		keywords = {
 			"greater agility to back",
 			"greater agility to cloak",
 			"12 agi to back",
@@ -261,31 +261,31 @@ WorkWork.enchants = {
 	},
 	{
 		name = "Enchant Cloak - Greater Arcane Resistance",
-		keyworks = {
+		keywords = {
 			"arcane res"
 		}
 	},
 	{
 		name = "Enchant Cloak - Greater Fire Resistance",
-		keyworks = {
+		keywords = {
 			"fire res"
 		}
 	},
 	{
 		name = "Enchant Cloak - Greater Nature Resistance",
-		keyworks = {
+		keywords = {
 			"nature res"
 		}
 	},
 	{
 		name = "Enchant Cloak - Greater Shadow Resistance",
-		keyworks = {
+		keywords = {
 			"shadow res"
 		}
 	},
 	{
 		name = "Enchant Cloak - Major Armor",
-		keyworks = {
+		keywords = {
 			"major armor",
 			"120 armor",
 			"120 armour",
@@ -294,7 +294,7 @@ WorkWork.enchants = {
 	},
 	{
 		name = "Enchant Cloak - Major Resistance",
-		keyworks = {
+		keywords = {
 			"major resis",
 			"7 resis",
 			"major res to cloak"
@@ -302,7 +302,7 @@ WorkWork.enchants = {
 	},
 	{
 		name = "Enchant Cloak - Spell Penetration",
-		keyworks = {
+		keywords = {
 			"spell pen",
 			"pen to cloak",
 			"pen to back"
@@ -310,20 +310,20 @@ WorkWork.enchants = {
 	},
 	{
 		name = "Enchant Cloak - Stealth",
-		keyworks = {
+		keywords = {
 			"stealth"
 		}
 	},
 	{
 		name = "Enchant Cloak - Subtlety",
-		keyworks = {
+		keywords = {
 			"subtlety",
 			"2%"
 		}
 	},
 	{
 		name = "Enchant Gloves - Advanced Herbalism",
-		keyworks = {
+		keywords = {
 			"advanced herb",
 			"advance herb",
 			"herb to hand",
@@ -335,7 +335,7 @@ WorkWork.enchants = {
 	},
 	{
 		name = "Enchant Gloves - Advanced Mining",
-		keyworks = {
+		keywords = {
 			"advanced mining",
 			"mining to hand",
 			" mining to glove"
@@ -343,7 +343,7 @@ WorkWork.enchants = {
 	},
 	{
 		name = "Enchant Gloves - Assault",
-		keyworks = {
+		keywords = {
 			"assault to glove",
 			"assault to hand",
 			"gloves assault",
@@ -354,7 +354,7 @@ WorkWork.enchants = {
 	},
 	{
 		name = "Enchant Gloves - Blasting",
-		keyworks = {
+		keywords = {
 			"blasting to gloves",
 			"blasting to hands",
 			"crit to glove",
@@ -363,28 +363,28 @@ WorkWork.enchants = {
 	},
 	{
 		name = "Enchant Gloves - Fire Power",
-		keyworks = {
+		keywords = {
 			"fire power",
 			"20 fire"
 		}
 	},
 	{
 		name = "Enchant Gloves - Frost Power",
-		keyworks = {
+		keywords = {
 			"frost power",
 			"20 frost"
 		}
 	},
 	{
 		name = "Enchant Gloves - Healing Power",
-		keyworks = {
+		keywords = {
 			"+30 healing",
 			"30+ heal"
 		}
 	},
 	{
 		name = "Enchant Gloves - Major Healing",
-		keyworks = {
+		keywords = {
 			"35 heal",
 			"healing to glove",
 			"healing to hand",
@@ -394,7 +394,7 @@ WorkWork.enchants = {
 	},
 	{
 		name = "Enchant Gloves - Major Spellpower",
-		keyworks = {
+		keywords = {
 			"major spellpower",
 			"major spell power",
 			"sp to hand",
@@ -407,7 +407,7 @@ WorkWork.enchants = {
 	},
 	{
 		name = "Enchant Gloves - Major Strength",
-		keyworks = {
+		keywords = {
 			"major str",
 			"15 str",
 			"15+ str",
@@ -416,7 +416,7 @@ WorkWork.enchants = {
 	},
 	{
 		name = "Enchant Gloves - Riding Skill",
-		keyworks = {
+		keywords = {
 			"riding speed",
 			"riding skill",
 			"+riding"
@@ -424,14 +424,14 @@ WorkWork.enchants = {
 	},
 	{
 		name = "Enchant Gloves - Shadow Power",
-		keyworks = {
+		keywords = {
 			"shadow power",
 			"20 shadow"
 		}
 	},
 	{
 		name = "Enchant Gloves - Spell Strike",
-		keyworks = {
+		keywords = {
 			"spell strike",
 			"spellstrike",
 			"hit to glove",
@@ -442,7 +442,7 @@ WorkWork.enchants = {
 	},
 	{
 		name = "Enchant Gloves - Superior Agility",
-		keyworks = {
+		keywords = {
 			"superior agility",
 			"15 agi",
 			"15agi",
@@ -451,13 +451,13 @@ WorkWork.enchants = {
 	},
 	{
 		name = "Enchant Gloves - Threat",
-		keyworks = {
+		keywords = {
 			"threat"
 		}
 	},
 	{
 		name = "Enchant Shield - Intellect",
-		keyworks = {
+		keywords = {
 			"12 int to shield",
 			"12 intellect to shield",
 			"12 int shield",
@@ -466,7 +466,7 @@ WorkWork.enchants = {
 	},
 	{
 		name = "Enchant Shield - Major Stamina",
-		keyworks = {
+		keywords = {
 			"stam to shield",
 			"18 stam",
 			"18+ stam",
@@ -475,7 +475,7 @@ WorkWork.enchants = {
 	},
 	{
 		name = "Enchant Shield - Resilience",
-		keyworks = {
+		keywords = {
 			"res to shield",
 			"resilience to shield",
 			"12 res"
@@ -483,11 +483,11 @@ WorkWork.enchants = {
 	},
 	{
 		name = "Enchant Shield - Resistance",
-		keyworks = {}
+		keywords = {}
 	},
 	{
 		name = "Enchant Shield - Shield Block",
-		keyworks = {
+		keywords = {
 			"shield block",
 			"15 block",
 			"block rating"
@@ -495,7 +495,7 @@ WorkWork.enchants = {
 	},
 	{
 		name = "Enchant Shield - Tough Shield",
-		keyworks = {
+		keywords = {
 			"block value",
 			"18 block",
 			"18 value"
@@ -503,39 +503,39 @@ WorkWork.enchants = {
 	},
 	{
 		name = "Enchant Weapon - Battlemaster",
-		keyworks = {
+		keywords = {
 			"battlemaster"
 		}
 	},
 	{
 		name = "Enchant Weapon - Crusader",
-		keyworks = {
+		keywords = {
 			"crusader"
 		}
 	},
 	{
 		name = "Enchant Weapon - Fiery Weapon",
-		keyworks = {
+		keywords = {
 			"fiery"
 		}
 	},
 	{
 		name = "Enchant Weapon - Healing Power",
-		keyworks = {
+		keywords = {
 			"55 heal",
 			"55+"
 		}
 	},
 	{
 		name = "Enchant Weapon - Lifestealing",
-		keyworks = {
+		keywords = {
 			"lifesteal",
 			"life steal"
 		}
 	},
 	{
 		name = "Enchant Weapon - Major Healing",
-		keyworks = {
+		keywords = {
 			"81 heal",
 			"81+ heal",
 			"major healing weapon",
@@ -544,14 +544,14 @@ WorkWork.enchants = {
 	},
 	{
 		name = "Enchant Weapon - Major Intellect",
-		keyworks = {
+		keywords = {
 			"30 int",
 			"30+ int"
 		}
 	},
 	{
 		name = "Enchant Weapon - Major Spellpower",
-		keyworks = {
+		keywords = {
 			"spellpower to weapon",
 			"40 sp",
 			"40 spell",
@@ -560,54 +560,54 @@ WorkWork.enchants = {
 	},
 	{
 		name = "Enchant Weapon - Mighty Spirit",
-		keyworks = {
+		keywords = {
 			"20 spirit",
 			"20+ spirit"
 		}
 	},
 	{
 		name = "Enchant Weapon - Mongoose",
-		keyworks = {
+		keywords = {
 			"mongoose"
 		}
 	},
 	{
 		name = "Enchant Weapon - Potency",
-		keyworks = {
+		keywords = {
 			"potency"
 		}
 	},
 	{
 		name = "Enchant Weapon - Soulfrost",
-		keyworks = {
+		keywords = {
 			"soulfrost",
 			"soul frost"
 		}
 	},
 	{
 		name = "Enchant Weapon - Spell Power",
-		keyworks = {
+		keywords = {
 			"30 sp",
 			"30+ sp"
 		}
 	},
 	{
 		name = "Enchant Weapon - Spellsurge",
-		keyworks = {
+		keywords = {
 			"spellsurge",
 			"spell surge"
 		}
 	},
 	{
 		name = "Enchant Weapon - Sunfire",
-		keyworks = {
+		keywords = {
 			"sunfire",
 			"sun fire"
 		}
 	},
 	{
 		name = "Enchant Weapon - Greater Agility",
-		keyworks = {
+		keywords = {
 			"20 agi"
 		}
 	}

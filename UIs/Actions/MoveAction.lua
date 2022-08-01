@@ -19,7 +19,6 @@ function CreateMoveAction(
 	action:SetState('INITIALIZED')
 
 	local frame = action.frame
-	frame:RegisterEvent('UNIT_SPELLCAST_SUCCEEDED')
 	frame:RegisterEvent('ZONE_CHANGED_NEW_AREA')
 	frame:SetScript('OnEvent', function(self, event, ...)
 		action[event](action, ...)
@@ -28,34 +27,13 @@ function CreateMoveAction(
 	return action
 end
 
-function MoveAction:SetState(state)
+function MoveAction:SetState(state, ...)
 	self.state = state
 	if self.onStateChange then
 		self.onStateChange()
 	end
 
 	if state == 'MOVING_TO_TARGET_ZONE' then
-		if not isMessageSent then
-			isMessageSent = true
-			local pickUpPlace = self.info.portal.pickUpPlace
-			local message = ''
-			if self.info.isSameZone then
-				if pickUpPlace ~= nil then
-					message = 'Please come to me at '..pickUpPlace..' for the portal'
-				else
-					message = 'Please come to my position for the portal'
-				end
-			else
-				message = 'Hi, I\'m teleporting to your place!!'
-				if pickUpPlace ~= nil then
-					message = message..' Please come to me at '..pickUpPlace..' for the portal'
-				else
-					message = message..' Please come to my position for the portal'
-				end
-			end
-
-			Whisper(self.info.targetName, message)
-		end
 		return
 	end
 end
@@ -87,6 +65,7 @@ function MoveAction:DetectTargetZone()
 		return
 	end
 
+	self:SetState('READY_TO_MOVE')
 	local action = self
 	local targetZone = GetPartyMemberZone(self.info.targetName)
 	if targetZone == nil then
@@ -95,12 +74,13 @@ function MoveAction:DetectTargetZone()
 	end
 
 	local portal = self:FindPortal(targetZone)
-	self.info.portal = portal
-	self.info.isSameZone = playerZone == targetZone
 
 	local playerZone = GetPlayerZone()
 	if playerZone == targetZone then
 		self:SetState('MOVED_TO_TARGET_ZONE')
+		self:SetDescription('|cffffd100'..self.info.targetName..'|r|c60808080 is the same zone |r|cffffd100'..targetZone..'|r|c60808080 with you|r')
+		action.isMessageSent = true
+		Whisper(self.info.targetName, 'Hi!! Please come to my position for the portal.')
 		return
 	end
 
@@ -112,26 +92,22 @@ function MoveAction:DetectTargetZone()
 		return
 	end
 
-
 	self:SetSpell(portal.teleportSpellName)
 	self:HookScript('OnClick', function()
 		action:SetState('MOVING_TO_TARGET_ZONE')
+		if not action.isMessageSent then
+			action.isMessageSent = true
+			Whisper(self.info.targetName, 'Hi, I\'m teleporting to your place!! Please come to my position for the portal.')
+		end
 	end)
 	self:SetDescription('|c60808080Teleport to |r|cffffd100'..portal.name..'|r')
 end
 
 -- EVENTS
-function MoveAction:UNIT_SPELLCAST_SUCCEEDED(target, castGUID, spellID)
-	if self.state == 'MOVING_TO_TARGET_ZONE'
-		and spellID == self.info.portal.teleportSpellID then
-		self:SetState('MOVED_TO_TARGET_ZONE')
-		return
-	end
-end
-
 function MoveAction:ZONE_CHANGED_NEW_AREA()
-	if self.state == 'MOVING_TO_TARGET_ZONE' then
-		local playerZone = GetRealZoneText()
+	if self.state == 'MOVING_TO_TARGET_ZONE'
+	 	or self.state == 'READY_TO_MOVE' then
+		local playerZone = GetPlayerZone()
 		local targetZone = GetPartyMemberZone(self.info.targetName)
 
 		if playerZone == targetZone then

@@ -11,13 +11,15 @@ local function MatchPortal(matcher)
 end
 
 function DetectPortalWork(playerName, guid, message, parent)
-	if playerName == UnitName('player') then
-		return nil
-	end
+	if not WorkWork.isDebug then
+		if playerName == UnitName('player') then
+			return nil
+		end
 
-	local _, playerClass = GetPlayerInfoByGUID(guid)
-	if playerClass == 'MAGE' then
-		return nil
+		local _, playerClass = GetPlayerInfoByGUID(guid)
+		if playerClass == 'MAGE' then
+			return nil
+		end
 	end
 
 	local message = string.lower(message)
@@ -57,7 +59,7 @@ function DetectPortalWork(playerName, guid, message, parent)
 			return CreatePortalWork(playerName, message, portal, parent)
 		end
 	end
-	
+
     return nil
 end
 
@@ -76,6 +78,8 @@ function CreatePortalWork(targetName, message, portal, parent)
 	local frame = work.frame
 	frame:RegisterEvent('UNIT_SPELLCAST_SUCCEEDED')
 	frame:RegisterEvent('CHAT_MSG_SYSTEM')
+	frame:RegisterEvent('TRADE_ACCEPT_UPDATE')
+	frame:RegisterEvent('TRADE_MONEY_CHANGED')
 	frame:Hide()
 
     work:SetTitle('Portal')
@@ -316,5 +320,35 @@ function PortalWork:CHAT_MSG_SYSTEM(text)
 			self.endButton:Click()
 			return
 		end
+	end
+end
+
+function PortalWork:TRADE_ACCEPT_UPDATE(playerAccepted, targetAccepted)
+	if self.state == 'MOVED_TO_TARGET_ZONE'
+		or self.state == 'WAITING_FOR_TARGET_ENTER_PORTAL' then
+		if GetTradeTargetName() ~= self.info.targetName then
+			return
+		end
+
+		if playerAccepted == 1 and targetAccepted == 1 then
+			local money = GetTargetTradeMoney()
+			local message = 'Thank you!!'
+			if money > 10*100*100 then
+				message = 'Wow!! Thank you so much :D'
+			end
+			Whisper(self.info.targetName, message)
+		end
+		return
+	end
+end
+
+function PortalWork:TRADE_MONEY_CHANGED()
+	if self.state == 'MOVED_TO_TARGET_ZONE'
+		or self.state == 'WAITING_FOR_TARGET_ENTER_PORTAL' then
+		if GetTradeTargetName() ~= self.info.targetName then
+			return
+		end
+		AcceptTrade()
+		return
 	end
 end

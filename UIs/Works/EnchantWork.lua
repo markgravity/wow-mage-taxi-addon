@@ -8,7 +8,8 @@ function DetectEnchantWork(targetName, guid, message, parent)
 	end
 
 	local message = string.lower(message)
-	if message:match('wts') ~= nil then
+	if message:match('wts') ~= nil
+	 	or message:match('lfw') ~= nil then
 		return
 	end
 
@@ -65,7 +66,7 @@ function CreateEnchantWork(targetName, message, enchants, parent)
 		receivedReagents = receivedReagents
 	}
 
-	work.isAutoInvite = true
+	work.isAutoContact = true
 	work.info = info
 	work:SetState('INITIALIZED')
 
@@ -284,6 +285,22 @@ function EnchantWork:GetStateText(state)
 	return ''
 end
 
+function EnchantWork:Complete()
+	if UnitIsGroupLeader('player') then
+		UninviteUnit(self.info.targetName)
+	else
+		LeaveParty()
+	end
+
+	self.info = nil
+	self:SetState('ENDED')
+	self.frame:Hide()
+
+	if self.onComplete then
+		self.onComplete()
+	end
+end
+
 function EnchantWork:SetScript(event, script)
 	if event == 'OnStateChange' then
 		self.onStateChange = script
@@ -297,7 +314,8 @@ function EnchantWork:SetScript(event, script)
 end
 
 function EnchantWork:GetPriorityLevel()
-	if self.state == 'WAITING_FOR_CONTACT_RESPONSE'
+	if self.state == 'INITIALIZED'
+		or self.state == 'WAITING_FOR_CONTACT_RESPONSE'
 	 	or self.state == 'ENCHANTED' then
 		return 4
 	end
@@ -319,7 +337,7 @@ function EnchantWork:UpdateGather()
 	-- Gather Action
 	local description = '|c60808080Received Mats:|r'
 	for _, reagent in ipairs(self.info.receivedReagents) do
-		description = description..'\n|cffffd100 '..reagent.name..'|r|cfffffff0 '..reagent.numHave..'/'..reagent.numRequired..'|r'
+		description = description..'\n|cffffd100 '..reagent.name or ''..'|r|cfffffff0 '..reagent.numHave..'/'..reagent.numRequired..'|r'
 	end
 	self.gatherAction:SetDescription(description)
 
@@ -364,15 +382,9 @@ function EnchantWork:GatherReagents()
 		end
 	end
 
-	self:UpdateGatherAndEnchantActions()
+	self:UpdateGather()
 end
 
-function EnchantWork:GetTradeTargetName()
-	if TradeFrameRecipientNameText == nil then
-		return TradeFrameRecipientNameText:GetText()
-	end
-	return nil
-end
 
 function EnchantWork:GetReagentByName(name, reagents)
 	for _, reagent in ipairs(reagents) do
@@ -386,7 +398,7 @@ end
 
 -- Events
 function EnchantWork:TRADE_SHOW()
-	if self:GetTradeTargetName() ~= self.info.targetName then
+	if GetTradeTargetName() ~= self.info.targetName then
 		return
 	end
 

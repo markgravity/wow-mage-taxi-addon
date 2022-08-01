@@ -9,7 +9,7 @@ WORK_HEIGHT = 400
 
 function WorkWork:OnInitialize()
 	WorkWorkProfessionScanner:Init()
-	WorkWorkPeon:Init()
 	WorkWorkMinimapButton:Init()
+	WorkWorkPeon:Init()
 	WorkWorkProfessionScanner:SetAutoScan(true)
 end

@@ -50,7 +50,6 @@ function ProfessionScanner:Scan(profession)
 					table.merge(craftItem, v)
 				end
 			end
-
 			table.insert(data, craftItem)
 		end
 	end

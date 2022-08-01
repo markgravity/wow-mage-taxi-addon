@@ -27,9 +27,9 @@ function Peon:Init()
 			peon:Show()
 		end
 	end)
-	-- workList:TryAdd('Iina', nil, 'lf port to sw')
-	workList:TryAdd('Iina', nil, 'lf minor health')
-	self:On()
+	workList:TryAdd('Iina', nil, 'WTB port from DArn to IF 5g PSt')
+	-- workList:TryAdd('Iina', nil, 'lf minor speed')
+	WorkWorkMinimapButton:OnClick()
 	self.workList = workList
 end
 
@@ -59,14 +59,6 @@ function Peon:Toggle()
 	end
 end
 
-function Peon:Pause()
-    self.isPaused = true
-end
-
-function Peon:Resume()
-    self.isPaused = false
-end
-
 function Peon:CHAT_MSG_SAY(text, playerName, languageName, channelName, playerName2, specialFlags, zoneChannelID, channelIndex, channelBaseName, languageID, lineID, guid, bnSenderID, isMobile, isSubtitle, hideSenderInLetterbox, supressRaidIcons)
     self:OnChat(playerName2, guid, text)
 end
@@ -87,10 +79,5 @@ function Peon:CHAT_MSG_CHANNEL(text, playerName, languageName, channelName, play
 end
 
 function Peon:OnChat(playerName, guid, text)
-	-- print(gsub(text, "\124", "\124\124"))
-	if self.isPaused then
-		return
-	end
-
 	self.workList:TryAdd(playerName, guid, text)
 end
