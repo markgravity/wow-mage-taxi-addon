@@ -29,7 +29,7 @@ function Peon:Init()
 	end)
 	-- workList:TryAdd('Iina', nil, 'lf port to sw')
 	workList:TryAdd('Iina', nil, 'lf minor health')
-	-- self:On()
+	self:On()
 	self.workList = workList
 end
 

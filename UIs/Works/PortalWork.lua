@@ -1,15 +1,23 @@
 local PortalWork = {}
 
-function DetectPortalWork(playerName, guid, message, parent)
-	if not WorkWork.isDebug then
-		if playerName == UnitName('player') then
-			return nil
+local function MatchPortal(matcher)
+	for _, portal in ipairs(WorkWork.portals) do
+		for _, keyword in ipairs(portal.keywords) do
+			if matcher(keyword) ~= nil then
+				return portal
+			end
 		end
+	end
+end
 
-		local _, playerClass = GetPlayerInfoByGUID(guid)
-		if playerClass == 'MAGE' then
-			return nil
-		end
+function DetectPortalWork(playerName, guid, message, parent)
+	if playerName == UnitName('player') then
+		return nil
+	end
+
+	local _, playerClass = GetPlayerInfoByGUID(guid)
+	if playerClass == 'MAGE' then
+		return nil
 	end
 
 	local message = string.lower(message)
@@ -18,25 +26,38 @@ function DetectPortalWork(playerName, guid, message, parent)
 	end
 
     if message:match('port') == nil
+		and message:match('ports') == nil
 		and message:match('portal') == nil
 		and message:match('por') == nil then
 		return nil
 	end
-
-
-	for _, portal in ipairs(WorkWork.portals) do
-		for _, keyword in ipairs(portal.keywords) do
-			if message:match('to '..keyword) ~= nil
-				or message:match('> '..keyword) ~= nil
-				or message:match(keyword..' port') ~= nil
-				or (message:match('port '..keyword) ~= nil and message:match('from') == nil) then
-				if not IsSpellKnown(portal.portalSpellID) then
-					return nil
-				end
-				return CreatePortalWork(playerName, message, portal, parent)
+	local matchers = {
+		function(keyword)
+			return message:match('to '..keyword)
+		end,
+		function(keyword)
+			return message:match('> '..keyword)
+		end,
+		function(keyword)
+			return message:match(keyword..' port')
+		end,
+		function(keyword)
+			return message:match('port '..keyword) ~= nil and message:match('from') == nil
+		end
+	}
+	for _, matcher in ipairs(matchers) do
+		local portal = MatchPortal(function(keyword)
+			return message:match('to '..keyword)
+		end)
+		if portal ~= nil then
+			if not IsSpellKnown(portal.portalSpellID) then
+				return nil
 			end
+
+			return CreatePortalWork(playerName, message, portal, parent)
 		end
 	end
+	
     return nil
 end
 

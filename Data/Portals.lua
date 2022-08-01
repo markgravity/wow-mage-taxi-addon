@@ -2,6 +2,7 @@ WorkWork.portals = {
 	{
 		name = 'Stormwind',
 		zoneName = 'Stormwind City',
+		pickUpPlace = 'The Mage Quarter',
 		keywords = { 'sw', 'stormwind' },
 		portalSpellName = 'Portal: Stormwind',
 		portalSpellID = 10059,
@@ -11,6 +12,7 @@ WorkWork.portals = {
 	{
 		name = 'Stonard',
 		zoneName = 'Swamp of Sorrows',
+		pickUpPlace = nil,
 		keywords = { 'stonard' },
 		portalSpellName = 'Portal: Stonard',
 		portalSpellID = 49361,
@@ -20,6 +22,7 @@ WorkWork.portals = {
 	{
 		name = 'Theramore',
 		zoneName = 'Dustwallow Marsh',
+		pickUpPlace = nil,
 		keywords = { 'thera', 'theremore', 'teramore', 'thara', 'ther', 'Theramore' },
 		portalSpellName = 'Portal: Theramore',
 		portalSpellID = 49360,
@@ -29,6 +32,7 @@ WorkWork.portals = {
 	{
 		name = 'Undercity',
 		zoneName = 'Undercity',
+		pickUpPlace = nil,
 		keywords = { 'under', 'undercity' },
 		portalSpellName = 'Portal: Undercity',
 		portalSpellID = 11418,
@@ -38,6 +42,7 @@ WorkWork.portals = {
 	{
 		name = 'Exodar',
 		zoneName = 'The Exodar',
+		pickUpPlace = 'The Vault of Lights',
 		keywords = { 'exo', 'exodar' },
 		portalSpellName = 'Portal: Exodar',
 		portalSpellID = 32266,
@@ -47,6 +52,7 @@ WorkWork.portals = {
 	{
 		name = 'Orgrimmar',
 		zoneName = 'Orgrimmar',
+		pickUpPlace = nil,
 		keywords = { 'org', 'orgim', 'Orgrimmar' },
 		portalSpellName = 'Portal: Orgrimmar',
 		portalSpellID = 11417,
@@ -56,6 +62,7 @@ WorkWork.portals = {
 	{
 		name = 'Thunder Bluff',
 		zoneName = 'Thunder Bluff',
+		pickUpPlace = nil,
 		keywords = { 'bluff', 'thunder bluff' },
 		portalSpellName = 'Portal: Thunder Bluff',
 		portalSpellID = 11420,
@@ -65,6 +72,7 @@ WorkWork.portals = {
 	{
 		name = 'Silvermoon',
 		zoneName = 'Silvermoon',
+		pickUpPlace = nil,
 		keywords = { 'silver', 'silvermoon' },
 		portalSpellName = 'Portal: Silvermoon',
 		portalSpellID = 32267,
@@ -74,6 +82,7 @@ WorkWork.portals = {
 	{
 		name = 'Darnassus',
 		zoneName = 'Darnassus',
+		pickUpPlace = 'The Temple of the Moon',
 		keywords = { 'darns', 'darn', 'darnassus' },
 		portalSpellName = 'Portal: Darnassus',
 		portalSpellID = 11419,
@@ -83,6 +92,7 @@ WorkWork.portals = {
 	{
 		name = 'Ironforge',
 		zoneName = 'Ironforge',
+		pickUpPlace = 'The Mystic Ward',
 		keywords = { 'if', 'ironforge' },
 		portalSpellName = 'Portal: Ironforge',
 		portalSpellID = 11416,
@@ -102,6 +112,7 @@ function Portals:PLAYER_ENTERING_WORLD()
 	local portal = {
 		name = 'Shattrath',
 		zoneName = 'Shattrath City',
+		pickUpPlace = 'Terrace of Light',
 		keywords = { 'shatt', 'shat', 'shattrath' },
 		portalSpellName = 'Portal: Shattrath',
 		teleportSpellName = 'Teleport: Shattrath'
