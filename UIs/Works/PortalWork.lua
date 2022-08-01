@@ -108,7 +108,9 @@ function CreatePortalWork(targetName, message, portal, parent)
 	)
 	work.contactAction:SetScript('OnStateChange', function(self)
 		local state = work.contactAction:GetState()
-		if state == 'WAITING_FOR_CONTACT_RESPONSE' or state == 'CONTACTED_TARGET' then
+		if state == 'WAITING_FOR_CONTACT_RESPONSE'
+		 	or state == 'CONTACTED_TARGET'
+			or state == 'CONTACT_FAILED' then
 			work:SetState(state)
 			return
 		end
@@ -179,6 +181,11 @@ function PortalWork:SetState(super, state)
 	super(state)
 
 	local work = self
+
+	if state == 'CONTACT_FAILED' then
+		self:Complete()
+		return
+	end
 
 	if state == 'CONTACTED_TARGET' then
 		self.contactAction:Complete()
@@ -268,19 +275,7 @@ function PortalWork:WaitingForTargetEnterPortal()
 		C_Timer.After(1, function() work:WaitingForTargetEnterPortal() end)
 		return
 	end
-	self.endButton:Click()
-end
-
-function PortalWork:SetScript(event, script)
-	if event == 'OnStateChange' then
-		self.onStateChange = script
-		return
-	end
-
-	if event == 'OnComplete' then
-		self.onComplete = script
-		return
-	end
+	self:Complete()
 end
 
 -- EVENTS
@@ -297,7 +292,7 @@ function PortalWork:CHAT_MSG_SYSTEM(text)
 
 	if self.state == 'WAITING_FOR_TARGET_ENTER_PORTAL' then
 		if text == 'Your group has been disbanded.' then
-			self.endButton:Click()
+			self:Complete()
 			return
 		end
 	end
@@ -325,7 +320,8 @@ end
 function PortalWork:TRADE_MONEY_CHANGED()
 	if self.state == 'MOVED_TO_TARGET_ZONE'
 		or self.state == 'WAITING_FOR_TARGET_ENTER_PORTAL' then
-		if GetTradeTargetName() ~= self.info.targetName then
+		if self.info == nil
+			or GetTradeTargetName() ~= self.info.targetName then
 			return
 		end
 		AcceptTrade()

@@ -12,7 +12,8 @@ function CreateContactAction(
 	extends(action, ContactAction)
 	action.info = {
 		targetName = targetName,
-		whisperMessage = whisperMessage
+		whisperMessage = whisperMessage,
+		timeout = 10000
 	}
 	action:SetState('INITIALIZED')
 	action:SetScript('OnClick', function()
@@ -29,6 +30,7 @@ function CreateContactAction(
 end
 
 function ContactAction:SetState(state)
+	local action = self
 	self.state = state
 	if self.onStateChange then
 		self.onStateChange()
@@ -36,6 +38,12 @@ function ContactAction:SetState(state)
 
 	if state == 'WAITING_FOR_CONTACT_RESPONSE' then
 		InviteUnit(self.info.targetName)
+		C_Timer.After(self.info.timeout, function()
+			if action.state == 'CONTACTED_TARGET' then
+				return
+			end
+			action:SetState('CONTACT_FAILED')
+		end)
 		return
 	end
 

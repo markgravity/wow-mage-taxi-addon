@@ -1,6 +1,8 @@
 local EnchantWork = {}
 
 function DetectEnchantWork(targetName, guid, message, parent)
+	local begin = GetTime()
+
 	if not WorkWork.isDebug then
 		if playerName == UnitName('player') then
 			return nil
@@ -166,7 +168,6 @@ function CreateEnchantWork(targetName, message, enchants, parent)
 	work.enchantActions[1]:Disable()
 	work.finishAction:Disable(true)
 	work.contactAction:Enable()
-	work.frame:Show()
 
 	work:UpdateGather()
 	frame:SetScript('OnEvent', function(self, event, ...)
@@ -366,13 +367,13 @@ end
 
 -- Events
 function EnchantWork:TRADE_SHOW()
-	if GetTradeTargetName() ~= self.info.targetName then
-		return
-	end
-
-	if self.state == 'ENCHANTING' then
-		return
-	end
+	-- if GetTradeTargetName() ~= self.info.targetName then
+	-- 	return
+	-- end
+	--
+	-- if self.state == 'ENCHANTING' then
+	-- 	return
+	-- end
 end
 
 function EnchantWork:TRADE_ACCEPT_UPDATE(playerAccepted, targetAccepted)
