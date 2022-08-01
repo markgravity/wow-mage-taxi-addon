@@ -175,20 +175,15 @@ function CreateEnchantWork(targetName, message, enchants, parent)
 	return work
 end
 
-function EnchantWork:Start()
-	PlaySound(5274)
-	FlashClientIcon()
-
+function EnchantWork:Start(super)
 	if self.isAutoContact then
 		self.contactAction:Excute()
 	end
+	super()
 end
 
-function EnchantWork:SetState(state)
-	self.state = state
-	if self.onStateChange then
-		self.onStateChange()
-	end
+function EnchantWork:SetState(super, state)
+	super(state)
 
 	local work = self
 
@@ -244,7 +239,7 @@ function EnchantWork:SetState(state)
 	end
 end
 
-function EnchantWork:GetStateText(state)
+function EnchantWork:GetStateText()
 	local state = self.state
 	if state == 'WAITING_FOR_CONTACT_RESPONSE' then
 		return 'Contacting'
@@ -285,33 +280,6 @@ function EnchantWork:GetStateText(state)
 	return ''
 end
 
-function EnchantWork:Complete()
-	if UnitIsGroupLeader('player') then
-		UninviteUnit(self.info.targetName)
-	else
-		LeaveParty()
-	end
-
-	self.info = nil
-	self:SetState('ENDED')
-	self.frame:Hide()
-
-	if self.onComplete then
-		self.onComplete()
-	end
-end
-
-function EnchantWork:SetScript(event, script)
-	if event == 'OnStateChange' then
-		self.onStateChange = script
-		return
-	end
-
-	if event == 'OnComplete' then
-		self.onComplete = script
-		return
-	end
-end
 
 function EnchantWork:GetPriorityLevel()
 	if self.state == 'INITIALIZED'
@@ -337,7 +305,7 @@ function EnchantWork:UpdateGather()
 	-- Gather Action
 	local description = '|c60808080Received Mats:|r'
 	for _, reagent in ipairs(self.info.receivedReagents) do
-		description = description..'\n|cffffd100 '..reagent.name or ''..'|r|cfffffff0 '..reagent.numHave..'/'..reagent.numRequired..'|r'
+		description = description..'\n|cffffd100 '..(reagent.name or '')..'|r|cfffffff0 '..reagent.numHave..'/'..reagent.numRequired..'|r'
 	end
 	self.gatherAction:SetDescription(description)
 

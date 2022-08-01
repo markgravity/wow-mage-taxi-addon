@@ -121,3 +121,57 @@ end
 function Work:Show()
 	self.frame:Show()
 end
+
+function Work:Start()
+	PlaySound(6197)
+	FlashClientIcon()
+end
+
+function Work:GetState()
+	return self.state
+end
+
+function Work:SetState(state)
+	self.state = state
+	if self.onStateChange then
+		self.onStateChange()
+	end
+end
+
+function Work:GetStateText(state)
+	return 'Initialized'
+end
+
+function Work:Complete()
+	if UnitIsGroupLeader('player') then
+		UninviteUnit(self.info.targetName)
+	else
+		LeaveParty()
+	end
+
+	self.info = nil
+	self:SetState('ENDED')
+	self.frame:Hide()
+
+	if self.onComplete then
+		self.onComplete()
+	end
+
+	PlaySound(6199)
+end
+
+function Work:SetScript(event, script)
+	if event == 'OnStateChange' then
+		self.onStateChange = script
+		return
+	end
+
+	if event == 'OnComplete' then
+		self.onComplete = script
+		return
+	end
+end
+
+function Work:GetPriorityLevel()
+	return 4
+end

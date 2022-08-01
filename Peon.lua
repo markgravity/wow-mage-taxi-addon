@@ -27,7 +27,7 @@ function Peon:Init()
 			peon:Show()
 		end
 	end)
-	workList:TryAdd('Iina', nil, 'WTB port from DArn to IF 5g PSt')
+	workList:TryAdd('Iina', nil, 'wtb port exodar')
 	-- workList:TryAdd('Iina', nil, 'lf minor speed')
 	WorkWorkMinimapButton:OnClick()
 	self.workList = workList

@@ -3,11 +3,13 @@ local PortalWork = {}
 local function MatchPortal(matcher)
 	for _, portal in ipairs(WorkWork.portals) do
 		for _, keyword in ipairs(portal.keywords) do
-			if matcher(keyword) ~= nil then
+			if matcher(keyword) then
 				return portal
 			end
 		end
 	end
+
+	return nil
 end
 
 function DetectPortalWork(playerName, guid, message, parent)
@@ -45,12 +47,14 @@ function DetectPortalWork(playerName, guid, message, parent)
 		end,
 		function(keyword)
 			return message:match('port '..keyword) ~= nil and message:match('from') == nil
+		end,
+		function(keyword)
+			return message:match(keyword) ~= nil
 		end
 	}
 	for _, matcher in ipairs(matchers) do
-		local portal = MatchPortal(function(keyword)
-			return message:match('to '..keyword)
-		end)
+		local portal = MatchPortal(matcher)
+
 		if portal ~= nil then
 			if not IsSpellKnown(portal.portalSpellID) then
 				return nil
@@ -163,36 +167,16 @@ function CreatePortalWork(targetName, message, portal, parent)
 	return work
 end
 
-function PortalWork:Start()
-	PlaySound(5274)
-	FlashClientIcon()
+function PortalWork:Start(super)
+	super()
 
 	if self.isAutoContact then
 		self.contactAction:Excute()
 	end
 end
 
-function PortalWork:Complete()
-	if UnitIsGroupLeader('player') then
-		UninviteUnit(self.info.targetName)
-	else
-		LeaveParty()
-	end
-
-	self.info = nil
-	self:SetState('ENDED')
-	self.frame:Hide()
-
-	if self.onComplete then
-		self.onComplete()
-	end
-end
-
-function PortalWork:SetState(state)
-	self.state = state
-	if self.onStateChange then
-		self.onStateChange()
-	end
+function PortalWork:SetState(super, state)
+	super(state)
 
 	local work = self
 
@@ -223,10 +207,6 @@ function PortalWork:SetState(state)
 		self:WaitingForTargetEnterPortal()
 		return
 	end
-end
-
-function PortalWork:GetState()
-	return self.state
 end
 
 function PortalWork:GetStateText()
