@@ -1,5 +1,38 @@
 local EnchantWork = {}
 
+function DetectEnchantWork(targetName, guid, message, parent)
+	if not WorkWork.isDebug then
+		if playerName == UnitName('player') then
+			return nil
+		end
+	end
+
+	local message = string.lower(message)
+	if message:match('wts') ~= nil then
+		return
+	end
+
+    if message:match('lf') == nil
+		and message:match('wtb') == nil
+		and message:match('looking for') == nil then
+		return nil
+	end
+
+	local enchants = WorkWorkProfessionScanner:GetData('Enchanting')
+	for _, enchant in ipairs(enchants) do
+		if message:match(enchant.itemLink) then
+			return CreateEnchantWork(targetName, message, { enchant }, parent)
+		end
+
+		for _, keyword in ipairs(enchant.keywords or {}) do
+			if message:match(keyword) ~= nil then
+				return CreateEnchantWork(targetName, message, { enchant }, parent)
+			end
+		end
+	end
+    return nil
+end
+
 function CreateEnchantWork(targetName, message, enchants, parent)
 	local work = CreateWork('WorkWorkEnchantWork'..targetName, parent)
 	extends(work, EnchantWork)
@@ -139,37 +172,6 @@ function CreateEnchantWork(targetName, message, enchants, parent)
 		work[event](work, ...)
 	end)
 	return work
-end
-
-function DetectEnchantWork(targetName, guid, message, parent)
-	if targetName ~= UnitName('player') then
-		return nil
-	end
-
-	local message = string.lower(message)
-	if message:match('wts') ~= nil then
-		return
-	end
-
-    if message:match('lf') == nil
-		and message:match('wtb') == nil
-		and message:match('looking for') == nil then
-		return nil
-	end
-
-	local enchants = WorkWorkProfessionScanner:GetData('Enchanting')
-	for _, enchant in ipairs(enchants) do
-		if message:match(enchant.itemLink) then
-			return CreateEnchantWork(targetName, message, { enchant }, parent)
-		end
-
-		for _, keyword in ipairs(enchant.keywords or {}) do
-			if message:match(keyword) ~= nil then
-				return CreateEnchantWork(targetName, message, { enchant }, parent)
-			end
-		end
-	end
-    return nil
 end
 
 function EnchantWork:Start()
