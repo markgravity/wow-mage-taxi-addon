@@ -25,14 +25,15 @@ function DetectPortalWork(playerName, guid, message, parent)
 	end
 
 	local message = string.lower(message)
-	if message:match('wts') ~= nil then
+	if message:match('wts') ~= nil
+	 	or message:match('selling') ~= nil then
 		return
 	end
 
-    if message:match('port') == nil
-		and message:match('ports') == nil
-		and message:match('portal') == nil
-		and message:match('por') == nil then
+    if message:match(' port ') == nil
+		and message:match(' ports ') == nil
+		and message:match(' portal ') == nil
+		and message:match(' por ') == nil then
 		return nil
 	end
 	local matchers = {
@@ -316,7 +317,7 @@ function PortalWork:TRADE_ACCEPT_UPDATE(playerAccepted, targetAccepted)
 			if money > 10*100*100 then
 				message = 'Wow!! Thank you so much :D'
 			end
-			Whisper(self.info.targetName, message)
+			SendSmartMessage(self.info.targetName, message)
 		end
 		return
 	end

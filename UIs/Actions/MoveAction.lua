@@ -86,7 +86,9 @@ function MoveAction:DetectTargetZone()
 	if playerZone == targetZone then
 		self:SetDescription('Waiting for |cffffd100'..self.info.targetName..'|r|c60808080 to come|r')
 		action.isMessageSent = true
-		Whisper(self.info.targetName, 'can you come to me please? :D')
+		if not self:IsTargetInRange() then
+			self:SendMessage('can you come to me please? :D')
+		end
 		return
 	end
 
@@ -106,12 +108,12 @@ function MoveAction:DetectTargetZone()
 
 		if not action.isMessageSent then
 			action.isMessageSent = true
-			Whisper(action.info.targetName, 'teleporting to u now')
+			self:SendMessage('teleporting to u now')
 		end
 	end)
 	self:SetDescription('|c60808080Teleport to |r|cffffd100'..portal.name..'|r')
 	if GetNumGroupMembers() > 2 and UnitIsGroupLeader('player') then
-		Whisper(action.info.targetName, 'wait me a sec, teleport to u rq')
+		self:SendMessage('wait me a sec, teleport to u rq')
 	end
 end
 
@@ -125,14 +127,22 @@ function MoveAction:WaitingForTargetInRange()
 		return
 	end
 
-	local unitID = GetUnitPartyID(self.info.targetName)
-	if unitID == nil or not CheckInteractDistance(unitID, 1) then
+	if not self:IsTargetInRange() then
 		C_Timer.After(1, function() action:WaitingForTargetInRange() end)
 		return
 	end
 
 	PlaySound(6192)
 	self:SetState('MOVED_TO_TARGET_ZONE')
+end
+
+function MoveAction:IsTargetInRange()
+	local unitID = GetUnitPartyID(self.info.targetName)
+	return unitID ~= nil and CheckInteractDistance(unitID, 1)
+end
+
+function MoveAction:SendMessage(message)
+	SendSmartMessage(self.info.targetName, message)
 end
 
 -- EVENTS
@@ -144,7 +154,7 @@ function MoveAction:ZONE_CHANGED_NEW_AREA()
 
 		if playerZone == targetZone then
 			self:SetDescription('Waiting for |cffffd100'..self.info.targetName..'|r|c60808080 to come|r')
-			Whisper(self.info.targetName, 'can u come to me please? :D')
+			self:SendMessage('can u come to me please? :D')
 		end
 	end
 end

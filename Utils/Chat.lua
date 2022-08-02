@@ -13,3 +13,11 @@ function SendPartyMessage(message)
 		"PARTY"
 	)
 end
+
+function SendSmartMessage(targetName, message)
+	if GetNumGroupMembers() > 2 then
+		Whisper(targetName, message)
+	else
+		SendPartyMessage(message)
+	end
+end

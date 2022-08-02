@@ -2,7 +2,7 @@ local EnchantWork = {}
 
 function DetectEnchantWork(targetName, guid, message, parent)
 	local begin = GetTime()
-	if playerName == 'Magemagic' then
+	if targetName == 'Magemagic' then
 		return
 	end
 
@@ -15,6 +15,7 @@ function DetectEnchantWork(targetName, guid, message, parent)
 	local message = string.lower(message)
 	if message:match('wts') ~= nil
 		or message:match('lfm') ~= nil
+		or message:match('selling') ~= nil
 	 	or message:match('lfw') ~= nil then
 		return
 	end
@@ -27,6 +28,14 @@ function DetectEnchantWork(targetName, guid, message, parent)
 
 	local enchants = WorkWorkProfessionScanner:GetData('Enchanting')
 	for _, enchant in ipairs(enchants) do
+		local numNeeds = 1
+		if message:match('x2') ~= nil
+			or message:match('2x') ~= nil
+			or message:match('2 x') ~= nil
+			or message:match('x 2') ~= nil then
+			numNeeds = 2
+		end
+		enchant.numNeeds = numNeeds
 		if message:match(enchant.itemLink) then
 			return CreateEnchantWork(targetName, message, { enchant }, parent)
 		end
@@ -54,12 +63,12 @@ function CreateEnchantWork(targetName, message, enchants, parent)
 			)
 
 			if receivedReagent ~= nil then
-				receivedReagent.numRequired = receivedReagent.numRequired
+				receivedReagent.numRequired = receivedReagent.numRequired * enchant.numNeeds
 					+ reagent.numRequired
 			else
 				table.insert(receivedReagents, {
 					name = reagent.name,
-					numRequired = reagent.numRequired,
+					numRequired = reagent.numRequired * enchant.numNeeds,
 					numHave = 0
 				})
 			end
@@ -79,7 +88,6 @@ function CreateEnchantWork(targetName, message, enchants, parent)
 	local frame = work.frame
 	frame:RegisterEvent('TRADE_ACCEPT_UPDATE')
 	frame:RegisterEvent('CRAFT_SHOW')
-	frame:RegisterEvent('UNIT_SPELLCAST_SUCCEEDED')
 	frame:Hide()
 
     work:SetTitle('Enchant')
@@ -96,7 +104,7 @@ function CreateEnchantWork(targetName, message, enchants, parent)
 	local actionListContent = work.actionListContent
 	work.contactAction = CreateContactAction(
 		info.targetName,
-		"i can do "..info.enchants[1].itemLink,
+		"i can come to u, let me do it "..info.enchants[1].itemLink,
 		120,
 		'Contact',
 		'|c60808080Invite |r|cffffd100'..info.targetName..'|r|c60808080 into the party|r',
@@ -135,7 +143,7 @@ function CreateEnchantWork(targetName, message, enchants, parent)
 		work.moveAction
 	)
 	work.gatherAction:SetScript('OnClick', function(self)
-		work:SetState('GATHERING_MATS')
+		work:SetState('GATHERING_REAGENTS')
 	end)
 
 	local enchantActions = {}
@@ -229,15 +237,15 @@ function EnchantWork:SetState(super, state)
 		return
 	end
 
-	if state == 'GATHERING_MATS' then
+	if state == 'GATHERING_REAGENTS' then
 
 		return
 	end
 
 	if state == 'ENCHANTING' then
-		local unitID = GetUnitPartyID(self.info.targetZone)
-		TargetUnit(unitID);
-		InitiateTrade('target')
+		local unitID = GetUnitPartyID(self.info.targetName)
+		InitiateTrade(unitID)
+		self:WaitingForEnchant()
 		return
 	end
 
@@ -282,7 +290,7 @@ function EnchantWork:GetStateText()
 		return 'Moved'
 	end
 
-	if state == 'GATHERING_MATS' then
+	if state == 'GATHERING_REAGENTS' then
 		return 'GATHERING'
 	end
 
@@ -383,15 +391,21 @@ function EnchantWork:DeduceReceivedReagents()
 end
 
 function EnchantWork:GatherReagents()
-	for i = 1, 7 do
+	local isGatherSome = false
+	for i = 1, MAX_TRADABLE_ITEMS do
 		local name, _, quantity = GetTradeTargetItemInfo(i)
 		for _, mat in ipairs(self.info.receivedReagents) do
 			if mat.name == name then
 				mat.numHave = mat.numHave + quantity
+				isGatherSome = true
 			end
 		end
 	end
 
+	if isGatherSome and self.state == 'MOVED_TO_TARGET_ZONE' then
+		self:SetState('GATHERING_REAGENTS')
+	end
+	
 	self:UpdateGather()
 end
 
@@ -406,10 +420,29 @@ function EnchantWork:GetReagentByName(name, reagents)
 	return nil
 end
 
+function EnchantWork:WaitingForEnchant()
+	local work = self
+	if self.state ~= 'ENCHANTING' then
+		return
+	end
+
+	local _, _, _, _, enchantment = GetTradePlayerItemInfo(TRADE_ENCHANT_SLOT)
+	if enchantment and GetTradeTargetName() ~= self.info.targetName then
+		self:SetState('ENCHANTED')
+	else
+		C_Timer.After(1, function() work:WaitingForEnchant() end)
+	end
+end
+
 -- Events
 function EnchantWork:TRADE_ACCEPT_UPDATE(playerAccepted, targetAccepted)
+	if self.info == nil
+		or GetTradeTargetName() ~= self.info.targetName then
+		return
+	end
+
 	if self.state == 'MOVED_TO_TARGET_ZONE'
-	 	or self.state == 'GATHERING_MATS' then
+	 	or self.state == 'GATHERING_REAGENTS' then
 		if playerAccepted == 0 and targetAccepted == 1 then
 			AcceptTrade()
 			return
@@ -442,17 +475,6 @@ function EnchantWork:CRAFT_SHOW()
 			if craftType ~= 'header' and craftName == self.info.enchants[1].name then
 				SelectCraft(craftID)
 			end
-		end
-		return
-	end
-end
-
-function EnchantWork:UNIT_SPELLCAST_SUCCEEDED(target, castGUID, spellID)
-	if self.state == 'ENCHANTING' then
-		local spellName = GetSpellInfo(spellID)
-		if spellName == self.info.activeEnchant.name then
-			self:SetState('ENCHANTED')
-			return
 		end
 		return
 	end
