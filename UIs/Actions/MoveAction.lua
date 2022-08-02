@@ -84,8 +84,7 @@ function MoveAction:DetectTargetZone()
 
 	local playerZone = GetPlayerZone()
 	if playerZone == targetZone then
-		self:SetState('MOVED_TO_TARGET_ZONE')
-		self:SetDescription('|cffffd100'..self.info.targetName..'|r|c60808080 is the same zone |r|cffffd100'..targetZone..'|r|c60808080 with you|r')
+		self:SetDescription('Waiting for |cffffd100'..self.info.targetName..'|r|c60808080 to come|r')
 		action.isMessageSent = true
 		Whisper(self.info.targetName, 'can you come to me please? :D')
 		return
@@ -107,24 +106,32 @@ function MoveAction:DetectTargetZone()
 
 		if not action.isMessageSent then
 			action.isMessageSent = true
-			Whisper(action.info.targetName, 'teleporting to you, can you come to me please? :D')
+			Whisper(action.info.targetName, 'teleporting to u now')
 		end
 	end)
 	self:SetDescription('|c60808080Teleport to |r|cffffd100'..portal.name..'|r')
+	if GetNumGroupMembers() > 2 and UnitIsGroupLeader('player') then
+		Whisper(action.info.targetName, 'wait me a sec, teleport to u rq')
+	end
 end
 
 function MoveAction:WaitingForTargetInRange()
 	local action = self
+	if self.isCancel then
+		return
+	end
 	if self.state ~= 'MOVING_TO_TARGET_ZONE'
 	 	and self.state ~= 'READY_TO_MOVE' then
 		return
 	end
 
 	local unitID = GetUnitPartyID(self.info.targetName)
-	if not CheckInteractDistance(unitID, 2) then
+	if unitID == nil or not CheckInteractDistance(unitID, 1) then
 		C_Timer.After(1, function() action:WaitingForTargetInRange() end)
+		return
 	end
 
+	PlaySound(6192)
 	self:SetState('MOVED_TO_TARGET_ZONE')
 end
 
@@ -136,10 +143,8 @@ function MoveAction:ZONE_CHANGED_NEW_AREA()
 		local targetZone = GetPartyMemberZone(self.info.targetName)
 
 		if playerZone == targetZone then
-			if not self.isMessageSent then
-				self.isMessageSent = true
-				Whisper(self.info.targetName, 'can you come to me please? :D')
-			end
+			self:SetDescription('Waiting for |cffffd100'..self.info.targetName..'|r|c60808080 to come|r')
+			Whisper(self.info.targetName, 'can u come to me please? :D')
 		end
 	end
 end

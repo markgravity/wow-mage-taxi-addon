@@ -3,6 +3,7 @@ local ContactAction = {}
 function CreateContactAction(
 	targetName,
 	whisperMessage,
+	waitingTimeout,
 	titleText,
 	descriptionText,
 	parent,
@@ -13,7 +14,7 @@ function CreateContactAction(
 	action.info = {
 		targetName = targetName,
 		whisperMessage = whisperMessage,
-		timeout = 10000
+		timeout = waitingTimeout
 	}
 	action:SetState('INITIALIZED')
 	action:SetScript('OnClick', function()

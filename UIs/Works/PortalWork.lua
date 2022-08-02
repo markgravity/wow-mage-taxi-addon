@@ -93,7 +93,7 @@ function CreatePortalWork(targetName, message, portal, parent)
 	work:SetMessage(info.targetName, message)
 
 	work.endButton:SetScript('OnClick', function(self)
-		work:Complete()
+		work:End(work.state == 'WAITING_FOR_TARGET_ENTER_PORTAL', true)
 	end)
 
 
@@ -101,7 +101,8 @@ function CreatePortalWork(targetName, message, portal, parent)
 	local actionListContent = work.actionListContent
 	work.contactAction = CreateContactAction(
 		info.targetName,
-		"Hey, please invite me for a portal to "..info.sellingPortal.name,
+		'invite me for a portal to '..info.sellingPortal.name,
+		30,
 		'Contact',
 		'|c60808080Invite |r|cffffd100'..info.targetName..'|r|c60808080 into the party|r',
 		actionListContent
@@ -183,11 +184,12 @@ function PortalWork:SetState(super, state)
 	local work = self
 
 	if state == 'CONTACT_FAILED' then
-		self:Complete()
+		self:End(false, false)
 		return
 	end
 
 	if state == 'CONTACTED_TARGET' then
+		PlaySound(6197)
 		self.contactAction:Complete()
 		self.moveAction:Enable()
 		self.moveAction:Excute()
@@ -275,7 +277,7 @@ function PortalWork:WaitingForTargetEnterPortal()
 		C_Timer.After(1, function() work:WaitingForTargetEnterPortal() end)
 		return
 	end
-	self:Complete()
+	self:End(true, true)
 end
 
 -- EVENTS
@@ -292,7 +294,7 @@ function PortalWork:CHAT_MSG_SYSTEM(text)
 
 	if self.state == 'WAITING_FOR_TARGET_ENTER_PORTAL' then
 		if text == 'Your group has been disbanded.' then
-			self:Complete()
+			self:End(true, true)
 			return
 		end
 	end
@@ -310,7 +312,7 @@ function PortalWork:TRADE_ACCEPT_UPDATE(playerAccepted, targetAccepted)
 
 		if playerAccepted == 1 and targetAccepted == 1 then
 			local money = GetTargetTradeMoney()
-			local message = 'Thank you!!'
+			local message = 'ty'
 			if money > 10*100*100 then
 				message = 'Wow!! Thank you so much :D'
 			end

@@ -4,6 +4,8 @@ function CreateWork(name, parent)
 	local work = {}
 	extends(work, Work)
 
+	work.actions = {}
+
 	local frame = CreateFrame('Frame', name, parent, BackdropTemplateMixin and 'BackdropTemplate' or nil)
 	frame:SetSize(WORK_WIDTH, WORK_HEIGHT)
 	frame:SetBackdrop(BACKDROP_DIALOG_32_32)
@@ -123,7 +125,6 @@ function Work:Show()
 end
 
 function Work:Start()
-	PlaySound(6197)
 end
 
 function Work:GetState()
@@ -141,11 +142,14 @@ function Work:GetStateText(state)
 	return 'Initialized'
 end
 
-function Work:Complete()
+function Work:End(isCompleted, wantsLeave)
 	if UnitIsGroupLeader('player') then
 		UninviteUnit(self.info.targetName)
 	else
-		LeaveParty()
+		if wantsLeave then
+			-- BUG: Leaving when another work is unable to contact
+			LeaveParty()
+		end
 	end
 
 	self.info = nil
@@ -156,7 +160,20 @@ function Work:Complete()
 		self.onComplete()
 	end
 
-	PlaySound(6199)
+	if isCompleted then
+		PlaySound(6199)
+	else
+		PlaySound(6295)
+	end
+
+	-- Cancel all actions
+	for _, action in ipairs(self.actions) do
+		action:Cancel()
+	end
+end
+
+function Work:AddAction(action)
+	table.insert(self.actions, action)
 end
 
 function Work:SetScript(event, script)

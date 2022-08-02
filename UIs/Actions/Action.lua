@@ -6,6 +6,7 @@ function CreateAction(titleText, descriptionText, parent, previousAction)
 
 	action.isCompleted = false
 	action.isEnabled = true
+	action.isCancel = false
 
 	local backdrop = {
 		bgFile = "Interface\\ChatFrame\\ChatFrameBackground",
@@ -70,6 +71,10 @@ function Action:SetDescription(description)
 	self.description:SetText(description)
 	local totalHeight = 6 + self.title:GetStringHeight() + 6 + self.description:GetStringHeight() + 6 + 4
 	self.frame:SetHeight(totalHeight)
+end
+
+function Action:IsCompleted()
+	return self.isCompleted
 end
 
 function Action:Complete()
@@ -148,6 +153,10 @@ end
 
 function Action:Excute()
 	self.frame:Click()
+end
+
+function Action:Cancel()
+	self.isCancel = true
 end
 
 function Action:SetPoint(...)

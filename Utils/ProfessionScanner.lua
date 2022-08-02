@@ -19,9 +19,14 @@ function ProfessionScanner:SetAutoScan(isAuto)
 end
 
 function ProfessionScanner:Scan(profession)
+	local oldData = self.config.data[profession] or {}
 	local baseData = self.baseData[profession]
 	local data = {}
 	local numberOfCrafts = GetNumCrafts()
+	if numberOfCrafts < #oldData then
+		return
+	end
+
 	for craftID = 1, numberOfCrafts do
 		local craftName, _, craftType = GetCraftInfo(craftID)
 		local craftItemLink = GetCraftItemLink(craftID)
