@@ -6,6 +6,7 @@ function Peon:Init()
     end)
 	self.isPaused = false
 	self.isOn = false
+	self:SetFrameStrata("HIGH")
 	self:SetMovable(true)
 	self:EnableMouse(true)
 	self:RegisterForDrag('LeftButton')

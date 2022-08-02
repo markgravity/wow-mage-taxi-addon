@@ -154,7 +154,9 @@ function CreateEnchantWork(targetName, message, enchants, parent)
 		actionListContent,
 		work.enchantActions[1]
 	)
-
+	work:SetScript('OnClick', function()
+		work:Complete()
+	end)
 	actionListContent:SetSize(
 		WORK_WIDTH - 30,
 		work.contactAction.frame:GetHeight()
@@ -419,6 +421,7 @@ end
 function EnchantWork:UNIT_SPELLCAST_SUCCEEDED(target, castGUID, spellID)
 	if self.state == 'ENCHANTING' then
 		local spellName = GetSpellInfo(spellID)
+		print("logging", spellName, spellID)
 		if spellName == self.info.enchants[1].name then
 			self:SetState('ENCHANTED')
 			return

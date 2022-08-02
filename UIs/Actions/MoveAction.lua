@@ -33,7 +33,14 @@ function MoveAction:SetState(state, ...)
 		self.onStateChange()
 	end
 
-	if state == 'MOVING_TO_TARGET_ZONE' then
+	if state == 'MOVING_TO_TARGET_ZONE'
+	 	or state == 'READY_TO_MOVE' then
+		self:WaitingForTargetInRange()
+		return
+	end
+
+	if state == 'MOVED_TO_TARGET_ZONE' then
+		FlashClientIcon()
 		return
 	end
 end
@@ -80,7 +87,7 @@ function MoveAction:DetectTargetZone()
 		self:SetState('MOVED_TO_TARGET_ZONE')
 		self:SetDescription('|cffffd100'..self.info.targetName..'|r|c60808080 is the same zone |r|cffffd100'..targetZone..'|r|c60808080 with you|r')
 		action.isMessageSent = true
-		Whisper(self.info.targetName, 'can you come to me for the portal please? :D')
+		Whisper(self.info.targetName, 'can you come to me please? :D')
 		return
 	end
 
@@ -94,13 +101,31 @@ function MoveAction:DetectTargetZone()
 
 	self:SetSpell(portal.teleportSpellName)
 	self:HookScript('OnClick', function()
-		action:SetState('MOVING_TO_TARGET_ZONE')
+		if action.state ~= 'MOVING_TO_TARGET_ZONE' then
+			action:SetState('MOVING_TO_TARGET_ZONE')
+		end
+
 		if not action.isMessageSent then
 			action.isMessageSent = true
-			Whisper(action.info.targetName, 'teleporting to you, can you come to me for the portal please? :D')
+			Whisper(action.info.targetName, 'teleporting to you, can you come to me please? :D')
 		end
 	end)
 	self:SetDescription('|c60808080Teleport to |r|cffffd100'..portal.name..'|r')
+end
+
+function MoveAction:WaitingForTargetInRange()
+	local action = self
+	if self.state ~= 'MOVING_TO_TARGET_ZONE'
+	 	and self.state ~= 'READY_TO_MOVE' then
+		return
+	end
+
+	local unitID = GetUnitPartyID(self.info.targetName)
+	if not CheckInteractDistance(unitID, 2) then
+		C_Timer.After(1, function() action:WaitingForTargetInRange() end)
+	end
+
+	self:SetState('MOVED_TO_TARGET_ZONE')
 end
 
 -- EVENTS
@@ -113,9 +138,8 @@ function MoveAction:ZONE_CHANGED_NEW_AREA()
 		if playerZone == targetZone then
 			if not self.isMessageSent then
 				self.isMessageSent = true
-				Whisper(self.info.targetName, 'can you come to me for the portal please? :D')
+				Whisper(self.info.targetName, 'can you come to me please? :D')
 			end
-			self:SetState('MOVED_TO_TARGET_ZONE')
 		end
 	end
 end

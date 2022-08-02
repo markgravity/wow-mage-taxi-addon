@@ -48,6 +48,7 @@ function ContactAction:SetState(state)
 	end
 
 	if state == 'CONTACTED_TARGET' then
+		FlashClientIcon()
 		return
 	end
 end

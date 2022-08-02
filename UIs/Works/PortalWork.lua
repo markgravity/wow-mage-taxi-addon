@@ -299,11 +299,14 @@ function PortalWork:CHAT_MSG_SYSTEM(text)
 end
 
 function PortalWork:TRADE_ACCEPT_UPDATE(playerAccepted, targetAccepted)
+	if self.info == nil
+		or GetTradeTargetName() ~= self.info.targetName then
+		return
+	end
+
 	if self.state == 'MOVED_TO_TARGET_ZONE'
+		or self.state == 'CREATING_PORTAL'
 		or self.state == 'WAITING_FOR_TARGET_ENTER_PORTAL' then
-		if GetTradeTargetName() ~= self.info.targetName then
-			return
-		end
 
 		if playerAccepted == 1 and targetAccepted == 1 then
 			local money = GetTargetTradeMoney()
@@ -318,12 +321,14 @@ function PortalWork:TRADE_ACCEPT_UPDATE(playerAccepted, targetAccepted)
 end
 
 function PortalWork:TRADE_MONEY_CHANGED()
+	if self.info == nil
+		or GetTradeTargetName() ~= self.info.targetName then
+		return
+	end
+
 	if self.state == 'MOVED_TO_TARGET_ZONE'
+		or self.state == 'CREATING_PORTAL'
 		or self.state == 'WAITING_FOR_TARGET_ENTER_PORTAL' then
-		if self.info == nil
-			or GetTradeTargetName() ~= self.info.targetName then
-			return
-		end
 		AcceptTrade()
 		return
 	end

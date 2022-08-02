@@ -124,7 +124,6 @@ end
 
 function Work:Start()
 	PlaySound(6197)
-	FlashClientIcon()
 end
 
 function Work:GetState()
