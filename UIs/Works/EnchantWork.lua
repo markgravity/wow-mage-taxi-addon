@@ -36,14 +36,13 @@ function DetectEnchantWork(targetName, guid, message, parent)
 			numNeeds = 2
 		end
 		enchant.numNeeds = numNeeds
-		if enchant.itemLink ~= nil
-		 	and message:match(enchant.itemLink) ~= nil then
+
+		if message:match('henchant:'..enchant.itemID) ~= nil then
 			return CreateEnchantWork(targetName, message, { enchant }, parent)
 		end
 
 		for _, keyword in ipairs(enchant.keywords or {}) do
 			if message:match(keyword) ~= nil then
-				print("logging", keyword)
 				return CreateEnchantWork(targetName, message, { enchant }, parent)
 			end
 		end
@@ -95,8 +94,8 @@ function CreateEnchantWork(targetName, message, enchants, parent)
 
     work:SetTitle('Enchant')
 
-	local texture = GetSpellTexture(20014)
-	work:SetItem(texture, info.enchants[1].name)
+	local texture = GetSpellTexture(info.enchants[1].itemID)
+	work:SetItem(texture, info.enchants[1].name, info.enchants[1].itemLink)
 	work:SetMessage(info.targetName, message)
 
 	work.endButton:SetScript('OnClick', function(self)
@@ -249,11 +248,18 @@ function EnchantWork:SetState(super, state)
 		local unitID = GetUnitPartyID(self.info.targetName)
 		InitiateTrade(unitID)
 		if CraftCreateButton then
-			CraftCreateButton:HookScript(function()
+			CraftCreateButton:HookScript('OnClick', function()
 				if work.state ~= 'ENCHANTING' then
 					return
 				end
 				ClickTargetTradeButton(TRADE_ENCHANT_SLOT)
+				C_Timer.After(1, function()
+					local _, _, _, _, enchantment = GetTradeTargetItemInfo(TRADE_ENCHANT_SLOT)
+					print(enchantment, GetTradeTargetName())
+					if enchantment and GetTradeTargetName() ~= self.info.targetName then
+						self:SetState('ENCHANTED')
+					end
+				end)
 			end)
 		end
 		return
@@ -482,15 +488,4 @@ function EnchantWork:TRADE_TARGET_ITEM_CHANGED()
 		return
 	end
 
-	local tradeItemButton = _G["TradePlayerItem"..TRADE_ENCHANT_SLOT.."ItemButton"]
-	print("logging", 'TRADE_TARGET_ITEM_CHANGED', tradeItemButton)
-	tradeItemButton:HookScript('OnClick', function()
-		C_Timer.After(1, function()
-			local _, _, _, _, enchantment = GetTradeTargetItemInfo(TRADE_ENCHANT_SLOT)
-			print(enchantment, GetTradeTargetName())
-			if enchantment and GetTradeTargetName() ~= self.info.targetName then
-				self:SetState('ENCHANTED')
-			end
-		end)
-	end)
 end

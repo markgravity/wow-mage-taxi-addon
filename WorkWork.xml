@@ -19,6 +19,7 @@
 	<Script file="Utils\Zone.lua"/>
 	<Script file="Utils\Chat.lua"/>
 	<Script file="Utils\Trade.lua"/>
+	<Script file="Utils\ItemLink.lua"/>
 	<Script file="Utils\AutoAcceptInvite.lua"/>
 	<Script file="Utils\ProfessionScanner.lua"/>
 	<Script file="UIs\Actions\Action.lua"/>

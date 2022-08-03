@@ -106,9 +106,28 @@ function Work:SetTitle(title)
 	self.headerTitle:SetText(title)
 end
 
-function Work:SetItem(iconTexture, name)
+function Work:SetItem(iconTexture, name, itemLink)
+	local work = self
 	self.item.icon:SetTexture(iconTexture)
 	self.item.title:SetText(name)
+
+	if itemLink then
+		self.item:SetScript('OnEnter', function(self)
+			GameTooltip:SetOwner(work.item, 'ANCHOR_LEFT')
+			GameTooltip:SetHyperlink(itemLink)
+			GameTooltip:Show()
+		end)
+
+		self.item:SetScript('OnLeave', function()
+		  	GameTooltip:Hide()
+		end)
+
+		self.item:SetScript('OnClick', function(self, button)
+			if button == 'LeftButton' and IsShiftKeyDown() then
+		        ChatEdit_InsertLink(itemLink)
+		    end
+		end)
+	end
 end
 
 function Work:SetMessage(targetName, message)

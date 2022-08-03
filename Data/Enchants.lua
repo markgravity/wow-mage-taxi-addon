@@ -57,6 +57,7 @@ WorkWork.enchants = {
 			"speed to boot",
 			"speed to feet",
 			"minor move speed",
+			"minor run speed",
 			"minor movespeed"
 		}
 	},

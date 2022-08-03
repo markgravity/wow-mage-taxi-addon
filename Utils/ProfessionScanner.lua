@@ -24,14 +24,13 @@ function ProfessionScanner:Scan(profession)
 	local data = {}
 	local numberOfCrafts = GetNumCrafts()
 	if numberOfCrafts < #oldData then
-		print("logging", 'no scan')
 		return
 	end
 
 	for craftID = 1, numberOfCrafts do
 		local craftName, _, craftType = GetCraftInfo(craftID)
 		local craftItemLink = GetCraftItemLink(craftID)
-
+		local _, _, craftItemID = GetItemLinkInfo(craftItemLink)
 		if craftType ~= 'header' then
 			local numberOfReagents = GetCraftNumReagents(craftID)
 			local reagents = {}
@@ -45,6 +44,7 @@ function ProfessionScanner:Scan(profession)
 			end
 
 			local craftItem = {
+				itemID = craftItemID,
 				name = craftName,
 				reagents = reagents,
 				itemLink = craftItemLink or craftName
@@ -61,10 +61,9 @@ function ProfessionScanner:Scan(profession)
 	end
 
 	if #data < #oldData then
-		print("logging", 'no scan #2', #data)
 		return
 	end
-	print("logging", 'scaned', #data)
+
 	self.config.data[profession] = data
 end
 

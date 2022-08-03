@@ -29,7 +29,7 @@ function Peon:Init()
 		end
 	end)
 	-- workList:TryAdd('Iina', nil, 'wtb port exodar')
-	workList:TryAdd('Iina', nil, 'WTB [Sunmote] 120+ PST')
+	workList:TryAdd('Iina', nil, 'WTB |cffffd000|Henchant:7421|h[Superior Wizard Oil]|h|r')
 	WorkWorkMinimapButton:OnClick()
 	self.workList = workList
 end
