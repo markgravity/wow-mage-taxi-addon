@@ -87,7 +87,7 @@ function MoveAction:DetectTargetZone()
 		self:SetDescription('Waiting for |cffffd100'..self.info.targetName..'|r|c60808080 to come|r')
 		action.isMessageSent = true
 		if not self:IsTargetInRange() then
-			self:SendMessage('can you come to me please? :D')
+			self:SendMessage('come here plzzzzz? :D')
 		end
 		return
 	end
@@ -154,7 +154,9 @@ function MoveAction:ZONE_CHANGED_NEW_AREA()
 
 		if playerZone == targetZone then
 			self:SetDescription('Waiting for |cffffd100'..self.info.targetName..'|r|c60808080 to come|r')
-			self:SendMessage('can u come to me please? :D')
+			if not self:IsTargetInRange() then
+				self:SendMessage('come here plzzzzz? :D')
+			end
 		end
 	end
 end

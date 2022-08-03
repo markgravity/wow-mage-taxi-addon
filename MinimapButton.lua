@@ -12,10 +12,10 @@ function WorkWorkMinimapButton:Init()
 		{
 			type = "data source",
 			text = "WorkWork",
-			icon = "Interface\\ICONS\\RACIAL_ORC_BERSERKERSTRENGTH",
-			iconR = 0.7,
-			iconG = 0.7,
-			iconB = 0.7,
+			icon = "Interface\\AddOns\\WorkWork\\Resources\\PeonOff",
+			iconR = 1,
+			iconG = 1,
+			iconB =  1,
 			OnClick = self.OnClick,
 			OnTooltipShow = function (tooltip)
 				tooltip:AddLine("WorkWork", 1, 1, 1);
@@ -31,12 +31,8 @@ function WorkWorkMinimapButton:OnClick()
 	WorkWorkPeon:Toggle()
 
 	if WorkWorkPeon.isOn then
-		dbIconData.iconR = 1;
-		dbIconData.iconG = 1;
-		dbIconData.iconB = 1;
+		dbIconData.icon = "Interface\\AddOns\\WorkWork\\Resources\\PeonOn"
 	else
-		dbIconData.iconR = 0.7;
-		dbIconData.iconG = 0.7;
-		dbIconData.iconB = 0.7;
+		dbIconData.icon = "Interface\\AddOns\\WorkWork\\Resources\\PeonOff"
 	end
 end

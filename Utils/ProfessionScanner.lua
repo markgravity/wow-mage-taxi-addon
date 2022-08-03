@@ -24,6 +24,7 @@ function ProfessionScanner:Scan(profession)
 	local data = {}
 	local numberOfCrafts = GetNumCrafts()
 	if numberOfCrafts < #oldData then
+		print("logging", 'no scan')
 		return
 	end
 
@@ -59,6 +60,11 @@ function ProfessionScanner:Scan(profession)
 		end
 	end
 
+	if #data < #oldData then
+		print("logging", 'no scan #2', #data)
+		return
+	end
+	print("logging", 'scaned', #data)
 	self.config.data[profession] = data
 end
 

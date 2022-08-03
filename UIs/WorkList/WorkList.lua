@@ -173,6 +173,9 @@ function WorkList:AutoAssign()
 	if self.selectedWork == nil
 	 	or self.selectedWork.priorityLevel == 4 then
 		local work = self:FindHighestPriorityLevel()
+		if self.selectedWork ~= nil and work.priorityLevel >= 4 then
+			return
+		end
 		self:Select(work)
 		return
 	end

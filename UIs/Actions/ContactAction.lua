@@ -78,7 +78,7 @@ function ContactAction:CHAT_MSG_SYSTEM(text)
 	local task = self
 	if self.state == 'WAITING_FOR_CONTACT_RESPONSE' then
 		if text == self.info.targetName..' is already in a group.' then
-			SendSmartMessage(self.info.targetName, self.info.whisperMessage)
+			Whisper(self.info.targetName, self.info.whisperMessage)
 			self:SetDescription('|c60808080Waiting for |r|cffffd100'..self.info.targetName..'|r|c60808080 invites you into the party|r')
 			WorkWorkAutoAcceptInvite:SetEnabled(true, function ()
 				task:SetState('CONTACTED_TARGET')

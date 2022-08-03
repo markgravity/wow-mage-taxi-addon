@@ -1,0 +1,2 @@
+local ChatBot = {}
+WorkWorkChatBot = ChatBot

@@ -99,7 +99,7 @@ function Action:Disable(isFinish)
 	self.isEnabled = false
 	self.frame:SetEnabled(false)
 	if isFinish then
-		self.frame:SetBackdropColor(0.557, 0.055, 0.075, 0.7	) -- red
+		self.frame:SetBackdropColor(0.557, 0.055, 0.075, 0.7) -- red
 		self.frame:SetBackdropBorderColor(1, 1, 1)
 	else
 		self.frame:SetBackdropColor(0.1, 0.1, 0.1, 0.5) -- gray

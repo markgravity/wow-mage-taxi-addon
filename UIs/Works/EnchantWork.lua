@@ -36,12 +36,14 @@ function DetectEnchantWork(targetName, guid, message, parent)
 			numNeeds = 2
 		end
 		enchant.numNeeds = numNeeds
-		if message:match(enchant.itemLink) then
+		if enchant.itemLink ~= nil
+		 	and message:match(enchant.itemLink) ~= nil then
 			return CreateEnchantWork(targetName, message, { enchant }, parent)
 		end
 
 		for _, keyword in ipairs(enchant.keywords or {}) do
 			if message:match(keyword) ~= nil then
+				print("logging", keyword)
 				return CreateEnchantWork(targetName, message, { enchant }, parent)
 			end
 		end
@@ -88,6 +90,7 @@ function CreateEnchantWork(targetName, message, enchants, parent)
 	local frame = work.frame
 	frame:RegisterEvent('TRADE_ACCEPT_UPDATE')
 	frame:RegisterEvent('CRAFT_SHOW')
+	frame:RegisterEvent('TRADE_TARGET_ITEM_CHANGED')
 	frame:Hide()
 
     work:SetTitle('Enchant')
@@ -104,7 +107,7 @@ function CreateEnchantWork(targetName, message, enchants, parent)
 	local actionListContent = work.actionListContent
 	work.contactAction = CreateContactAction(
 		info.targetName,
-		"i can come to u, let me do it "..info.enchants[1].itemLink,
+		"i can come and do "..info.enchants[1].itemLink..'',
 		120,
 		'Contact',
 		'|c60808080Invite |r|cffffd100'..info.targetName..'|r|c60808080 into the party|r',
@@ -245,7 +248,14 @@ function EnchantWork:SetState(super, state)
 	if state == 'ENCHANTING' then
 		local unitID = GetUnitPartyID(self.info.targetName)
 		InitiateTrade(unitID)
-		self:WaitingForEnchant()
+		if CraftCreateButton then
+			CraftCreateButton:HookScript(function()
+				if work.state ~= 'ENCHANTING' then
+					return
+				end
+				ClickTargetTradeButton(TRADE_ENCHANT_SLOT)
+			end)
+		end
 		return
 	end
 
@@ -405,7 +415,7 @@ function EnchantWork:GatherReagents()
 	if isGatherSome and self.state == 'MOVED_TO_TARGET_ZONE' then
 		self:SetState('GATHERING_REAGENTS')
 	end
-	
+
 	self:UpdateGather()
 end
 
@@ -418,20 +428,6 @@ function EnchantWork:GetReagentByName(name, reagents)
 	end
 
 	return nil
-end
-
-function EnchantWork:WaitingForEnchant()
-	local work = self
-	if self.state ~= 'ENCHANTING' then
-		return
-	end
-
-	local _, _, _, _, enchantment = GetTradePlayerItemInfo(TRADE_ENCHANT_SLOT)
-	if enchantment and GetTradeTargetName() ~= self.info.targetName then
-		self:SetState('ENCHANTED')
-	else
-		C_Timer.After(1, function() work:WaitingForEnchant() end)
-	end
 end
 
 -- Events
@@ -478,4 +474,23 @@ function EnchantWork:CRAFT_SHOW()
 		end
 		return
 	end
+end
+
+function EnchantWork:TRADE_TARGET_ITEM_CHANGED()
+	local work = self
+	if self.state ~= 'ENCHANTING' then
+		return
+	end
+
+	local tradeItemButton = _G["TradePlayerItem"..TRADE_ENCHANT_SLOT.."ItemButton"]
+	print("logging", 'TRADE_TARGET_ITEM_CHANGED', tradeItemButton)
+	tradeItemButton:HookScript('OnClick', function()
+		C_Timer.After(1, function()
+			local _, _, _, _, enchantment = GetTradeTargetItemInfo(TRADE_ENCHANT_SLOT)
+			print(enchantment, GetTradeTargetName())
+			if enchantment and GetTradeTargetName() ~= self.info.targetName then
+				self:SetState('ENCHANTED')
+			end
+		end)
+	end)
 end

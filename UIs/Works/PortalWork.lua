@@ -26,14 +26,15 @@ function DetectPortalWork(playerName, guid, message, parent)
 
 	local message = string.lower(message)
 	if message:match('wts') ~= nil
-	 	or message:match('selling') ~= nil then
+	 	or message:match('selling') ~= nil
+		or message:match('services') ~= nil then
 		return
 	end
 
-    if message:match(' port ') == nil
-		and message:match(' ports ') == nil
-		and message:match(' portal ') == nil
-		and message:match(' por ') == nil then
+    if message:match(' port') == nil
+		and message:match(' ports') == nil
+		and message:match(' portal' ) == nil
+		and message:match(' por') == nil then
 		return nil
 	end
 	local matchers = {
@@ -310,7 +311,11 @@ function PortalWork:TRADE_ACCEPT_UPDATE(playerAccepted, targetAccepted)
 	if self.state == 'MOVED_TO_TARGET_ZONE'
 		or self.state == 'CREATING_PORTAL'
 		or self.state == 'WAITING_FOR_TARGET_ENTER_PORTAL' then
-
+		if playerAccepted == 0 and targetAccepted == 1 then
+			AcceptTrade()
+			FlashClientIcon()
+			return
+		end
 		if playerAccepted == 1 and targetAccepted == 1 then
 			local money = GetTargetTradeMoney()
 			local message = 'ty'
@@ -332,7 +337,7 @@ function PortalWork:TRADE_MONEY_CHANGED()
 	if self.state == 'MOVED_TO_TARGET_ZONE'
 		or self.state == 'CREATING_PORTAL'
 		or self.state == 'WAITING_FOR_TARGET_ENTER_PORTAL' then
-		AcceptTrade()
+		-- AcceptTrade()
 		return
 	end
 end

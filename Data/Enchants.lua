@@ -3,7 +3,7 @@ WorkWork.enchants = {
 		name = "Enchant 2H Weapon - Major Agility",
 		keywords = {
 			"35 agi",
-			"35+ agi"
+			"35%+ agi"
 		}
 	},
 	{
@@ -186,7 +186,7 @@ WorkWork.enchants = {
 			"exceptional health",
 			"health to chest",
 			"150 health",
-			"150+ health"
+			"150%+ health"
 		}
 	},
 	{
@@ -201,10 +201,10 @@ WorkWork.enchants = {
 	{
 		name = "Enchant Chest - Greater Stats",
 		keywords = {
-			"+4 stat",
+			"%+4 stat",
 			"greater stat",
-			"4+ chest",
-			"4+ to chest",
+			"4%+ chest",
+			"4%+ to chest",
 			"4 to chest",
 			"4 stat"
 		}
@@ -217,7 +217,7 @@ WorkWork.enchants = {
 			"major resilience",
 			"resil chest",
 			"15 res",
-			"15+ res",
+			"15%+ res",
 			"res to chest",
 			"res chest",
 			"15 resil to chest",
@@ -230,7 +230,7 @@ WorkWork.enchants = {
 			"major spirit chest",
 			"major spirit to chest",
 			"15 spirit",
-			"15+ spirit"
+			"15%+ spirit"
 		}
 	},
 	{
@@ -289,7 +289,7 @@ WorkWork.enchants = {
 			"major armor",
 			"120 armor",
 			"120 armour",
-			"120+"
+			"120%+"
 		}
 	},
 	{
@@ -318,7 +318,7 @@ WorkWork.enchants = {
 		name = "Enchant Cloak - Subtlety",
 		keywords = {
 			"subtlety",
-			"2%"
+			"2%%"
 		}
 	},
 	{
@@ -328,7 +328,7 @@ WorkWork.enchants = {
 			"advance herb",
 			"herb to hand",
 			"herb to glove",
-			"+herb",
+			"%+herb",
 			"herbalism to hand",
 			"herbalism to glove"
 		}
@@ -378,8 +378,8 @@ WorkWork.enchants = {
 	{
 		name = "Enchant Gloves - Healing Power",
 		keywords = {
-			"+30 healing",
-			"30+ heal"
+			"%+30 healing",
+			"30%+ heal"
 		}
 	},
 	{
@@ -400,7 +400,7 @@ WorkWork.enchants = {
 			"sp to hand",
 			"20sp to glove",
 			"20 sp to glove",
-			"20+ sp to glove",
+			"20%+ sp to glove",
 			"20sp glove",
 			""
 		}
@@ -410,7 +410,7 @@ WorkWork.enchants = {
 		keywords = {
 			"major str",
 			"15 str",
-			"15+ str",
+			"15%+ str",
 			"str glove"
 		}
 	},
@@ -419,7 +419,7 @@ WorkWork.enchants = {
 		keywords = {
 			"riding speed",
 			"riding skill",
-			"+riding"
+			"%+riding"
 		}
 	},
 	{
@@ -446,7 +446,7 @@ WorkWork.enchants = {
 			"superior agility",
 			"15 agi",
 			"15agi",
-			"15+ agi"
+			"15%+ agi"
 		}
 	},
 	{
@@ -469,7 +469,7 @@ WorkWork.enchants = {
 		keywords = {
 			"stam to shield",
 			"18 stam",
-			"18+ stam",
+			"18%+ stam",
 			"stamina to shield"
 		}
 	},
@@ -523,7 +523,7 @@ WorkWork.enchants = {
 		name = "Enchant Weapon - Healing Power",
 		keywords = {
 			"55 heal",
-			"55+"
+			"55%+"
 		}
 	},
 	{
@@ -537,7 +537,7 @@ WorkWork.enchants = {
 		name = "Enchant Weapon - Major Healing",
 		keywords = {
 			"81 heal",
-			"81+ heal",
+			"81%+ heal",
 			"major healing weapon",
 			"weapon major healing"
 		}
@@ -546,7 +546,7 @@ WorkWork.enchants = {
 		name = "Enchant Weapon - Major Intellect",
 		keywords = {
 			"30 int",
-			"30+ int"
+			"30%+ int"
 		}
 	},
 	{
@@ -555,14 +555,14 @@ WorkWork.enchants = {
 			"spellpower to weapon",
 			"40 sp",
 			"40 spell",
-			"40+ spell"
+			"40%+ spell"
 		}
 	},
 	{
 		name = "Enchant Weapon - Mighty Spirit",
 		keywords = {
 			"20 spirit",
-			"20+ spirit"
+			"20%+ spirit"
 		}
 	},
 	{
@@ -588,7 +588,7 @@ WorkWork.enchants = {
 		name = "Enchant Weapon - Spell Power",
 		keywords = {
 			"30 sp",
-			"30+ sp"
+			"30%+ sp"
 		}
 	},
 	{

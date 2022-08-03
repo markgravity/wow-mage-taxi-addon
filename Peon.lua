@@ -29,7 +29,7 @@ function Peon:Init()
 		end
 	end)
 	-- workList:TryAdd('Iina', nil, 'wtb port exodar')
-	workList:TryAdd('Iina', nil, 'lf minor speed x2 ')
+	workList:TryAdd('Iina', nil, 'WTB [Sunmote] 120+ PST')
 	WorkWorkMinimapButton:OnClick()
 	self.workList = workList
 end

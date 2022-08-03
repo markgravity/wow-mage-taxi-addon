@@ -144,7 +144,11 @@ end
 
 function Work:End(isCompleted, wantsLeave)
 	if UnitIsGroupLeader('player') then
-		UninviteUnit(self.info.targetName)
+		if GetNumGroupMembers() <= 2 then
+			LeaveParty()
+		else
+			UninviteUnit(self.info.targetName)
+		end
 	else
 		if wantsLeave then
 			-- BUG: Leaving when another work is unable to contact

@@ -14,10 +14,16 @@ function SendPartyMessage(message)
 	)
 end
 
-function SendSmartMessage(targetName, message)
-	if GetNumGroupMembers() > 2 then
-		Whisper(targetName, message)
+function SendSmartMessage(targetName, message, delay)
+	local delay = delay or 1
+	if not IsInGroup() or GetNumGroupMembers() > 2 then
+		C_Timer.After(delay, function()
+			Whisper(targetName, message)
+		end)
+
 	else
-		SendPartyMessage(message)
+		C_Timer.After(delay, function()
+			SendPartyMessage(message)
+		end)
 	end
 end
