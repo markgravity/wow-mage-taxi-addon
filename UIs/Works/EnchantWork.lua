@@ -108,7 +108,7 @@ function CreateEnchantWork(targetName, message, enchants, parent)
 	local actionListContent = work.actionListContent
 	work.contactAction = CreateContactAction(
 		info.targetName,
-		"i can come and do "..info.enchants[1].itemLink..'',
+		"real person, i can come and do "..info.enchants[1].itemLink..'',
 		120,
 		'Contact',
 		'|c60808080Invite |r|cffffd100'..info.targetName..'|r|c60808080 into the party|r',
@@ -184,7 +184,7 @@ function CreateEnchantWork(targetName, message, enchants, parent)
 		enchantActions[#enchantActions]
 	)
 	work:SetScript('OnClick', function()
-		work.endButton:Click()
+		work:SetState('FINISHING')
 	end)
 	actionListContent:SetSize(
 		WORK_WIDTH - 30,
@@ -242,7 +242,10 @@ function EnchantWork:SetState(super, state)
 	end
 
 	if state == 'GATHERING_REAGENTS' then
-
+		if TradeFrame == nil or not TradeFrame:IsShown() then
+			local unitID = GetUnitPartyID(self.info.targetName)
+			InitiateTrade(unitID)
+		end
 		return
 	end
 

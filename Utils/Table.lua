@@ -40,3 +40,26 @@ end
 function table.isArray(t)
   return #t > 0 and next(t, #t) == nil
 end
+
+local function dump(o, tbs, tb)
+	tb = tb or 0
+	tbs = tbs or '  '
+	if type(o) == 'table' then
+		local s = '{'
+		if (next(o)) then s = s .. '\n' else return s .. '}' end
+		tb = tb + 1
+		for k,v in pairs(o) do
+			if type(k) ~= 'number' then k = '"' .. k .. '"' end
+			s = s .. tbs:rep(tb) .. '[' .. k .. '] = ' .. dump(v, tbs, tb)
+			s = s .. ',\n'
+		end
+		tb = tb - 1
+		return s .. tbs:rep(tb) .. '}'
+	else
+		return tostring(o)
+	end
+end
+
+function table.print(t)
+	print(dump(t))
+end

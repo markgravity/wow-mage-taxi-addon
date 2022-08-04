@@ -13,6 +13,7 @@ function Peon:Init()
 	self:SetScript("OnDragStart", self.StartMoving)
 	self:SetScript("OnDragStop", self.StopMovingOrSizing)
 	self:SetSize(WORK_LIST_WIDTH + WORK_WIDTH - 11, WORK_HEIGHT)
+	self:SetToplevel(true)
 	if not self:IsUserPlaced() then
 		self:SetPoint('CENTER')
 	end
