@@ -15,7 +15,8 @@ WorkWork.enchants = {
 	{
 		name = "Enchant Boots - Boar's Speed",
 		keywords = {
-			"boar"
+			"boar",
+			"boars speed"
 		}
 	},
 	{

@@ -57,7 +57,7 @@ function DetectPortalWork(playerName, guid, message, parent)
 			return message:match('port '..keyword) ~= nil and message:match('from') == nil
 		end,
 		function(keyword)
-			return message:match(keyword) ~= nil
+			return message:match(keyword) ~= nil and message:match(keyword..'-') == nil
 		end
 	}
 	for _, matcher in ipairs(matchers) do
