@@ -2,6 +2,7 @@ local MoveAction = {}
 
 function CreateMoveAction(
 	targetName,
+	isRequestToMove,
 	titleText,
 	descriptionText,
 	parent,
@@ -10,19 +11,15 @@ function CreateMoveAction(
 	local action = CreateAction(titleText, descriptionText, parent, previousAction)
 	extends(action, MoveAction)
 	action.info = {
-		targetName = targetName
+		targetName = targetName,
+		isRequestToMove = isRequestToMove
 	}
 	action.isMessageSent = false
 	action:HookScript('OnClick', function()
 		C_Timer.After(1, function() action:DetectTargetZone() end)
 	end)
 	action:SetState('INITIALIZED')
-
-	local frame = action.frame
-	frame:RegisterEvent('ZONE_CHANGED_NEW_AREA')
-	frame:SetScript('OnEvent', function(self, event, ...)
-		action[event](action, ...)
-	end)
+	action:RegisterEvents({ 'ZONE_CHANGED_NEW_AREA' })
 
 	return action
 end
@@ -86,7 +83,7 @@ function MoveAction:DetectTargetZone()
 	if playerZone == targetZone then
 		self:SetDescription('Waiting for |cffffd100'..self.info.targetName..'|r|c60808080 to come|r')
 		action.isMessageSent = true
-		if not self:IsTargetInRange() then
+		if not self:IsTargetInRange() and self.info.isRequestToMove then
 			self:SendMessage('come here plzzzzz? :D')
 		end
 		return
@@ -154,7 +151,7 @@ function MoveAction:ZONE_CHANGED_NEW_AREA()
 
 		if playerZone == targetZone then
 			self:SetDescription('Waiting for |cffffd100'..self.info.targetName..'|r|c60808080 to come|r')
-			if not self:IsTargetInRange() then
+			if not self:IsTargetInRange() and self.info.isRequestToMove then
 				self:SendMessage('come here plzzzzz? :D')
 			end
 		end

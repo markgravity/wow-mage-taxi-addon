@@ -128,6 +128,7 @@ function CreatePortalWork(targetName, message, portal, parent)
 
 	work.moveAction = CreateMoveAction(
 		info.targetName,
+		true,
 		'Move',
 		'|c60808080Waiting for contact|r',
 		actionListContent,
@@ -319,6 +320,7 @@ function PortalWork:TRADE_ACCEPT_UPDATE(playerAccepted, targetAccepted)
 		or self.state == 'WAITING_FOR_TARGET_ENTER_PORTAL' then
 		if playerAccepted == 0 and targetAccepted == 1 then
 			AcceptTrade()
+			PlaySound(891)
 			FlashClientIcon()
 			return
 		end

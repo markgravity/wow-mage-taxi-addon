@@ -108,7 +108,7 @@ function CreateEnchantWork(targetName, message, enchants, parent)
 	local actionListContent = work.actionListContent
 	work.contactAction = CreateContactAction(
 		info.targetName,
-		"real person, i can come and do "..info.enchants[1].itemLink..'',
+		"i can do it",
 		120,
 		'Contact',
 		'|c60808080Invite |r|cffffd100'..info.targetName..'|r|c60808080 into the party|r',
@@ -127,6 +127,7 @@ function CreateEnchantWork(targetName, message, enchants, parent)
 
 	work.moveAction = CreateMoveAction(
 		info.targetName,
+		false,
 		'Move',
 		'|c60808080Waiting for contact|r',
 		actionListContent,
@@ -404,10 +405,10 @@ end
 
 function EnchantWork:DeduceReceivedReagents()
 	for _, reagent in ipairs(self.activeEnchant.reagents) do
-		local receivedReagent = self:GetReagentByName(reagent.name, self.receivedReagents)
+		local receivedReagent = self:GetReagentByName(reagent.name, self.info.receivedReagents)
 		if receivedReagent ~= nil then
 			receivedReagent.numHave = receivedReagent.numHave - reagent.numRequired
-			eceivedReagent.numRequired = receivedReagent.numRequired - reagent.numRequired
+			receivedReagent.numRequired = receivedReagent.numRequired - reagent.numRequired
 		end
 	end
 	self:UpdateGather()

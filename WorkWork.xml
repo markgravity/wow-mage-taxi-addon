@@ -22,6 +22,7 @@
 	<Script file="Utils\ItemLink.lua"/>
 	<Script file="Utils\AutoAcceptInvite.lua"/>
 	<Script file="Utils\ProfessionScanner.lua"/>
+	<Script file="Trails\Eventable.lua"/>
 	<Script file="UIs\Actions\Action.lua"/>
 	<Script file="UIs\Actions\ContactAction.lua"/>
 	<Script file="UIs\Actions\MoveAction.lua"/>

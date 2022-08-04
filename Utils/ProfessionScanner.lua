@@ -60,10 +60,6 @@ function ProfessionScanner:Scan(profession)
 		end
 	end
 
-	if #data < #oldData then
-		return
-	end
-
 	self.config.data[profession] = data
 end
 

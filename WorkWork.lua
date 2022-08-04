@@ -1,5 +1,6 @@
 local AceEvent = LibStub('AceEvent-3.0')
 WorkWork = LibStub('AceAddon-3.0'):NewAddon('WorkWork', 'AceConsole-3.0')
+WorkWork.Trails = {}
 WorkWork.isDebug = true
 
 WORK_LIST_WIDTH = 200

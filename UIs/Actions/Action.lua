@@ -1,8 +1,9 @@
+local Eventable = WorkWork.Trails.Eventable
 local Action = {}
 
 function CreateAction(titleText, descriptionText, parent, previousAction)
 	local action = {}
-	extends(action, Action)
+	extends(action, Action, Eventable)
 
 	action.isCompleted = false
 	action.isEnabled = true
@@ -78,6 +79,7 @@ function Action:IsCompleted()
 end
 
 function Action:Complete()
+	self:UnregisterEvents()
 	self.isCompleted = true
 	self.frame:SetEnabled(false)
 	self:SetupUIForComplete()
@@ -87,6 +89,7 @@ function Action:Complete()
 end
 
 function Action:Uncomplete()
+	self:RegisterEvents()
 	self.isCompleted = false
 	if self.isEnabled then
 		self:Endable()

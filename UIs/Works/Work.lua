@@ -162,6 +162,10 @@ function Work:GetStateText(state)
 end
 
 function Work:End(isCompleted, wantsLeave)
+	if self.info == nil then
+		return
+	end
+
 	if UnitIsGroupLeader('player') then
 		if GetNumGroupMembers() <= 2 and UnitName('party1') == self.info.targetName then
 			LeaveParty()

@@ -29,8 +29,8 @@ function Peon:Init()
 			peon:Show()
 		end
 	end)
-	-- workList:TryAdd('Iina', nil, 'wtb port exodar')
-	workList:TryAdd('Iina', nil, 'WTB |cffffd000|Henchant:7421|h[Superior Wizard Oil]|h|r')
+	-- workList:TryAdd('Iina', nil, 'wtb port to theramore')
+	workList:TryAdd('Iina', nil, 'WTB fiery')
 	WorkWorkMinimapButton:OnClick()
 	self.workList = workList
 end
