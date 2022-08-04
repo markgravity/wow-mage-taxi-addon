@@ -163,7 +163,7 @@ end
 
 function Work:End(isCompleted, wantsLeave)
 	if UnitIsGroupLeader('player') then
-		if GetNumGroupMembers() <= 2 then
+		if GetNumGroupMembers() <= 2 and UnitName('party1') == self.info.targetName then
 			LeaveParty()
 		else
 			UninviteUnit(self.info.targetName)

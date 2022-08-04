@@ -12,6 +12,7 @@ function DetectEnchantWork(targetName, guid, message, parent)
 		end
 	end
 
+	local originalMessage = message
 	local message = string.lower(message)
 	if message:match('wts') ~= nil
 		or message:match('lfm') ~= nil
@@ -38,12 +39,13 @@ function DetectEnchantWork(targetName, guid, message, parent)
 		enchant.numNeeds = numNeeds
 
 		if message:match('henchant:'..enchant.itemID) ~= nil then
-			return CreateEnchantWork(targetName, message, { enchant }, parent)
+			local clearedMessage = ClearItemLink(originalMessage)
+			return CreateEnchantWork(targetName, clearedMessage, { enchant }, parent)
 		end
 
 		for _, keyword in ipairs(enchant.keywords or {}) do
 			if message:match(keyword) ~= nil then
-				return CreateEnchantWork(targetName, message, { enchant }, parent)
+				return CreateEnchantWork(targetName, originalMessage, { enchant }, parent)
 			end
 		end
 	end
@@ -245,28 +247,30 @@ function EnchantWork:SetState(super, state)
 	end
 
 	if state == 'ENCHANTING' then
-		local unitID = GetUnitPartyID(self.info.targetName)
-		InitiateTrade(unitID)
+		if TradeFrame == nil or not TradeFrame:IsShown() then
+			local unitID = GetUnitPartyID(self.info.targetName)
+			InitiateTrade(unitID)
+		end
 		if CraftCreateButton then
 			CraftCreateButton:HookScript('OnClick', function()
 				if work.state ~= 'ENCHANTING' then
 					return
 				end
 				ClickTargetTradeButton(TRADE_ENCHANT_SLOT)
-				C_Timer.After(1, function()
-					local _, _, _, _, enchantment = GetTradeTargetItemInfo(TRADE_ENCHANT_SLOT)
-					print(enchantment, GetTradeTargetName())
-					if enchantment and GetTradeTargetName() ~= self.info.targetName then
-						self:SetState('ENCHANTED')
-					end
-				end)
+				-- C_Timer.After(1, function()
+				-- 	local _, _, _, _, enchantment = GetTradeTargetItemInfo(TRADE_ENCHANT_SLOT)
+				-- 	print("logging", enchant, GetTradeTargetName() ~= work.info.targetName)
+				-- 	if enchantment and GetTradeTargetName() ~= work.info.targetName then
+				--
+				-- 	end
+				-- end)
+				work:SetState('ENCHANTED')
 			end)
 		end
 		return
 	end
 
 	if state == 'ENCHANTED' then
-		AcceptTrade()
 		return
 	end
 
@@ -352,7 +356,7 @@ end
 
 function EnchantWork:UpdateGather()
 	-- Gather Action
-	local description = '|c60808080Received Mats:|r'
+	local description = '|c60808080Received Reagents:|r'
 	for _, reagent in ipairs(self.info.receivedReagents) do
 		description = description..'\n|cffffd100 '..(reagent.name or '')..'|r|cfffffff0 '..reagent.numHave..'/'..reagent.numRequired..'|r'
 	end
@@ -457,9 +461,16 @@ function EnchantWork:TRADE_ACCEPT_UPDATE(playerAccepted, targetAccepted)
 		return
 	end
 
-	if self.state == 'ENCHANTED'
-	 	and playerAccepted == 1 and targetAccepted == 1 then
-		self:SetState('DELIVERED')
+	if self.state == 'ENCHANTED' then
+		if playerAccepted == 0 and targetAccepted == 1 then
+			AcceptTrade()
+			return
+		end
+
+		if playerAccepted == 1 and targetAccepted == 1 then
+			self:SetState('DELIVERED')
+			return
+		end
 		return
 	end
 end

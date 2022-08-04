@@ -24,9 +24,12 @@ function DetectPortalWork(playerName, guid, message, parent)
 		end
 	end
 
+	local originalMessage = message
 	local message = string.lower(message)
 	if message:match('wts') ~= nil
 	 	or message:match('selling') ~= nil
+		or message:match('anywhere') ~= nil
+		or message:match('you') ~= nil
 		or message:match('services') ~= nil then
 		return
 	end
@@ -40,6 +43,9 @@ function DetectPortalWork(playerName, guid, message, parent)
 	local matchers = {
 		function(keyword)
 			return message:match('to '..keyword)
+		end,
+		function(keyword)
+			return message:match('>'..keyword)
 		end,
 		function(keyword)
 			return message:match('> '..keyword)
@@ -62,7 +68,7 @@ function DetectPortalWork(playerName, guid, message, parent)
 				return nil
 			end
 
-			return CreatePortalWork(playerName, message, portal, parent)
+			return CreatePortalWork(playerName, originalMessage, portal, parent)
 		end
 	end
 
