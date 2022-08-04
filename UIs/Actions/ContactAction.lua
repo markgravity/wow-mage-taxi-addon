@@ -26,12 +26,7 @@ function CreateContactAction(
 	action:SetScript('OnClick', function()
 		action:SetState('WAITING_FOR_CONTACT_RESPONSE')
 	end)
-
-	local frame = action.frame
-	frame:RegisterEvent('CHAT_MSG_SYSTEM')
-	frame:SetScript('OnEvent', function(self, event, ...)
-		action[event](action, ...)
-	end)
+	action:RegisterEvents({ 'CHAT_MSG_SYSTEM' })
 
 	return action
 end

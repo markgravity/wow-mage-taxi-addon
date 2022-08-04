@@ -162,6 +162,7 @@ function Work:GetStateText(state)
 end
 
 function Work:End(isCompleted, wantsLeave)
+	self:UnregisterEvents()
 	if self.info == nil then
 		return
 	end

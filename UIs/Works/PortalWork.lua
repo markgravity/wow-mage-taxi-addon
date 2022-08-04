@@ -1,3 +1,4 @@
+local Eventable = WorkWork.Trails.Eventable
 local PortalWork = {}
 
 local function MatchPortal(matcher)
@@ -81,20 +82,19 @@ function CreatePortalWork(targetName, message, portal, parent)
 		sellingPortal = portal
 	}
 	local work = CreateWork('WorkWorkPortalWork'..targetName..portal.name, parent)
-	extends(work, PortalWork)
+	extends(work, PortalWork, Eventable)
 
 	work.isAutoContact = true
 	work.info = info
 	work:SetState('INITIALIZED')
-
-	local frame = work.frame
-	frame:RegisterEvent('UNIT_SPELLCAST_SUCCEEDED')
-	frame:RegisterEvent('CHAT_MSG_SYSTEM')
-	frame:RegisterEvent('TRADE_ACCEPT_UPDATE')
-	frame:RegisterEvent('TRADE_MONEY_CHANGED')
-	frame:Hide()
-
-    work:SetTitle('Portal')
+	work:RegisterEvents({
+		'UNIT_SPELLCAST_SUCCEEDED',
+		'CHAT_MSG_SYSTEM',
+		'TRADE_ACCEPT_UPDATE',
+		'TRADE_MONEY_CHANGED'
+	})
+	work:SetTitle('Portal')
+	work.frame:Hide()
 
 	local texture = GetSpellTexture(info.sellingPortal.portalSpellID)
 	work:SetItem(texture, info.sellingPortal.name)
@@ -171,10 +171,6 @@ function CreatePortalWork(targetName, message, portal, parent)
 	work.makeAction:Disable()
 	work.finishAction:Disable(true)
 	work.contactAction:Enable()
-
-	frame:SetScript('OnEvent', function(self, event, ...)
-		work[event](work, ...)
-	end)
 
 	return work
 end

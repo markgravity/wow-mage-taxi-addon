@@ -1,3 +1,4 @@
+local Eventable = WorkWork.Trails.Eventable
 local EnchantWork = {}
 
 function DetectEnchantWork(targetName, guid, message, parent)
@@ -54,7 +55,7 @@ end
 
 function CreateEnchantWork(targetName, message, enchants, parent)
 	local work = CreateWork('WorkWorkEnchantWork'..targetName, parent)
-	extends(work, EnchantWork)
+	extends(work, EnchantWork, Eventable)
 
 	-- Setup default receivedReagents
 	local receivedReagents = {}
@@ -87,11 +88,13 @@ function CreateEnchantWork(targetName, message, enchants, parent)
 	work.isAutoContact = true
 	work.info = info
 	work:SetState('INITIALIZED')
+	work:RegisterEvents({
+		'TRADE_ACCEPT_UPDATE',
+		'CRAFT_SHOW',
+		'TRADE_TARGET_ITEM_CHANGED'
+	})
 
 	local frame = work.frame
-	frame:RegisterEvent('TRADE_ACCEPT_UPDATE')
-	frame:RegisterEvent('CRAFT_SHOW')
-	frame:RegisterEvent('TRADE_TARGET_ITEM_CHANGED')
 	frame:Hide()
 
     work:SetTitle('Enchant')
@@ -201,9 +204,6 @@ function CreateEnchantWork(targetName, message, enchants, parent)
 	work.contactAction:Enable()
 
 	work:UpdateGather()
-	frame:SetScript('OnEvent', function(self, event, ...)
-		work[event](work, ...)
-	end)
 	return work
 end
 
