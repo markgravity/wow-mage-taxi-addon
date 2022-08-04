@@ -12,6 +12,7 @@ function ProfessionScanner:Init()
 		self[event](self, ...)
 	end)
 	self:RegisterEvent('CRAFT_SHOW')
+	hooksecurefunc('SetItemRef', ProfessionScanner.SetItemRef)
 end
 
 function ProfessionScanner:SetAutoScan(isAuto)
@@ -74,4 +75,24 @@ function ProfessionScanner:CRAFT_SHOW()
 	end
 
 	self:Scan(profession)
+end
+
+function ProfessionScanner:SetItemRef(link, text, button)
+	local _, _, id = GetItemLinkInfo(link)
+	if id == nil then
+		return
+	end
+
+	for p, data in pairs(ProfessionScanner.config.data) do
+		for _, item in ipairs(data) do
+			if item.itemID == id then
+				ItemRefTooltip:AddLine('|c60808080Learned|r')
+				if ItemRefTooltipTextLeft4 then
+					ItemRefTooltipTextLeft4:SetPoint('RIGHT', -8, 0)
+					ItemRefTooltipTextLeft4:SetJustifyH('RIGHT')
+				end
+				ItemRefTooltip:Show()
+			end
+		end
+	end
 end
