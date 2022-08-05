@@ -43,6 +43,21 @@ function CreateWork(name, parent)
 	item.title = _G[itemFrameName.."Text"]
 	work.item = item
 
+	-- Item Menu
+	local menuData = {
+		{ text = "Select an Option", isTitle = true},
+		{ text = "Option 1", func = function() print("You've chosen option 1"); end },
+		{ text = "Option 2", func = function() print("You've chosen option 2"); end },
+		{ text = "More Options", hasArrow = true,
+			menuList = {
+				{ text = "Option 3", func = function() print("You've chosen option 3"); end }
+			}
+		}
+	}
+	local itemMenu = CreateFrame("Frame", frame:GetName().."ItemMenu", frame, "UIDropDownMenuTemplate")
+	itemMenu.data = menuData
+	work.itemMenu = menuFrame
+
 	local targetNameText = frame:CreateFontString()
 	targetNameText:SetFontObject('GameFontNormal')
 	targetNameText:ClearAllPoints()
@@ -125,7 +140,12 @@ function Work:SetItem(iconTexture, name, itemLink)
 		self.item:SetScript('OnClick', function(self, button)
 			if button == 'LeftButton' and IsShiftKeyDown() then
 		        ChatEdit_InsertLink(itemLink)
+				return
 		    end
+
+			if button == 'RightButton' then
+				EasyMenu(work.itemMenu.data, work.itemMenu, "cursor", 0 , 0, "MENU")
+			end
 		end)
 	end
 end

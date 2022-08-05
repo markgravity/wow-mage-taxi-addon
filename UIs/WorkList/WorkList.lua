@@ -1,4 +1,5 @@
 local WorkList = {}
+WorkWork.UIs.WorkList = WorkList
 
 function CreateWorkList(parent)
 	local workList = {

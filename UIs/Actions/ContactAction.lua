@@ -4,6 +4,7 @@ function CreateContactAction(
 	targetName,
 	whisperMessage,
 	waitingTimeout,
+	isLazy,
 	titleText,
 	descriptionText,
 	parent,
@@ -20,7 +21,8 @@ function CreateContactAction(
 	action.info = {
 		targetName = targetName,
 		whisperMessage = whisperMessage,
-		timeout = waitingTimeout
+		timeout = waitingTimeout,
+		isLazy = isLazy
 	}
 	action:SetState('INITIALIZED')
 	action:SetScript('OnClick', function()
@@ -39,13 +41,22 @@ function ContactAction:SetState(state)
 	end
 
 	if state == 'WAITING_FOR_CONTACT_RESPONSE' then
-		InviteUnit(self.info.targetName)
-		C_Timer.After(self.info.timeout, function()
-			if action.state == 'CONTACTED_TARGET' then
-				return
-			end
-			action:SetState('CONTACT_FAILED')
-		end)
+		if self.info.isLazy then
+			local oldDescription = self.description:GetText()
+			self:SetDescription('|c60808080Making sure |r|cffffd100'..self.info.targetName..'|r|c60808080 is same zone|r')
+			GetZoneByPlayerName(self.info.targetName, function (zone)
+				local playerZone = GetPlayerZone()
+				print("logging", zone, playerZone)
+				if zone == nil or playerZone ~= zone then
+					action:SetState('CONTACT_FAILED')
+					return
+				end
+				action:SetDescription(oldDescription)
+				action:InviteTarget()
+			end)
+			return
+		end
+		self:InviteTarget()
 		return
 	end
 
@@ -58,6 +69,21 @@ end
 
 function ContactAction:GetState()
 	return self.state
+end
+
+function ContactAction:InviteTarget()
+	InviteUnit(self.info.targetName)
+	self:BeginInviteTimeout()
+end
+
+function ContactAction:BeginInviteTimeout()
+	local action = self
+	C_Timer.After(action.info.timeout, function()
+		if action.state == 'CONTACTED_TARGET' then
+			return
+		end
+		action:SetState('CONTACT_FAILED')
+	end)
 end
 
 function ContactAction:SetScript(super, event, script)

@@ -1,4 +1,6 @@
 local WorkListItem = {}
+WorkWork.UIs.WorkList.WorkListItem = WorkListItem
+
 WORK_LIST_ITEM_HEIGHT = 18
 
 function CreateWorkListItem(index, work, parent, columnHeaders, previousItem)

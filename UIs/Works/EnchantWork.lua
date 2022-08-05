@@ -18,6 +18,7 @@ function DetectEnchantWork(targetName, guid, message, parent)
 	if message:match('wts') ~= nil
 		or message:match('lfm') ~= nil
 		or message:match('selling') ~= nil
+		or message:match('free') ~= nil
 	 	or message:match('lfw') ~= nil then
 		return
 	end
@@ -113,6 +114,7 @@ function CreateEnchantWork(targetName, message, enchants, parent)
 		info.targetName,
 		"i can do it",
 		120,
+		false,
 		'Contact',
 		'|c60808080Invite |r|cffffd100'..info.targetName..'|r|c60808080 into the party|r',
 		actionListContent

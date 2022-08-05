@@ -31,6 +31,7 @@ function DetectPortalWork(playerName, guid, message, parent)
 	 	or message:match('selling') ~= nil
 		or message:match('anywhere') ~= nil
 		or message:match('you') ~= nil
+		or message:match('free') ~= nil
 		or message:match('services') ~= nil then
 		return
 	end
@@ -111,6 +112,7 @@ function CreatePortalWork(targetName, message, portal, parent)
 		info.targetName,
 		'invite me for a portal to '..info.sellingPortal.name,
 		30,
+		true,
 		'Contact',
 		'|c60808080Invite |r|cffffd100'..info.targetName..'|r|c60808080 into the party|r',
 		actionListContent
