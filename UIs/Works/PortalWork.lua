@@ -112,7 +112,7 @@ function CreatePortalWork(targetName, message, portal, parent)
 		info.targetName,
 		'invite me for a portal to '..info.sellingPortal.name,
 		30,
-		true,
+		WorkWork.charConfigs.lazyMode.portal,
 		'Contact',
 		'|c60808080Invite |r|cffffd100'..info.targetName..'|r|c60808080 into the party|r',
 		actionListContent
@@ -131,6 +131,7 @@ function CreatePortalWork(targetName, message, portal, parent)
 	work.moveAction = CreateMoveAction(
 		info.targetName,
 		true,
+		WORK_INTERECT_DISTANCE_INSPECT,
 		'Move',
 		'|c60808080Waiting for contact|r',
 		actionListContent,

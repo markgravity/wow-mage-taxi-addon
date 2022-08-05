@@ -3,6 +3,7 @@ local MoveAction = {}
 function CreateMoveAction(
 	targetName,
 	isRequestToMove,
+	interactDistance,
 	titleText,
 	descriptionText,
 	parent,
@@ -12,7 +13,8 @@ function CreateMoveAction(
 	extends(action, MoveAction)
 	action.info = {
 		targetName = targetName,
-		isRequestToMove = isRequestToMove
+		isRequestToMove = isRequestToMove,
+		interactDistance = interactDistance
 	}
 	action.isMessageSent = false
 	action:HookScript('OnClick', function()
@@ -135,7 +137,7 @@ end
 
 function MoveAction:IsTargetInRange()
 	local unitID = GetUnitPartyID(self.info.targetName)
-	return unitID ~= nil and CheckInteractDistance(unitID, 1)
+	return unitID ~= nil and CheckInteractDistance(unitID, self.info.interactDistance)
 end
 
 function MoveAction:SendMessage(message)

@@ -114,7 +114,7 @@ function CreateEnchantWork(targetName, message, enchants, parent)
 		info.targetName,
 		"i can do it",
 		120,
-		false,
+		WorkWork.charConfigs.lazyMode.enchant,
 		'Contact',
 		'|c60808080Invite |r|cffffd100'..info.targetName..'|r|c60808080 into the party|r',
 		actionListContent
@@ -133,6 +133,7 @@ function CreateEnchantWork(targetName, message, enchants, parent)
 	work.moveAction = CreateMoveAction(
 		info.targetName,
 		false,
+		WORK_INTERECT_DISTANCE_TRADE,
 		'Move',
 		'|c60808080Waiting for contact|r',
 		actionListContent,

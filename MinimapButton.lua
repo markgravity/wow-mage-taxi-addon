@@ -38,12 +38,37 @@ function WorkWorkMinimapButton:OnClick(button)
 		local menu = {
 			{ text = 'WorkWork', isTitle = true },
 			{
-				text = 'Lazy',
-				checked = WorkWork.charConfigs.isLazy or false,
-				func = function(self)
-					WorkWork.charConfigs.isLazy = not self.checked
-					WorkWorkMinimapButton:UpdateIcon()
-				end
+				text = 'Lazy Mode:',
+				hasArrow = true,
+				notCheckable = true,
+				menuList = {
+					{
+						text = 'Portal',
+						keepShownOnClick = true,
+						checked = function()
+							return WorkWork.charConfigs.lazyMode.portal
+						end,
+						func = function()
+							WorkWork.charConfigs.lazyMode.portal = not WorkWork.charConfigs.lazyMode.portal
+							WorkWorkMinimapButton:UpdateIcon()
+						end
+					},
+					{
+						text = 'Enchant',
+						keepShownOnClick = true,
+						checked = function()
+							return WorkWork.charConfigs.lazyMode.enchant
+						end,
+						func = function()
+							WorkWork.charConfigs.lazyMode.enchant = not WorkWork.charConfigs.lazyMode.enchant
+							WorkWorkMinimapButton:UpdateIcon()
+						end
+					}
+				}
+			},
+			{
+				text = 'Close',
+				notCheckable = true
 			}
 		}
 		local menuFrame = CreateFrame(
@@ -59,7 +84,8 @@ end
 
 function WorkWorkMinimapButton:UpdateIcon()
 	local name = 'Peon'
-	if WorkWork.charConfigs.isLazy then
+	local isLazy = WorkWork.charConfigs.lazyMode.portal or WorkWork.charConfigs.lazyMode.enchant
+	if isLazy then
 		name = 'PeonLazy'
 	end
 	if WorkWorkPeon.isOn then

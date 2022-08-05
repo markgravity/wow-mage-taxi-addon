@@ -11,10 +11,15 @@ WORK_LIST_WIDTH = 200
 WORK_LIST_HEIGHT = 400
 WORK_WIDTH = 210
 WORK_HEIGHT = 400
+WORK_INTERECT_DISTANCE_INSPECT = 1
+WORK_INTERECT_DISTANCE_TRADE = 2
 
 function WorkWork:OnInitialize()
 	WorkWorkConfigCharacter = WorkWorkConfigCharacter or {
-		isLazy = false
+		lazyMode = {
+			portal = false,
+			enchant = false
+		}
 	}
 	self.charConfigs = WorkWorkConfigCharacter
 	WorkWorkProfessionScanner:Init()

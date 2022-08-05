@@ -144,7 +144,7 @@ function Work:SetItem(iconTexture, name, itemLink)
 		    end
 
 			if button == 'RightButton' then
-				EasyMenu(work.itemMenu.data, work.itemMenu, "cursor", 0 , 0, "MENU")
+				-- EasyMenu(work.itemMenu.data, work.itemMenu, "cursor", 0 , 0, "MENU")
 			end
 		end)
 	end
