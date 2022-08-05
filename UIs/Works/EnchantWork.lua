@@ -30,17 +30,36 @@ function DetectEnchantWork(targetName, guid, message, parent)
 	end
 
 	local enchants = WorkWorkProfessionScanner:GetData('Enchanting')
+	local matchedEnchants = {}
 	for _, enchant in ipairs(enchants) do
-		if message:match('henchant:'..enchant.itemID) ~= nil then
-			local clearedMessage = ClearItemLink(originalMessage)
-			return CreateEnchantWork(targetName, clearedMessage, { enchant }, parent)
-		end
-
-		for _, keyword in ipairs(enchant.keywords or {}) do
-			if message:match(keyword) ~= nil then
-				return CreateEnchantWork(targetName, originalMessage, { enchant }, parent)
+		local numNeeds = 1
+		for i = 1, 10 do
+			if message:match('x'..i) ~= nil
+				or message:match(i..'x') ~= nil
+				or message:match(i..' x') ~= nil
+				or message:match('x '..i) ~= nil then
+				numNeeds = i
+				break
 			end
 		end
+		enchant.numNeeds = numNeeds
+
+
+		if message:match('henchant:'..enchant.itemID) ~= nil then
+			table.insert(matchedEnchants, enchant)
+		else
+			for _, keyword in ipairs(enchant.keywords or {}) do
+				if message:match(keyword) ~= nil then
+					table.insert(matchedEnchants, enchant)
+					break
+				end
+			end
+		end
+	end
+
+	if #matchedEnchants > 0 then
+		local clearedMessage = ClearItemLink(originalMessage)
+		return CreateEnchantWork(targetName, clearedMessage, matchedEnchants, parent)
 	end
     return nil
 end
@@ -59,12 +78,12 @@ function CreateEnchantWork(targetName, message, enchants, parent)
 			)
 
 			if receivedReagent ~= nil then
-				receivedReagent.numRequired = receivedReagent.numRequired
+				receivedReagent.numRequired = receivedReagent.numRequired * enchant.numNeeds
 					+ reagent.numRequired
 			else
 				table.insert(receivedReagents, {
 					name = reagent.name,
-					numRequired = reagent.numRequired,
+					numRequired = reagent.numRequired  * enchant.numNeeds,
 					numHave = 0
 				})
 			end
@@ -92,8 +111,13 @@ function CreateEnchantWork(targetName, message, enchants, parent)
 
     work:SetTitle('Enchant')
 
+	-- Item
+	local itemNames = table.map(info.enchants, function(enchant)
+		return enchant.name
+	end)
+	local itemName = table.concat(itemNames,' + ')
 	local texture = GetSpellTexture(info.enchants[1].itemID)
-	work:SetItem(texture, info.enchants[1].name, info.enchants[1].itemLink)
+	work:SetItem(texture, itemName, info.enchants[1].itemLink)
 	work:SetMessage(info.targetName, message)
 
 	work.endButton:SetScript('OnClick', function(self)
@@ -159,7 +183,7 @@ function CreateEnchantWork(targetName, message, enchants, parent)
 		end
 		local action = CreateAction(
 			name,
-			'|cffffd100'..info.enchants[1].name..'|r',
+			'|cffffd100'..enchant.name..'|r',
 			actionListContent,
 			previousAction
 		)
@@ -339,23 +363,24 @@ end
 
 
 function EnchantWork:GetPriorityLevel()
-	if self.state == 'INITIALIZED'
-		or self.state == 'WAITING_FOR_CONTACT_RESPONSE'
-	 	or self.state == 'ENCHANTED' then
-		return 4
-	end
-
-	if self.state == 'CONTACTED_TARGET'
-	 	or self.state == 'MOVING_TO_TARGET_ZONE' then
-		return 3
-	end
-
-	if self.state == 'MOVED_TO_TARGET_ZONE'
-	 	or self.state == 'ENCHANTING' then
-		return 2
-	end
-
-	return 1
+	return 3
+	-- if self.state == 'INITIALIZED'
+	-- 	or self.state == 'WAITING_FOR_CONTACT_RESPONSE'
+	--  	or self.state == 'ENCHANTED' then
+	-- 	return 4
+	-- end
+	--
+	-- if self.state == 'CONTACTED_TARGET'
+	--  	or self.state == 'MOVING_TO_TARGET_ZONE' then
+	-- 	return 3
+	-- end
+	--
+	-- if self.state == 'MOVED_TO_TARGET_ZONE'
+	--  	or self.state == 'ENCHANTING' then
+	-- 	return 2
+	-- end
+	--
+	-- return 1
 end
 
 function EnchantWork:UpdateGather()
@@ -381,7 +406,7 @@ function EnchantWork:UpdateGather()
 	for i, enchant in ipairs(self.info.enchants) do
 		local action = self.enchantActions[i]
 		action:SetCount(enchant.numAvailable)
-		
+
 		if enchant.numAvailable > 0 then
 			if action:IsCompleted() then
 				action:Uncomplete()
