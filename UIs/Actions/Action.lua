@@ -63,6 +63,7 @@ function CreateAction(titleText, descriptionText, parent, previousAction)
 	description:SetPoint('LEFT', frame, 'LEFT', 16, 0)
 	description:SetPoint('RIGHT', frame, 'RIGHT', -16, 0)
 	description:SetPoint('TOP', title, 'BOTTOM', 0, -4)
+	description:SetPoint('BOTTOM', frame, 'BOTTOM', 0, 8)
 	description:SetJustifyH('CENTER')
 	action.description = description
 	action:SetDescription(descriptionText)
@@ -83,7 +84,7 @@ end
 
 function Action:SetDescription(description)
 	self.description:SetText(description)
-	local totalHeight = 6 + self.title:GetStringHeight() + 6 + self.description:GetStringHeight() + 6 + 4
+	local totalHeight = self.title:GetHeight() + self.description:GetHeight() + 20
 	self.frame:SetHeight(totalHeight)
 end
 
