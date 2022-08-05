@@ -181,7 +181,7 @@ function Work:GetStateText(state)
 	return 'Initialized'
 end
 
-function Work:End(isCompleted, wantsLeave)
+function Work:End(isCompleted, wantsLeave, isLazy)
 	self:UnregisterEvents()
 	if self.info == nil then
 		return
@@ -211,7 +211,9 @@ function Work:End(isCompleted, wantsLeave)
 	if isCompleted then
 		PlaySound(6199)
 	else
-		PlaySound(6295)
+		if not isLazy then
+			PlaySound(6295)
+		end
 	end
 
 	-- Cancel all actions

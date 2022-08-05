@@ -28,7 +28,7 @@ function WorkWorkMinimapButton:Init()
 end
 
 function WorkWorkMinimapButton:OnClick(button)
-	if button == nil or button == 'LeftButton' then
+	if (button == nil or button == 'LeftButton') and not IsShiftKeyDown() then
 		WorkWorkPeon:Toggle()
 		WorkWorkMinimapButton:UpdateIcon()
 		return
@@ -36,7 +36,10 @@ function WorkWorkMinimapButton:OnClick(button)
 
 	if button == 'RightButton' then
 		local menu = {
-			{ text = 'WorkWork', isTitle = true },
+			{
+				text = 'WorkWork',
+				isTitle = true
+			},
 			{
 				text = 'Lazy Mode:',
 				hasArrow = true,
@@ -65,6 +68,10 @@ function WorkWorkMinimapButton:OnClick(button)
 						end
 					}
 				}
+			},
+			{
+				text = '',
+				isTitle = true
 			},
 			{
 				text = 'Close',

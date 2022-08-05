@@ -80,7 +80,8 @@ end
 function CreatePortalWork(targetName, message, portal, parent)
 	local info = {
 		targetName = targetName,
-		sellingPortal = portal
+		sellingPortal = portal,
+		isLazy = WorkWork.charConfigs.lazyMode.portal
 	}
 	local work = CreateWork('WorkWorkPortalWork'..targetName..portal.name, parent)
 	extends(work, PortalWork, Eventable)
@@ -112,7 +113,7 @@ function CreatePortalWork(targetName, message, portal, parent)
 		info.targetName,
 		'invite me for a portal to '..info.sellingPortal.name,
 		30,
-		WorkWork.charConfigs.lazyMode.portal,
+		info.isLazy,
 		'Contact',
 		'|c60808080Invite |r|cffffd100'..info.targetName..'|r|c60808080 into the party|r',
 		actionListContent
@@ -192,7 +193,7 @@ function PortalWork:SetState(super, state)
 	local work = self
 
 	if state == 'CONTACT_FAILED' then
-		self:End(false, false)
+		self:End(false, false, self.info.isLazy)
 		return
 	end
 

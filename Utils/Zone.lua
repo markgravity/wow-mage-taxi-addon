@@ -50,7 +50,7 @@ end)
 function WorkWorkZoneFrame:WHO_LIST_UPDATE()
 	C_FriendList.SetWhoToUi(false)
 	if not self.isWhoFrameShown then
-		FriendsFrame:Hide()
+		FriendsFrameCloseButton:Click()
 	end
 
 	local info = C_FriendList.GetWhoInfo(1)

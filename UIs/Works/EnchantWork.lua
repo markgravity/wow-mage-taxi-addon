@@ -83,7 +83,8 @@ function CreateEnchantWork(targetName, message, enchants, parent)
 	local info = {
 		targetName = targetName,
 		enchants = enchants,
-		receivedReagents = receivedReagents
+		receivedReagents = receivedReagents,
+		isLazy = WorkWork.charConfigs.lazyMode.enchant
 	}
 
 	work.isAutoContact = true
@@ -114,7 +115,7 @@ function CreateEnchantWork(targetName, message, enchants, parent)
 		info.targetName,
 		"i can do it",
 		120,
-		WorkWork.charConfigs.lazyMode.enchant,
+		info.isLazy,
 		'Contact',
 		'|c60808080Invite |r|cffffd100'..info.targetName..'|r|c60808080 into the party|r',
 		actionListContent
@@ -223,7 +224,7 @@ function EnchantWork:SetState(super, state)
 	local work = self
 
 	if state == 'CONTACT_FAILED' then
-		self:End(false, false)
+		self:End(false, false, self.info.isLazy)
 		return
 	end
 
