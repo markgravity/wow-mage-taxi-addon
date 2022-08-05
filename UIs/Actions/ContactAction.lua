@@ -46,7 +46,6 @@ function ContactAction:SetState(state)
 			self:SetDescription('|c60808080Making sure |r|cffffd100'..self.info.targetName..'|r|c60808080 is same zone|r')
 			GetZoneByPlayerName(self.info.targetName, function (zone)
 				local playerZone = GetPlayerZone()
-				print("logging", zone, playerZone)
 				if zone == nil or playerZone ~= zone then
 					action:SetState('CONTACT_FAILED')
 					return

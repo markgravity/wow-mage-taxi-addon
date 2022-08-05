@@ -33,7 +33,7 @@ function DetectPortalWork(playerName, guid, message, parent)
 		or message:match('you') ~= nil
 		or message:match('free') ~= nil
 		or message:match('services') ~= nil then
-		return
+		return nil
 	end
 
     if message:match(' port') == nil
@@ -42,6 +42,7 @@ function DetectPortalWork(playerName, guid, message, parent)
 		and message:match(' por') == nil then
 		return nil
 	end
+
 	local matchers = {
 		function(keyword)
 			return message:match('to '..keyword)
@@ -64,7 +65,6 @@ function DetectPortalWork(playerName, guid, message, parent)
 	}
 	for _, matcher in ipairs(matchers) do
 		local portal = MatchPortal(matcher)
-
 		if portal ~= nil then
 			if not IsSpellKnown(portal.portalSpellID) then
 				return nil
