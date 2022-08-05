@@ -28,7 +28,12 @@ function CreateWorkListItem(index, work, parent, columnHeaders, previousItem)
 	icon:ClearAllPoints()
 	icon:SetPoint('LEFT', frame, 'LEFT', columnHeaders[1]:GetWidth() / 2 - 5, 0)
 	icon:SetSize(10, 10)
-	icon:SetNormalTexture('Interface\\ICONS\\Spell_Arcane_PortalShattrath')
+	if work.type == 'portal' then
+		icon:SetNormalTexture('Interface\\ICONS\\Spell_Arcane_PortalShattrath')
+	end
+	if work.type == 'enchant' then
+		icon:SetNormalTexture(135913)
+	end
 	icon:EnableMouse(false)
 	icon:Disable()
 
@@ -59,7 +64,7 @@ end
 
 function WorkListItem:SetSelected(isSelected)
 	self.isSelected = isSelected
-	local colors = { self.targetName:GetTextColor() }
+	local colors = self.unhiglightTargetNameColors
 	if isSelected then
 		self.frame:SetNormalTexture('Interface\\QuestFrame\\UI-QuestLogTitleHighlight')
 		self.frame:GetNormalTexture():SetVertexColor(colors[1], colors[2], colors[3])
@@ -75,7 +80,6 @@ end
 
 function WorkListItem:SetHighlight(isHighlight)
 	if isHighlight then
-		self.unhiglightTargetNameColors = { self.targetName:GetTextColor() }
 		self.targetName:SetTextColor(
 			HIGHLIGHT_FONT_COLOR.r,
 		 	HIGHLIGHT_FONT_COLOR.g,
