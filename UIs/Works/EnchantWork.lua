@@ -31,15 +31,6 @@ function DetectEnchantWork(targetName, guid, message, parent)
 
 	local enchants = WorkWorkProfessionScanner:GetData('Enchanting')
 	for _, enchant in ipairs(enchants) do
-		local numNeeds = 1
-		if message:match('x2') ~= nil
-			or message:match('2x') ~= nil
-			or message:match('2 x') ~= nil
-			or message:match('x 2') ~= nil then
-			numNeeds = 2
-		end
-		enchant.numNeeds = numNeeds
-
 		if message:match('henchant:'..enchant.itemID) ~= nil then
 			local clearedMessage = ClearItemLink(originalMessage)
 			return CreateEnchantWork(targetName, clearedMessage, { enchant }, parent)
@@ -68,12 +59,12 @@ function CreateEnchantWork(targetName, message, enchants, parent)
 			)
 
 			if receivedReagent ~= nil then
-				receivedReagent.numRequired = receivedReagent.numRequired * enchant.numNeeds
+				receivedReagent.numRequired = receivedReagent.numRequired
 					+ reagent.numRequired
 			else
 				table.insert(receivedReagents, {
 					name = reagent.name,
-					numRequired = reagent.numRequired * enchant.numNeeds,
+					numRequired = reagent.numRequired,
 					numHave = 0
 				})
 			end
@@ -283,9 +274,14 @@ function EnchantWork:SetState(super, state)
 	end
 
 	if state == 'DELIVERED' then
-		self.activeEnchantAction:Complete()
 		self:DeduceReceivedReagents()
-		for _, action  in ipairs(self.enchantActions) do
+		if self.activeEnchantAction.numAvailable > 0 then
+			return
+		end
+		self.activeEnchantAction:Complete()
+		self.activeEnchantAction = nil
+
+		for _, action in ipairs(self.enchantActions) do
 			if not action:IsCompleted() then
 				return
 			end
@@ -319,7 +315,7 @@ function EnchantWork:GetStateText()
 	end
 
 	if state == 'GATHERING_REAGENTS' then
-		return 'GATHERING'
+		return 'Gathering'
 	end
 
 	if state == 'READY_TO_ENCHANT' then
@@ -363,8 +359,10 @@ function EnchantWork:GetPriorityLevel()
 end
 
 function EnchantWork:UpdateGather()
+	self:UpdateNumAvailable()
+
 	-- Gather Action
-	local description = '|c60808080Received Reagents:|r'
+	local description = '|c60808080Required Reagents:|r'
 	for _, reagent in ipairs(self.info.receivedReagents) do
 		description = description..'\n|cffffd100 '..(reagent.name or '')..'|r|cfffffff0 '..reagent.numHave..'/'..reagent.numRequired..'|r'
 	end
@@ -380,28 +378,15 @@ function EnchantWork:UpdateGather()
 		self.gatherAction:Complete()
 	end
 
-	-- Enchant Actions
 	for i, enchant in ipairs(self.info.enchants) do
 		local action = self.enchantActions[i]
-		local hasAllReagentsRequired = true
-		for _, reagent in ipairs(enchant.reagents) do
-			local receivedReagent = self:GetReagentByName(
-				reagent.name,
-				self.info.receivedReagents
-			)
-			if receivedReagent.numHave < reagent.numRequired then
-				hasAllReagentsRequired = false
-			end
-		end
-
-		if hasAllReagentsRequired then
+		action:SetCount(enchant.numAvailable)
+		
+		if enchant.numAvailable > 0 then
 			if action:IsCompleted() then
 				action:Uncomplete()
-			end
-			self.enchantActions[i]:Enable()
-		else
-			if not action:IsCompleted() then
-				self.enchantActions[i]:Disable()
+			else
+				action:Enable()
 			end
 		end
 	end
@@ -412,7 +397,7 @@ function EnchantWork:DeduceReceivedReagents()
 		local receivedReagent = self:GetReagentByName(reagent.name, self.info.receivedReagents)
 		if receivedReagent ~= nil then
 			receivedReagent.numHave = receivedReagent.numHave - reagent.numRequired
-			receivedReagent.numRequired = receivedReagent.numRequired - reagent.numRequired
+			-- receivedReagent.numRequired = receivedReagent.numRequired - reagent.numRequired
 		end
 	end
 	self:UpdateGather()
@@ -422,9 +407,9 @@ function EnchantWork:GatherReagents()
 	local isGatherSome = false
 	for i = 1, MAX_TRADABLE_ITEMS do
 		local name, _, quantity = GetTradeTargetItemInfo(i)
-		for _, mat in ipairs(self.info.receivedReagents) do
-			if mat.name == name then
-				mat.numHave = mat.numHave + quantity
+		for _, reagent in ipairs(self.info.receivedReagents) do
+			if reagent.name == name then
+				reagent.numHave = reagent.numHave + quantity
 				isGatherSome = true
 			end
 		end
@@ -437,6 +422,23 @@ function EnchantWork:GatherReagents()
 	self:UpdateGather()
 end
 
+function EnchantWork:UpdateNumAvailable()
+	for _, enchant in ipairs(self.info.enchants) do
+		local numAvailable
+		for _, reagent in ipairs(enchant.reagents) do
+			local receivedReagent = self:GetReagentByName(reagent.name, self.info.receivedReagents)
+			if receivedReagent ~= nil then
+				local newNumAvailable = math.floor(receivedReagent.numHave / reagent.numRequired)
+				if numAvailable == nil or newNumAvailable < numAvailable then
+					numAvailable = newNumAvailable
+				end
+			end
+		end
+
+		enchant.numAvailable = numAvailable
+	end
+
+end
 
 function EnchantWork:GetReagentByName(name, reagents)
 	for _, reagent in ipairs(reagents) do

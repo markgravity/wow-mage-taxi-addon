@@ -60,7 +60,6 @@ function ContactAction:SetState(state)
 	end
 
 	if state == 'CONTACTED_TARGET' then
-		SetRaidTarget('player', 1)
 		FlashClientIcon()
 		return
 	end

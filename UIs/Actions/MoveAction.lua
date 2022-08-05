@@ -32,8 +32,13 @@ function MoveAction:SetState(state, ...)
 		self.onStateChange()
 	end
 
-	if state == 'MOVING_TO_TARGET_ZONE'
-	 	or state == 'READY_TO_MOVE' then
+	if state == 'READY_TO_MOVE' then
+		SetRaidTarget('player', 1)
+		self:WaitingForTargetInRange()
+		return
+	end
+
+	if state == 'MOVING_TO_TARGET_ZONE' then
 		self:WaitingForTargetInRange()
 		return
 	end

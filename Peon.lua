@@ -29,8 +29,8 @@ function Peon:Init()
 			peon:Show()
 		end
 	end)
-	workList:TryAdd('Iina', nil, 'wtb theramore port')
-	-- workList:TryAdd('Lynra', nil, 'WTB fiery')
+	-- workList:TryAdd('Iina', nil, 'wtb theramore port')
+	workList:TryAdd('Iina', nil, 'WTB 30 healing to bracer')
 	WorkWorkMinimapButton:OnClick()
 	self.workList = workList
 end

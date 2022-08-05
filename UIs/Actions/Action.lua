@@ -35,6 +35,19 @@ function CreateAction(titleText, descriptionText, parent, previousAction)
 	texture:SetGradientAlpha('HORIZONTAL', .5, .5, .5, .8, .5, .5, .5, 0)
 	frame:SetHighlightTexture(texture)
 
+	-- Count
+	local countFrame = CreateFrame('Frame', nil, frame)
+	countFrame:SetPoint('BOTTOMRIGHT', 3, -3)
+	countFrame:Hide()
+	local texture = countFrame:CreateTexture(nil, 'OVERLAY', 'Talent-PointBg')
+	texture:ClearAllPoints()
+	texture:SetPoint('CENTER', 0, 0)
+	local count = countFrame:CreateFontString(nil, 'OVERLAY', 'GameFontNormalSmall')
+	count:SetPoint('CENTER', texture, 0, 0)
+	countFrame.number = count
+	countFrame:SetSize(texture:GetSize())
+	action.countFrame = countFrame
+
 	local title = frame:CreateFontString()
 	title:SetFont(GameFontNormal:GetFont(), 11)
 	title:SetText(titleText)
@@ -152,6 +165,14 @@ end
 
 function Action:SetMarcro(content)
 	self.frame:SetAttribute('macrotext', content)
+end
+
+function Action:SetCount(number)
+	if number == nil then
+		self.countFrame:Hide()
+	end
+	self.countFrame:Show()
+	self.countFrame.number:SetText(number)
 end
 
 function Action:Excute()
