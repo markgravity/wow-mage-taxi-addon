@@ -370,11 +370,9 @@ function EnchantWork:GetPriorityLevel()
 end
 
 function EnchantWork:UpdateGather()
-	self:UpdateNumAvailable()
-
 	-- Gather Action
 	local description = '|c60808080No received reagents|r'
-	if table.isEmpty(self.info.receivedReagents) then
+	if not table.isEmpty(self.info.receivedReagents) then
 		local description = '|c60808080Received Reagents:|r'
 		for _, reagent in pairs(self.info.receivedReagents) do
 			description = description..'|r|cfffffff0'..reagent.numHave..' x |r\n|cffffd100'..(reagent.name or '')
@@ -382,7 +380,8 @@ function EnchantWork:UpdateGather()
 	end
 	self.gatherAction:SetDescription(description)
 
-
+	-- Enchant Actions
+	self:UpdateEnchantsNumAvailable()
 	for i, enchant in ipairs(self.info.enchants) do
 		local action = self.enchantActions[i]
 		action:SetCount(enchant.numAvailable)
@@ -443,20 +442,20 @@ function EnchantWork:GatherReagents()
 	self:UpdateGather()
 end
 
-function EnchantWork:UpdateNumAvailable()
+function EnchantWork:UpdateEnchantsNumAvailable()
 	for _, enchant in ipairs(self.info.enchants) do
-		local numAvailable = 0
+		local numAvailable = nil
 		for _, reagent in ipairs(enchant.reagents) do
 			local receivedReagent = self.info.receivedReagents[reagent.name]
 			if receivedReagent ~= nil then
 				local newNumAvailable = math.floor(receivedReagent.numHave / reagent.numRequired)
-				if numAvailable ~= 0 or newNumAvailable < numAvailable then
+				if numAvailable == nil or newNumAvailable < numAvailable then
 					numAvailable = newNumAvailable
 				end
 			end
 		end
 
-		enchant.numAvailable = numAvailable
+		enchant.numAvailable = numAvailable or 0
 	end
 
 end

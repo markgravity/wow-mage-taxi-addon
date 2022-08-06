@@ -512,7 +512,8 @@ WorkWork.enchants = {
 	{
 		name = "Enchant Weapon - Crusader",
 		keywords = {
-			"crusader"
+			"crusader",
+			"crusade"
 		}
 	},
 	{
