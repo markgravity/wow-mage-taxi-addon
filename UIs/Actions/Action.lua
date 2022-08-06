@@ -24,16 +24,35 @@ function CreateAction(titleText, descriptionText, parent, previousAction)
 	if previousAction ~= nil then
 		frame:SetPoint('TOP', previousAction.frame, 'BOTTOM', 0, -16)
 	end
-	action.frame = frame
+	frame:SetScript('OnEnter', function(self)
+		if action.isEnabled then
+			frame:SetBackdropColor(0.851, 0.608, 0.0, 0.4)
+		end
 
-	-- Highlight Texture
- 	local texture = frame:CreateTexture()
-	texture:SetColorTexture(0.5, 0.5, 0.5, 1)
-	texture:SetBlendMode('BLEND')
-	texture:SetPoint('TOPLEFT', 1, -1)
-	texture:SetPoint('BOTTOMRIGHT', -1, 1)
-	texture:SetGradientAlpha('HORIZONTAL', .5, .5, .5, .8, .5, .5, .5, 0)
-	frame:SetHighlightTexture(texture)
+		if action.itemLink == nil then return end
+
+		GameTooltip:SetOwner(frame, 'ANCHOR_LEFT')
+		GameTooltip:SetHyperlink(action.itemLink)
+		GameTooltip:Show()
+	end)
+
+	frame:SetScript('OnLeave', function()
+		if action.isEnabled then
+			frame:SetBackdropColor(0.851, 0.608, 0.0, 0.3)
+		end
+
+		if action.itemLink == nil then return end
+		GameTooltip:Hide()
+	end)
+
+	frame:HookScript('OnClick', function(self, button)
+		if action.itemLink == nil then return end
+		if button == 'LeftButton' and IsShiftKeyDown() then
+			ChatEdit_InsertLink(action.itemLink)
+			return
+		end
+	end)
+	action.frame = frame
 
 	-- Count
 	local countFrame = CreateFrame('Frame', nil, frame)
@@ -95,7 +114,7 @@ end
 function Action:Complete()
 	self:UnregisterEvents()
 	self.isCompleted = true
-	self.frame:SetEnabled(false)
+	-- self.frame:SetEnabled(false)
 	self:SetupUIForComplete()
 	if self.onComplete then
 		self.onComplete()
@@ -114,7 +133,6 @@ end
 
 function Action:Disable(isFinish)
 	self.isEnabled = false
-	self.frame:SetEnabled(false)
 	if isFinish then
 		self.frame:SetBackdropColor(0.557, 0.055, 0.075, 0.7) -- red
 		self.frame:SetBackdropBorderColor(1, 1, 1)
@@ -125,6 +143,11 @@ function Action:Disable(isFinish)
 
 	self.line:SetColorTexture(0.2, 0.2, 0.2, 1)
 	self.line:SetDrawLayer("ARTWORK",0)
+	if self.macrotext then
+		local macrotext = self.macrotext
+		self:SetMarcro(nil)
+		self.macrotext = macrotext
+	end
 end
 
 function Action:Enable()
@@ -134,11 +157,14 @@ function Action:Enable()
 	end
 
 	self.isEnabled = true
-	self.frame:SetEnabled(true)
 	self.frame:SetBackdropColor(0.851, 0.608, 0.0, 0.3) -- yellow
 	self.frame:SetBackdropBorderColor(0.851, 0.608, 0.0, 1)
 	self.line:SetColorTexture(0.851, 0.608, 0.0, 1) -- yellow
 	self.line:SetDrawLayer("ARTWORK",1)
+
+	if self.macrotext ~= nil then
+		self:SetMarcro(self.macrotext)
+	end
 end
 
 function Action:SetupUIForComplete()
@@ -149,22 +175,32 @@ function Action:SetupUIForComplete()
 end
 
 function Action:HookScript(event, script)
-	self.frame:HookScript(event, script)
+	local action = self
+	self.frame:HookScript(event, function()
+		if not action.isEnabled then return end
+		script()
+	end)
 end
 
 function Action:SetScript(event, script)
+	local action = self
 	if event == 'OnComplete' then
 		self.onComplete = script
 		return
 	end
-	self.frame:SetScript(event, script)
+
+	self.frame:SetScript(event, function()
+		if not action.isEnabled then return end
+		script()
+	end)
 end
 
 function Action:SetSpell(name)
-	self.frame:SetAttribute('macrotext', '/cast '..name)
+	self:SetMarcro('/cast '..name)
 end
 
 function Action:SetMarcro(content)
+	self.macrotext = content
 	self.frame:SetAttribute('macrotext', content)
 end
 
@@ -174,6 +210,10 @@ function Action:SetCount(number)
 	end
 	self.countFrame:Show()
 	self.countFrame.number:SetText(number)
+end
+
+function Action:SetItemLink(itemLink)
+	self.itemLink = itemLink
 end
 
 function Action:Excute()

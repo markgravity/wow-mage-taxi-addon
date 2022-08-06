@@ -188,6 +188,7 @@ function CreateEnchantWork(targetName, message, enchants, parent)
 			previousAction
 		)
 		previousAction = action
+		action:SetItemLink(enchant.itemLink)
 		action:SetSpell('Enchanting')
 		action:HookScript('OnClick', function(self)
 			work.activeEnchantAction = action
@@ -363,24 +364,23 @@ end
 
 
 function EnchantWork:GetPriorityLevel()
-	return 3
-	-- if self.state == 'INITIALIZED'
-	-- 	or self.state == 'WAITING_FOR_CONTACT_RESPONSE'
-	--  	or self.state == 'ENCHANTED' then
-	-- 	return 4
-	-- end
-	--
-	-- if self.state == 'CONTACTED_TARGET'
-	--  	or self.state == 'MOVING_TO_TARGET_ZONE' then
-	-- 	return 3
-	-- end
-	--
-	-- if self.state == 'MOVED_TO_TARGET_ZONE'
-	--  	or self.state == 'ENCHANTING' then
-	-- 	return 2
-	-- end
-	--
-	-- return 1
+	if self.state == 'INITIALIZED'
+		or self.state == 'WAITING_FOR_CONTACT_RESPONSE'
+	 	or self.state == 'ENCHANTED' then
+		return 4
+	end
+
+	if self.state == 'CONTACTED_TARGET'
+	 	or self.state == 'MOVING_TO_TARGET_ZONE' then
+		return 3
+	end
+
+	if self.state == 'MOVED_TO_TARGET_ZONE'
+	 	or self.state == 'ENCHANTING' then
+		return 2
+	end
+
+	return 1
 end
 
 function EnchantWork:UpdateGather()

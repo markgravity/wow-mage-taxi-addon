@@ -29,9 +29,9 @@ function Peon:Init()
 			peon:Show()
 		end
 	end)
-	-- workList:TryAdd('Iina', nil, 'wtb theramore port')
+	workList:TryAdd('Iina', nil, 'wtb theramore port')
 	-- C_Timer.After(15, function()
-		workList:TryAdd('Iina', nil, 'WTB 30 healing to bracer')
+		-- workList:TryAdd('Iina', nil, 'WTB 30 healing to bracer fiery speed to boot')
 	-- end)
 
 	WorkWorkMinimapButton:OnClick()
