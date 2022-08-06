@@ -71,3 +71,7 @@ function table.map(tbl, f)
     end
     return t
 end
+
+function table.isEmpty(t)
+	return next(t) == nil
+end

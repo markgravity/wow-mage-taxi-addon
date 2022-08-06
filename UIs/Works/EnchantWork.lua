@@ -68,32 +68,10 @@ function CreateEnchantWork(targetName, message, enchants, parent)
 	local work = CreateWork('WorkWorkEnchantWork'..targetName, parent)
 	extends(work, EnchantWork, Eventable)
 
-	-- Setup default receivedReagents
-	local receivedReagents = {}
-	for _, enchant in ipairs(enchants) do
-		for _, reagent in ipairs(enchant.reagents) do
-			local receivedReagent = work:GetReagentByName(
-				reagent.name,
-				receivedReagents
-			)
-
-			if receivedReagent ~= nil then
-				receivedReagent.numRequired = receivedReagent.numRequired * enchant.numNeeds
-					+ reagent.numRequired
-			else
-				table.insert(receivedReagents, {
-					name = reagent.name,
-					numRequired = reagent.numRequired  * enchant.numNeeds,
-					numHave = 0
-				})
-			end
-		end
-	end
-
 	local info = {
 		targetName = targetName,
 		enchants = enchants,
-		receivedReagents = receivedReagents,
+		receivedReagents = {},
 		isLazy = WorkWork.charConfigs.lazyMode.enchant
 	}
 
@@ -172,55 +150,75 @@ function CreateEnchantWork(targetName, message, enchants, parent)
 	work.gatherAction:SetScript('OnClick', function(self)
 		work:SetState('GATHERING_REAGENTS')
 	end)
+	work.gatherAction:SetContextMenu({
+		text = 'Gather',
+		isTitle = true
+	},
+	{
+		text = 'Return Reagents',
+		notCheckable = true,
+		func = function()
+			work:ReturnReagens()
+		end
+	},
+	{
+		text = 'Close',
+		notCheckable = true
+	})
 
 	local enchantActions = {}
 	local previousAction = work.gatherAction
 	local totalEnchantActionsHeight = 0
 	for i, enchant in ipairs(info.enchants) do
-		local name = 'Enchant'
-		if #info.enchants > 1 then
-			name = name..' '..i
-		end
 		local action = CreateAction(
-			name,
-			'|cffffd100'..enchant.name..'|r',
+			'Enchant',
+			nil,
 			actionListContent,
 			previousAction
 		)
 		previousAction = action
 		action:SetItemLink(enchant.itemLink)
 		action:SetSpell('Enchanting')
-		action:HookScript('OnClick', function(self)
-			work.activeEnchantAction = action
-			work.activeEnchant = enchant
-			work:SetState('ENCHANTING')
+		action:HookScript('OnClick', function(self, button)
+			if button == 'LeftButton' then
+				work.activeEnchantAction = action
+				work.activeEnchant = enchant
+				work:SetState('ENCHANTING')
+				return
+			end
 		end)
+		action:SetContextMenu({
+			{
+				text = 'Enchant',
+				isTitle = true
+			},
+			{
+				text = 'Report Missing',
+				notCheckable = true,
+				func = function()
+					work:ReportMissingReagents(enchant)
+				end
+			},
+			{
+				text = 'Close',
+				notCheckable = true
+			}
+		})
 		action:Disable()
 		totalEnchantActionsHeight = totalEnchantActionsHeight + action.frame:GetHeight()
 		table.insert(enchantActions, action)
 	end
 	work.enchantActions = enchantActions
 
-	work.finishAction = CreateAction(
-		'Finish',
-		'|c60808080Uninvite |r|cffffd100'..info.targetName..'|r|c60808080 to the party|r',
-		actionListContent,
-		enchantActions[#enchantActions]
-	)
-	work:SetScript('OnClick', function()
-		work:SetState('FINISHING')
-	end)
 	actionListContent:SetSize(
 		WORK_WIDTH - 30,
 		work.contactAction.frame:GetHeight()
 		+ work.moveAction.frame:GetHeight()
 		+ work.gatherAction.frame:GetHeight()
-		+ work.finishAction.frame:GetHeight()
 		+ totalEnchantActionsHeight
 	)
 	work.moveAction:Disable()
 	work.gatherAction:Disable()
-	work.finishAction:Disable(true)
 	work.contactAction:Enable()
 
 	work:UpdateGather()
@@ -300,24 +298,7 @@ function EnchantWork:SetState(super, state)
 
 	if state == 'DELIVERED' then
 		self:DeduceReceivedReagents()
-		if self.activeEnchantAction.numAvailable > 0 then
-			return
-		end
-		self.activeEnchantAction:Complete()
-		self:UpdateGather()
-		self.activeEnchantAction = nil
-
-		for _, action in ipairs(self.enchantActions) do
-			if not action:IsCompleted() then
-				return
-			end
-		end
-		self.finishAction:Enable()
-		return
-	end
-
-	if state == 'FINISHING' then
-		self:End(true, true)
+		self:SetState('READY_TO_ENCHANT')
 		return
 	end
 end
@@ -388,60 +369,70 @@ function EnchantWork:UpdateGather()
 	self:UpdateNumAvailable()
 
 	-- Gather Action
-	local description = '|c60808080Required Reagents:|r'
-	for _, reagent in ipairs(self.info.receivedReagents) do
-		description = description..'\n|cffffd100 '..(reagent.name or '')..'|r|cfffffff0 '..reagent.numHave..'/'..reagent.numRequired..'|r'
+	local description = '|c60808080No received reagents|r'
+	if table.isEmpty(self.info.receivedReagents) then
+		local description = '|c60808080Received Reagents:|r'
+		for _, reagent in pairs(self.info.receivedReagents) do
+			description = description..'|r|cfffffff0'..reagent.numHave..' x |r\n|cffffd100'..(reagent.name or '')
+		end
 	end
 	self.gatherAction:SetDescription(description)
 
-	local isGatherActionCompleted = true
-	for _, receivedReagent in ipairs(self.info.receivedReagents) do
-		if receivedReagent.numHave < receivedReagent.numRequired then
-			isGatherActionCompleted = false
-		end
-	end
-	if isGatherActionCompleted then
-		self.gatherAction:Complete()
-	end
 
 	for i, enchant in ipairs(self.info.enchants) do
 		local action = self.enchantActions[i]
 		action:SetCount(enchant.numAvailable)
 
+		local description = self:GetEnchantName(enchant)..'\n\n|c60808080Required Reagents:|r'
+		for _, reagent in ipairs(enchant.reagents) do
+			local receivedReagent = self.info.receivedReagents[reagent.name] or {}
+			description = description
+				..'\n|cffffd100 '
+				..(reagent.name or '')
+				..'|r|cfffffff0 '
+				..(receivedReagent.numHave or 0)
+				..'/'
+				..reagent.numRequired
+				..'|r'
+		end
+		action:SetDescription(description)
 		if enchant.numAvailable > 0 then
-			if action:IsCompleted() then
-				action:Uncomplete()
-			else
-				action:Enable()
-			end
+			action:Enable()
+		else
+			action:Disable()
 		end
 	end
 end
 
 function EnchantWork:DeduceReceivedReagents()
 	for _, reagent in ipairs(self.activeEnchant.reagents) do
-		local receivedReagent = self:GetReagentByName(reagent.name, self.info.receivedReagents)
+		local receivedReagent = self.info.receivedReagents[reagent.name]
 		if receivedReagent ~= nil then
 			receivedReagent.numHave = receivedReagent.numHave - reagent.numRequired
-			receivedReagent.numRequired = receivedReagent.numRequired - reagent.numRequired
 		end
 	end
 	self:UpdateGather()
 end
 
 function EnchantWork:GatherReagents()
-	local isGatherSome = false
+	local isGetSome = false
 	for i = 1, MAX_TRADABLE_ITEMS do
 		local name, _, quantity = GetTradeTargetItemInfo(i)
-		for _, reagent in ipairs(self.info.receivedReagents) do
-			if reagent.name == name then
-				reagent.numHave = reagent.numHave + quantity
-				isGatherSome = true
+		if name ~= nil then
+			local receivedReagent = self.info.receivedReagents[name]
+			if receivedReagent == nil then
+				receivedReagent = {
+					name = name,
+					numHave = 0
+				}
+				self.info.receivedReagents[name] = receivedReagent
 			end
+			receivedReagent.numHave = receivedReagent.numHave + quantity
+			isGetSome = true
 		end
 	end
 
-	if isGatherSome and self.state == 'MOVED_TO_TARGET_ZONE' then
+	if isGetSome and self.state == 'MOVED_TO_TARGET_ZONE' then
 		self:SetState('GATHERING_REAGENTS')
 	end
 
@@ -450,12 +441,12 @@ end
 
 function EnchantWork:UpdateNumAvailable()
 	for _, enchant in ipairs(self.info.enchants) do
-		local numAvailable
+		local numAvailable = 0
 		for _, reagent in ipairs(enchant.reagents) do
-			local receivedReagent = self:GetReagentByName(reagent.name, self.info.receivedReagents)
+			local receivedReagent = self.info.receivedReagents[reagent.name]
 			if receivedReagent ~= nil then
 				local newNumAvailable = math.floor(receivedReagent.numHave / reagent.numRequired)
-				if numAvailable == nil or newNumAvailable < numAvailable then
+				if numAvailable ~= 0 or newNumAvailable < numAvailable then
 					numAvailable = newNumAvailable
 				end
 			end
@@ -466,14 +457,57 @@ function EnchantWork:UpdateNumAvailable()
 
 end
 
-function EnchantWork:GetReagentByName(name, reagents)
-	for _, reagent in ipairs(reagents) do
-		if reagent.name == name then
-			return reagent
+function EnchantWork:GetEnchantName(enchant)
+	local name = enchant.name:gsub('Enchant ', '')
+	local parts = enchant.name:split(' - ')
+	return name
+end
+
+function EnchantWork:ReportMissingReagents(enchant)
+	if enchant.numAvailable > 0 then
+		return
+	end
+	local messages = {
+		'Missing Reagents:'
+	}
+	for _, reagent in ipairs(enchant.reagents) do
+		local receivedReagent = self.info.receivedReagents[reagent.name]
+		if receivedReagent == nil then
+			table.insert(messages, reagent.itemLink..' x '..reagent.numRequired)
+		else
+			local numMissing = reagent.numRequired - receivedReagent.numHave
+			table.insert(messages, reagent.itemLink..' x '..numMissing)
 		end
 	end
 
-	return nil
+	if #messages <= 1 then return end
+	for _, message in ipairs(messages) do
+		SendSmartMessage(self.info.targetName, message)
+	end
+end
+
+function EnchantWork:ReturnReagens()
+	if table.isEmpty(self.info.receivedReagents) then
+		return
+	end
+
+	if not TradeFrame:IsShown() then
+		InitiateTrade(self.info.targetName)
+	end
+
+	if GetTradeTargetName() ~= self.info.targetName then
+		return
+	end
+
+	local slotIndex = 1
+	for _, reagent in ipairs(self.info.receivedReagents) do
+		if slotIndex < MAX_TRADABLE_ITEMS then
+			PickupItem(reagent.name)
+			ClickTradeButton(slotIndex)
+			slotIndex = slotIndex + 1
+		end
+	end
+	AcceptTrade()
 end
 
 -- Events

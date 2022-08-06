@@ -37,11 +37,9 @@ function ProfessionScanner:Scan(profession)
 			local reagents = {}
 			for reagentID = 1, numberOfReagents do
 				local name, texturePath, numberRequired = GetCraftReagentInfo(craftID, reagentID)
-				if name == nil then
-					print("logging", name)
-				end
 				table.insert(reagents, {
 					name = name,
+					itemLink = name,
 					texturePath = texturePath,
 					numRequired = numberRequired
 				})

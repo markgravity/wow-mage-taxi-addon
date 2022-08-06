@@ -21,6 +21,7 @@ function CreateAction(titleText, descriptionText, parent, previousAction)
 	frame:SetPoint('LEFT', 8, 0)
 	frame:SetPoint('RIGHT', -8, 0)
 	frame:SetAttribute('type', 'macro')
+	frame:RegisterForClicks('AnyUp')
 	if previousAction ~= nil then
 		frame:SetPoint('TOP', previousAction.frame, 'BOTTOM', 0, -16)
 	end
@@ -47,9 +48,13 @@ function CreateAction(titleText, descriptionText, parent, previousAction)
 	end)
 
 	frame:HookScript('OnClick', function(self, button)
-		if action.itemLink == nil then return end
-		if button == 'LeftButton' and IsShiftKeyDown() then
+		if button == 'LeftButton' and IsShiftKeyDown() and action.itemLink then
 			ChatEdit_InsertLink(action.itemLink)
+			return
+		end
+
+		if button == 'RightButton' and action.contextMenu then
+			EasyMenu(action.contextMenu, action.contextMenuFrame, 'cursor', 0 , 0, 'MENU')
 			return
 		end
 	end)
@@ -71,11 +76,13 @@ function CreateAction(titleText, descriptionText, parent, previousAction)
 	local title = frame:CreateFontString()
 	title:SetFont(GameFontNormal:GetFont(), 11)
 	title:SetText(titleText)
-	title:SetPoint('LEFT', frame, 'LEFT', 16, 0)
-	title:SetPoint('RIGHT', frame, 'RIGHT', -16, 0)
+	title:SetPoint('LEFT', frame, 'LEFT', 8, 0)
+	title:SetPoint('RIGHT', frame, 'RIGHT', -8, 0)
 	title:SetPoint('TOP', frame, 'TOP', 0, -8)
 	title:SetJustifyH('CENTER')
 	title:SetTextColor(1, 1, 1)
+	title:SetMaxLines(1)
+	title:SetWordWrap(false)
 	action.title = title
 
 	local description = frame:CreateFontString()
@@ -99,6 +106,14 @@ function CreateAction(titleText, descriptionText, parent, previousAction)
 		line:Show()
 	end
 
+	local contextMenuFrame = CreateFrame(
+		'Frame',
+		nil,
+		frame,
+		'UIDropDownMenuTemplate'
+	)
+	contextMenuFrame:Hide()
+	action.contextMenuFrame = contextMenuFrame
 	return action
 end
 
@@ -227,4 +242,8 @@ end
 
 function Action:SetPoint(...)
 	self.frame:SetPoint(...)
+end
+
+function Action:SetContextMenu(menu)
+	self.contextMenu = menu
 end
