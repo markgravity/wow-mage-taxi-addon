@@ -72,9 +72,9 @@ function CreateWork(name, parent)
 	messageText:SetFontObject('GameFontNormalSmall')
 	messageText:SetTextColor(1, 1, 1)
 	messageText:ClearAllPoints()
-	messageText:SetPoint('TOP', targetNameText, 'BOTTOM', 0, -4)
-	messageText:SetPoint('LEFT', 20, 0)
-	messageText:SetPoint('RIGHT', -20, 0)
+	messageText:SetPoint('TOP', targetNameText, 'BOTTOM', 0, 0)
+	messageText:SetPoint('LEFT', 30, 0)
+	messageText:SetPoint('RIGHT', -30, 0)
 	messageText:SetJustifyH('CENTER')
 	work.messageText = messageText
 
@@ -84,6 +84,7 @@ function CreateWork(name, parent)
 	endButton:SetPoint('BOTTOM', divider, 'TOP', -26, 4)
 	endButton:SetText('End')
 	work.endButton = endButton
+	messageText:SetPoint('BOTTOM', endButton, 'TOP', 0, 4)
 
 
 	local actionList = CreateFrame('Frame', nil, frame, 'InsetFrameTemplate')
@@ -97,7 +98,7 @@ function CreateWork(name, parent)
 		'UIPanelScrollFrameTemplate'
 	)
 	scrollFrame:SetPoint('LEFT', 5, 0)
-	scrollFrame:SetPoint('TOP', 0, -6)
+	scrollFrame:SetPoint('TOP', 0, -12)
 	scrollFrame:SetPoint('BOTTOM', 0, 4)
 	scrollFrame:SetPoint('RIGHT', -5, 0)
 	_G[frame:GetName()..'ScrollFrameScrollBar']:Hide()
@@ -110,7 +111,6 @@ function CreateWork(name, parent)
 		scrollFrame:GetName()..'Content',
 		scrollFrame
 	)
-	scrollContent:SetPoint('TOPLEFT', scrollFrame, 0, 0)
 	scrollContent:SetPoint('TOPLEFT', scrollFrame, 0, 0)
 	scrollFrame:SetScrollChild(scrollContent)
 	work.actionListContent = scrollContent
@@ -128,7 +128,8 @@ function Work:SetItem(iconTexture, name, itemLink)
 
 	if itemLink then
 		self.item:SetScript('OnEnter', function(self)
-			GameTooltip:SetOwner(work.item, 'ANCHOR_LEFT')
+			GameTooltip:SetOwner(work.frame, 'ANCHOR_NONE')
+			GameTooltip:SetPoint('TOPRIGHT', work.frame, 'TOPLEFT')
 			GameTooltip:SetHyperlink(itemLink)
 			GameTooltip:Show()
 		end)

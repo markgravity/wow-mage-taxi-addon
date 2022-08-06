@@ -18,8 +18,8 @@ function CreateAction(titleText, descriptionText, parent, previousAction)
 
 	local frame = CreateFrame('Button', nil, parent, BackdropTemplateMixin and "InSecureActionButtonTemplate, BackdropTemplate" or nil)
 	frame:SetBackdrop(backdrop)
-	frame:SetPoint('LEFT', 0, 0)
-	frame:SetPoint('RIGHT', 0, 0)
+	frame:SetPoint('LEFT', 8, 0)
+	frame:SetPoint('RIGHT', -8, 0)
 	frame:SetAttribute('type', 'macro')
 	if previousAction ~= nil then
 		frame:SetPoint('TOP', previousAction.frame, 'BOTTOM', 0, -16)
@@ -31,7 +31,8 @@ function CreateAction(titleText, descriptionText, parent, previousAction)
 
 		if action.itemLink == nil then return end
 
-		GameTooltip:SetOwner(frame, 'ANCHOR_LEFT')
+		GameTooltip:SetOwner(frame, 'ANCHOR_NONE')
+		GameTooltip:SetPoint('TOPRIGHT', frame, 'TOPLEFT', -20, 0)
 		GameTooltip:SetHyperlink(action.itemLink)
 		GameTooltip:Show()
 	end)
@@ -134,7 +135,7 @@ end
 function Action:Disable(isFinish)
 	self.isEnabled = false
 	if isFinish then
-		self.frame:SetBackdropColor(0.557, 0.055, 0.075, 0.7) -- red
+		self.frame:SetBackdropColor(0.557, 0.055, 0.075, 0.4) -- red
 		self.frame:SetBackdropBorderColor(1, 1, 1)
 	else
 		self.frame:SetBackdropColor(0.1, 0.1, 0.1, 0.5) -- gray

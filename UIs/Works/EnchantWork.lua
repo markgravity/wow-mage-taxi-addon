@@ -304,6 +304,7 @@ function EnchantWork:SetState(super, state)
 			return
 		end
 		self.activeEnchantAction:Complete()
+		self:UpdateGather()
 		self.activeEnchantAction = nil
 
 		for _, action in ipairs(self.enchantActions) do
@@ -422,7 +423,7 @@ function EnchantWork:DeduceReceivedReagents()
 		local receivedReagent = self:GetReagentByName(reagent.name, self.info.receivedReagents)
 		if receivedReagent ~= nil then
 			receivedReagent.numHave = receivedReagent.numHave - reagent.numRequired
-			-- receivedReagent.numRequired = receivedReagent.numRequired - reagent.numRequired
+			receivedReagent.numRequired = receivedReagent.numRequired - reagent.numRequired
 		end
 	end
 	self:UpdateGather()

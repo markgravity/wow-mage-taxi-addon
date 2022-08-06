@@ -99,7 +99,8 @@ function CreatePortalWork(targetName, message, portal, parent)
 	work.frame:Hide()
 
 	local texture = GetSpellTexture(info.sellingPortal.portalSpellID)
-	work:SetItem(texture, info.sellingPortal.name)
+	local itemLink = GetSpellLink(info.sellingPortal.portalSpellID)
+	work:SetItem(texture, info.sellingPortal.name, itemLink)
 	work:SetMessage(info.targetName, message)
 
 	work.endButton:SetScript('OnClick', function(self)

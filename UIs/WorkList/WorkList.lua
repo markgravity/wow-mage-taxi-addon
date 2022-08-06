@@ -25,7 +25,6 @@ function CreateWorkList(parent)
     bg:SetTexture('Interface\\FrameGeneral\\UI-Background-Rock')
 
 	local tableWidth = frame:GetWidth() - 20
-
 	local iconColumnHeader = CreateFrame(
 		'BUTTON',
 		frame:GetName()..'TypeColumnHeader',
@@ -266,4 +265,12 @@ end
 
 function WorkList:GetWorksCount()
 	return #self.works
+end
+
+function WorkList:Show()
+	self.frame:Show()
+end
+
+function WorkList:Hide()
+	self.frame:Hide()
 end
