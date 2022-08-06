@@ -130,7 +130,6 @@ end
 function Action:Complete()
 	self:UnregisterEvents()
 	self.isCompleted = true
-	-- self.frame:SetEnabled(false)
 	self:SetupUIForComplete()
 	if self.onComplete then
 		self.onComplete()
@@ -192,9 +191,9 @@ end
 
 function Action:HookScript(event, script)
 	local action = self
-	self.frame:HookScript(event, function()
+	self.frame:HookScript(event, function(...)
 		if not action.isEnabled then return end
-		script()
+		script(...)
 	end)
 end
 
@@ -205,9 +204,22 @@ function Action:SetScript(event, script)
 		return
 	end
 
-	self.frame:SetScript(event, function()
+	if event == 'OnClick' then
+		self.frame:SetScript(event, function(self, button)
+			if button == 'RightButton' and action.contextMenu then
+				EasyMenu(action.contextMenu, action.contextMenuFrame, 'cursor', 0 , 0, 'MENU')
+				return
+			end
+			
+			if not action.isEnabled then return end
+			script(self, button)
+		end)
+		return
+	end
+
+	self.frame:SetScript(event, function(...)
 		if not action.isEnabled then return end
-		script()
+		script(...)
 	end)
 end
 

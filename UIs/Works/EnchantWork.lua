@@ -147,23 +147,27 @@ function CreateEnchantWork(targetName, message, enchants, parent)
 		actionListContent,
 		work.moveAction
 	)
-	work.gatherAction:SetScript('OnClick', function(self)
-		work:SetState('GATHERING_REAGENTS')
+	work.gatherAction:SetScript('OnClick', function(self, button)
+		if button == 'LeftButton' then
+			work:SetState('GATHERING_REAGENTS')
+		end
 	end)
 	work.gatherAction:SetContextMenu({
-		text = 'Gather',
-		isTitle = true
-	},
-	{
-		text = 'Return Reagents',
-		notCheckable = true,
-		func = function()
-			work:ReturnReagens()
-		end
-	},
-	{
-		text = 'Close',
-		notCheckable = true
+		{
+			text = 'Gather',
+			isTitle = true
+		},
+		{
+			text = 'Return Reagents',
+			notCheckable = true,
+			func = function()
+				work:ReturnReagens()
+			end
+		},
+		{
+			text = 'Close',
+			notCheckable = true
+		}
 	})
 
 	local enchantActions = {}
@@ -487,12 +491,24 @@ function EnchantWork:ReportMissingReagents(enchant)
 end
 
 function EnchantWork:ReturnReagens()
-	if table.isEmpty(self.info.receivedReagents) then
+	local work = self
+	local receivedReagents = table.deepCopy(self.info.receivedReagents)
+
+	if table.isEmpty(receivedReagents) then
 		return
 	end
 
+	local returnedReagents = {}
 	if not TradeFrame:IsShown() then
-		InitiateTrade(self.info.targetName)
+		local unitID = GetUnitPartyID(self.info.targetName)
+		Trade(
+			unitID,
+			self.info.targetName,
+			function(isSuccess)
+				work.info.receivedReagents = receivedReagents
+				work:UpdateGather()
+			end
+		)
 	end
 
 	if GetTradeTargetName() ~= self.info.targetName then
@@ -500,11 +516,28 @@ function EnchantWork:ReturnReagens()
 	end
 
 	local slotIndex = 1
-	for _, reagent in ipairs(self.info.receivedReagents) do
+	for _, reagent in ipairs(receivedReagents) do
 		if slotIndex < MAX_TRADABLE_ITEMS then
-			PickupItem(reagent.name)
-			ClickTradeButton(slotIndex)
-			slotIndex = slotIndex + 1
+			for bag = 0, NUM_BAG_SLOTS do
+		        local numSlots = GetContainerNumSlots(bag)
+		        if numSlots > 0 then
+		            for slot = 1, numSlots do
+ 						local _, itemCount, _, _, _, _, itemLink= GetContainerItemInfo(bagID, slot)
+		                local _, _, _, _, _, _, _, _, _, _, _, name = GetItemLinkInfo(itemLink)
+		                if name == reagent.name then
+							local numTake = itemCount > reagent.numHave and reagent.numHave or itemCount
+							reagent.numHave = reagent.numHave - numTake
+							SplitContainerItem(bagID, slot, numTake)
+							ClickTradeButton(slotIndex)
+							slotIndex = slotIndex + 1
+
+							if reagent.numHave == 0 then break end
+						end
+		            end
+		        end
+
+				if reagent.numHave == 0 then break end
+		    end
 		end
 	end
 	AcceptTrade()
