@@ -83,7 +83,7 @@ function CreatePortalWork(targetName, message, portal, parent)
 		sellingPortal = portal,
 		isLazy = WorkWork.charConfigs.lazyMode.portal
 	}
-	local work = CreateWork('WorkWorkPortalWork'..targetName..portal.name, parent)
+	local work = CreateWork('WorkWorkPortalWork'..targetName..(portal and portal.name or ''), parent)
 	extends(work, PortalWork, Eventable)
 
 	work.isAutoContact = true
@@ -112,7 +112,7 @@ function CreatePortalWork(targetName, message, portal, parent)
 	local actionListContent = work.actionListContent
 	work.contactAction = CreateContactAction(
 		info.targetName,
-		'invite me for a portal to '..info.sellingPortal.name,
+		info.sellingPortal and 'inv me for a portal to '..info.sellingPortal.name or 'inv me for the portal',
 		30,
 		info.isLazy,
 		'Contact',
@@ -151,12 +151,12 @@ function CreatePortalWork(targetName, message, portal, parent)
 
 	work.makeAction = CreateAction(
 		'Make',
-		'|c60808080Create a |r|cffffd100'..info.sellingPortal.name..'|r|c60808080 portal|r',
+		info.sellingPortal and '|c60808080Create a |r|cffffd100'..info.sellingPortal.name..'|r|c60808080 portal|r' or nil,
 		work.frame:GetName()..'MakeAction',
 		actionListContent,
 		work.moveAction
 	)
-	work.makeAction:SetSpell(info.sellingPortal.portalSpellName)
+	work.makeAction:SetSpell(info.sellingPortal and info.sellingPortal.portalSpellName or '')
 	work.makeAction:HookScript('OnClick', function(self)
 		work:SetState('CREATING_PORTAL')
 	end)
@@ -300,7 +300,7 @@ function PortalWork:GetItems()
 	local portals = WorkWork.portals
 	local items = {}
 	for i, portal in ipairs(portals or {}) do
-		local checked = portal.name == self.info.sellingPortal.name
+		local checked = self.info.sellingPortal and portal.name == self.info.sellingPortal.name or false
 		table.insert(items, {
 			name = portal.name,
 			checked = checked,

@@ -89,7 +89,7 @@ function CreateWorkList(parent)
 	return workList
 end
 
-function WorkList:TryAdd(targetName, guid, text)
+function WorkList:TryAdd(targetName, guid, text, parent)
 	-- Prevent target spams chat
 	for _, work in ipairs(self.works) do
 		if work.targetName == targetName then
@@ -108,25 +108,55 @@ function WorkList:TryAdd(targetName, guid, text)
 		}
 	}
 	for _, detector in ipairs(detectors) do
-		local work = detector.func(targetName, guid, text, self.frame:GetParent())
-		if work then
-			work.frame:SetPoint('TOPLEFT', self.frame, 'TOPRIGHT', -11, 0)
-			work:Start()
-			self:Add({
-				id = targetName,
-				targetName = targetName,
-				status = work:GetStateText(),
-				type = detector.type,
-				controller = work,
-				createdAt = GetTime()
-			})
+		local controller = detector.func(targetName, guid, text, parent)
+		if controller then
+			self:Add(targetName, controller, detector.type)
 			return
 		end
 	end
 end
 
-function WorkList:Add(work)
+function WorkList:ManualyAdd(targetName, type, parent)
+	for _, work in ipairs(self.works) do
+		if work.targetName == targetName then
+			return
+		end
+	end
+
+	local creators = {
+		portal = {
+			type = 'portal',
+			func = CreatePortalWork,
+			item = nil
+		},
+		enchant = {
+			type = 'enchant',
+			func = CreateEnchantWork,
+			item = {}
+		}
+	}
+	local creator = creators[type]
+	local controller = creator.func(targetName, '', creator.item, parent)
+	if controller then
+		self:Add(targetName, controller, type)
+		return
+	end
+end
+
+function WorkList:Add(targetName, controller, type)
+	local work = {
+		id = targetName,
+		targetName = targetName,
+		status = controller:GetStateText(),
+		type = type,
+		controller = controller,
+		createdAt = GetTime()
+	}
 	table.insert(self.works, work)
+
+	controller.frame:SetPoint('TOPLEFT', self.frame, 'TOPRIGHT', -11, 0)
+	controller:Start()
+
 	self:Reload()
 	self:AutoAssign()
 	if self.onWorksUpdate then

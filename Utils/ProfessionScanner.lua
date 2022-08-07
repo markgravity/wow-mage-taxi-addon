@@ -80,7 +80,9 @@ function ProfessionScanner:Scan(profession)
 		end
 
 		-- Append data from base data
-		table.merge(data[craftName], baseData[craftName] or {})
+		if data[craftName] then
+			table.merge(data[craftName], baseData[craftName] or {})
+		end
 	end
 	self.config.data[profession] = data
 end

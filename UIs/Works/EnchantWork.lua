@@ -32,7 +32,6 @@ function DetectEnchantWork(targetName, guid, message, parent)
 	local enchants = WorkWorkProfessionScanner:GetData('Enchanting')
 	local matchedEnchants = {}
 	for _, enchant in pairs(enchants) do
-		-- print("logging", enchant.keywords)
 		if message:match('henchant:'..enchant.itemID) ~= nil then
 			table.insert(matchedEnchants, enchant)
 		else
@@ -318,7 +317,7 @@ function EnchantWork:UpdateGather()
 		action:SetCount(enchant.numAvailable)
 
 		local description = self:GetEnchantName(enchant)..'\n\n|c60808080Required:|r'
-		for _, reagent in ipairs(enchant.reagents) do
+		for _, reagent in pairs(enchant.reagents) do
 			local receivedReagent = self.info.receivedReagents[reagent.name] or {}
 			description = description
 				..'\n|cffffd100 '
@@ -339,7 +338,7 @@ function EnchantWork:UpdateGather()
 end
 
 function EnchantWork:DeduceReceivedReagents()
-	for _, reagent in ipairs(self.activeEnchant.reagents) do
+	for _, reagent in pairs(self.activeEnchant.reagents) do
 		local receivedReagent = self.info.receivedReagents[reagent.name]
 		if receivedReagent ~= nil then
 			receivedReagent.numHave = receivedReagent.numHave - reagent.numRequired
@@ -376,7 +375,7 @@ end
 function EnchantWork:UpdateEnchantsNumAvailable()
 	for _, enchant in ipairs(self.info.enchants) do
 		local numAvailable = nil
-		for _, reagent in ipairs(enchant.reagents) do
+		for _, reagent in pairs(enchant.reagents) do
 			local receivedReagent = self.info.receivedReagents[reagent.name]
 			if receivedReagent ~= nil then
 				local newNumAvailable = math.floor(receivedReagent.numHave / reagent.numRequired)
@@ -402,7 +401,7 @@ function EnchantWork:ReportMissingReagents(enchant)
 		return
 	end
 	local messages = {}
-	for _, reagent in ipairs(enchant.reagents) do
+	for _, reagent in pairs(enchant.reagents) do
 		local receivedReagent = self.info.receivedReagents[reagent.name]
 		if receivedReagent == nil then
 			table.insert(messages, reagent.itemLink..' x '..reagent.numRequired)
@@ -446,13 +445,13 @@ function EnchantWork:ReturnReagens()
 	end
 
 	local slotIndex = 1
-	for _, reagent in ipairs(receivedReagents) do
+	for _, reagent in pairs(receivedReagents) do
 		if slotIndex < MAX_TRADABLE_ITEMS then
 			for bag = 0, NUM_BAG_SLOTS do
 		        local numSlots = GetContainerNumSlots(bag)
 		        if numSlots > 0 then
 		            for slot = 1, numSlots do
- 						local _, itemCount, _, _, _, _, itemLink= GetContainerItemInfo(bagID, slot)
+ 						local _, itemCount, _, _, _, _, itemLink = GetContainerItemInfo(bagID, slot)
 		                local _, _, _, _, _, _, _, _, _, _, _, name = GetItemLinkInfo(itemLink)
 		                if name == reagent.name then
 							local numTake = itemCount > reagent.numHave and reagent.numHave or itemCount

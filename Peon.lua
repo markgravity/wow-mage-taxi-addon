@@ -49,10 +49,41 @@ function Peon:Init()
 	self:ToggleWorkList(not WorkWork.charConfigs.isWorkListCollaged)
 
 	if WorkWork.isDebug then
-		-- workList:TryAdd('Iina', nil, 'wtb theramore port')
-		workList:TryAdd('Iina', nil, 'WTB fiery')
+		-- workList:TryAdd('Iina', nil, 'wtb theramore port', self)
+		-- workList:TryAdd('Iina', nil, 'WTB fiery', self)
 		WorkWorkMinimapButton:OnClick()
 	end
+
+	-- Hook UnitPopup
+	UnitPopupButtons['ADD_WORK'] = { text = 'Add Work', dist = 0, nested = 1 }
+	UnitPopupButtons['PORTAL_WORK'] = { text = 'Portal', dist = 0, icon = 'Interface\\ICONS\\Spell_Arcane_PortalShattrath' }
+	UnitPopupButtons['ENCHANT_WORK'] = { text = 'Enchant', dist = 0, icon = 135913 }
+	UnitPopupMenus['ADD_WORK'] = { 'PORTAL_WORK', 'ENCHANT_WORK'}
+
+	-- DEBUG
+	if WorkWork.isDebug then
+		table.insert(UnitPopupMenus['SELF'], 1, 'ADD_WORK')
+	end
+
+	-- PARTY
+	local index = table.indexOf(UnitPopupMenus['PARTY'], 'ADD_FRIEND') + 2
+	table.insert(UnitPopupMenus['PARTY'], index, 'ADD_WORK')
+
+	-- RAID_PLAYER
+	local index = table.indexOf(UnitPopupMenus['RAID_PLAYER'], 'ADD_FRIEND') + 2
+	table.insert(UnitPopupMenus['RAID_PLAYER'], index, 'ADD_WORK')
+
+	-- PLAYER
+	local index = table.indexOf(UnitPopupMenus['PLAYER'], 'ADD_FRIEND') + 2
+	table.insert(UnitPopupMenus['PLAYER'], index, 'ADD_WORK')
+
+	-- FRIEND
+	local index = table.indexOf(UnitPopupMenus['FRIEND'], 'TARGET') + 2
+	table.insert(UnitPopupMenus['FRIEND'], index, 'ADD_WORK')
+
+	hooksecurefunc('UnitPopup_OnClick', function(...)
+		peon:UnitPopupOnClickCalled(...)
+	end)
 end
 
 function Peon:On()
@@ -99,6 +130,22 @@ function Peon:ToggleWorkList(isShown)
 	self.toggleWorkListButton:SetFrameLevel(9999)
 end
 
+function Peon:UnitPopupOnClickCalled(dropdownMenu)
+	local dropdownFrame = UIDROPDOWNMENU_INIT_MENU
+	local button = dropdownMenu.value
+	local targetName = dropdownFrame.name
+
+	if button == 'PORTAL_WORK' then
+		self.workList:ManualyAdd(targetName, 'portal', self)
+		return
+	end
+
+	if button == 'ENCHANT_WORK' then
+		self.workList:ManualyAdd(targetName, 'enchant', self)
+		return
+	end
+end
+
 -- EVENTS
 function Peon:CHAT_MSG_SAY(text, playerName, languageName, channelName, playerName2, specialFlags, zoneChannelID, channelIndex, channelBaseName, languageID, lineID, guid, bnSenderID, isMobile, isSubtitle, hideSenderInLetterbox, supressRaidIcons)
     self:OnChat(playerName2, guid, text)
@@ -120,5 +167,5 @@ function Peon:CHAT_MSG_CHANNEL(text, playerName, languageName, channelName, play
 end
 
 function Peon:OnChat(playerName, guid, text)
-	self.workList:TryAdd(playerName, guid, text)
+	self.workList:TryAdd(playerName, guid, text, self)
 end
