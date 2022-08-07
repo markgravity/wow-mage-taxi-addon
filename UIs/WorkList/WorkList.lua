@@ -16,7 +16,7 @@ function CreateWorkList(parent)
     frame:SetWidth(WORK_LIST_WIDTH)
     frame:SetHeight(WORK_LIST_HEIGHT)
     frame:SetBackdrop(BACKDROP_DIALOG_32_32)
-	frame:SetPoint('TOPLEFT', 0, 0)
+	frame:SetPoint('TOPLEFT', -WORK_LIST_WIDTH, 0)
 	workList.frame = frame
 
 	local bg = frame:CreateTexture(nil, 'ARTWORK')

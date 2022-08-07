@@ -420,9 +420,7 @@ function EnchantWork:ReportMissingReagents(enchant)
 	if enchant.numAvailable > 0 then
 		return
 	end
-	local messages = {
-		'Missing Reagents:'
-	}
+	local messages = {}
 	for _, reagent in ipairs(enchant.reagents) do
 		local receivedReagent = self.info.receivedReagents[reagent.name]
 		if receivedReagent == nil then
@@ -433,9 +431,10 @@ function EnchantWork:ReportMissingReagents(enchant)
 		end
 	end
 
-	if #messages <= 1 then return end
+	if #messages <= 0 then return end
+	SendSmartMessage(self.info.targetName, 'Missing Reagents:', 0)
 	for _, message in ipairs(messages) do
-		SendSmartMessage(self.info.targetName, message)
+		SendSmartMessage(self.info.targetName, message, 0)
 	end
 end
 

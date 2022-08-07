@@ -12,7 +12,7 @@ function Peon:Init()
 	self:RegisterForDrag('LeftButton')
 	self:SetScript("OnDragStart", self.StartMoving)
 	self:SetScript("OnDragStop", self.StopMovingOrSizing)
-	self:SetSize(WORK_LIST_WIDTH + WORK_WIDTH - 11, WORK_HEIGHT)
+	self:SetSize(WORK_WIDTH - 11, WORK_HEIGHT)
 	self:SetToplevel(true)
 	if not self:IsUserPlaced() then
 		self:SetPoint('CENTER')
@@ -84,7 +84,7 @@ end
 function Peon:ToggleWorkList(isShown)
 	local configs = WorkWork.charConfigs
 	local isShown = isShown or configs.isWorkListCollaged
-	local degree = isShown and -90 or 90
+	local degree = isShown and 90 or -90
 	local rotation = math.rad(degree)
 
 	self.toggleWorkListButton:GetNormalTexture():SetRotation(rotation)
