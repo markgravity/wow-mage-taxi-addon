@@ -19,7 +19,9 @@ end
 
 function WorkWorkTrade:TRADE_CLOSED()
 	local isSuccess = self.playerAccepted == 1 and self.targetAccepted == 1
-	self.onComplete(isSuccess)
+	if self.onComplete ~= nil then
+		self.onComplete(isSuccess)
+	end
 end
 
 function GetTradeTargetName()
@@ -30,6 +32,16 @@ function GetTradeTargetName()
 end
 
 function Trade(unitID, targetName, onCompleted, onMoneyChanged)
+	if TradeFrame:IsShown() then
+		if targetName ~= GetTradeTargetName() then
+			onComplete(false)
+			return
+		end
+		WorkWorkTrade.onComplete = onComplete
+		WorkWorkTrade.onMoneyChanged = onMoneyChanged
+		return
+	end
+
 	local result = InitiateTrade(unitID)
 	if result == nil then
 		onCompleted(false)

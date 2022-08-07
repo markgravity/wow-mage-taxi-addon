@@ -5,6 +5,7 @@ function CreateWork(name, parent)
 	extends(work, Work)
 
 	work.actions = {}
+	work.isItemListCollaged = true
 
 	local frame = CreateFrame('Frame', name, parent, BackdropTemplateMixin and 'BackdropTemplate' or nil)
 	frame:SetSize(WORK_WIDTH, WORK_HEIGHT)
@@ -58,6 +59,27 @@ function CreateWork(name, parent)
 	itemMenu.data = menuData
 	work.itemMenu = menuFrame
 
+	-- Item List
+	local itemList = CreateItemList(frame)
+	itemList.frame:SetPoint('TOPLEFT', frame, 'TOPRIGHT', -12, 0)
+	work.itemList = itemList
+
+	-- ToggleItemListButton
+	local toggleItemListButtonBG = CreateFrame('Button', nil, frame, 'UIPanelButtonTemplate')
+	toggleItemListButtonBG:SetPoint('TOPLEFT', frame, 'TOPRIGHT', -27, -10)
+	toggleItemListButtonBG:SetSize(20, 20)
+
+	local toggleItemListButton = CreateFrame('Button', nil, toggleItemListButtonBG, '')
+	toggleItemListButton:SetPoint('CENTER', toggleItemListButtonBG, 0, -0.5)
+	toggleItemListButton:SetSize(25, 25)
+	toggleItemListButton:SetNormalTexture('Interface\\Buttons\\UI-Panel-CollapseButton-Up')
+	toggleItemListButton:SetPushedTexture('Interface\\Buttons\\UI-Panel-CollapseButton-Down')
+	toggleItemListButton:SetScript('OnClick', function()
+		work:ToggleItemList()
+	end)
+	work.toggleItemListButton = toggleItemListButton
+	work:ToggleItemList(false)
+
 	local targetNameText = frame:CreateFontString()
 	targetNameText:SetFontObject('GameFontNormal')
 	targetNameText:ClearAllPoints()
@@ -85,7 +107,6 @@ function CreateWork(name, parent)
 	endButton:SetText('End')
 	work.endButton = endButton
 	messageText:SetPoint('BOTTOM', endButton, 'TOP', 0, 4)
-
 
 	local actionList = CreateFrame('Frame', nil, frame, 'InsetFrameTemplate')
 	actionList:SetPoint('TOPLEFT', divider, 'TOPLEFT', 0, -10)
@@ -148,6 +169,22 @@ function Work:SetItem(iconTexture, name, itemLink)
 				-- EasyMenu(work.itemMenu.data, work.itemMenu, "cursor", 0 , 0, "MENU")
 			end
 		end)
+	end
+end
+
+function Work:ToggleItemList(isShown)
+	local isShown = isShown or self.isItemListCollaged
+	local degree = isShown and -90 or 90
+	local rotation = math.rad(degree)
+
+	self.toggleItemListButton:GetNormalTexture():SetRotation(rotation)
+	self.toggleItemListButton:GetPushedTexture():SetRotation(rotation)
+
+	self.isItemListCollaged = not isShown
+ 	if self.isItemListCollaged then
+		self.itemList:Show()
+	else
+		self.itemList:Hide()
 	end
 end
 

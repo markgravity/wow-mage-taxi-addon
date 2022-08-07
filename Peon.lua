@@ -33,7 +33,7 @@ function Peon:Init()
 
 	-- ToggleWorkListButton
 	local toggleWorkListButtonBG = CreateFrame('Button', nil, self, 'UIPanelButtonTemplate')
-	toggleWorkListButtonBG:SetPoint('TOPRIGHT', workList.frame, 'TOPRIGHT', 10, 2)
+	toggleWorkListButtonBG:SetPoint('TOPRIGHT', workList.frame, 'TOPRIGHT', 20, -10)
 	toggleWorkListButtonBG:SetSize(20, 20)
 	toggleWorkListButtonBG:SetFrameLevel(9999 - 1)
 
@@ -50,7 +50,7 @@ function Peon:Init()
 
 	if WorkWork.isDebug then
 		-- workList:TryAdd('Iina', nil, 'wtb theramore port')
-		workList:TryAdd('Iina', nil, 'WTB 30 healing to bracer fiery speed to boot greater agility to back')
+		workList:TryAdd('Iina', nil, 'WTB fiery')
 		WorkWorkMinimapButton:OnClick()
 	end
 end

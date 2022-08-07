@@ -38,7 +38,8 @@ function WorkWorkMinimapButton:OnClick(button)
 		local menu = {
 			{
 				text = 'WorkWork',
-				isTitle = true
+				isTitle = true,
+				notCheckable = true
 			},
 			{
 				text = 'Lazy Mode:',
@@ -71,7 +72,20 @@ function WorkWorkMinimapButton:OnClick(button)
 			},
 			{
 				text = '',
-				isTitle = true
+				isTitle = true,
+                disabled = true,
+				notCheckable = true,
+                icon = "Interface\\Common\\UI-TooltipDivider-Transparent",
+                iconOnly = true,
+                iconInfo = {
+                    tCoordLeft = 0,
+                    tCoordRight = 1,
+                    tCoordTop = 0,
+                    tCoordBottom = 1,
+                    tSizeX = 0,
+                    tSizeY = 8,
+                    tFitDropDownSizeX = true
+                }
 			},
 			{
 				text = 'Close',

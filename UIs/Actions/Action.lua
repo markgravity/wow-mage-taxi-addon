@@ -1,7 +1,7 @@
 local Eventable = WorkWork.Trails.Eventable
 local Action = {}
 
-function CreateAction(titleText, descriptionText, parent, previousAction)
+function CreateAction(titleText, descriptionText, name, parent, previousAction)
 	local action = {}
 	extends(action, Action, Eventable)
 
@@ -16,8 +16,10 @@ function CreateAction(titleText, descriptionText, parent, previousAction)
 		insets = { left = 3, right = 3, top = 3, bottom = 3 }
 	}
 
-	local frame = CreateFrame('Button', nil, parent, BackdropTemplateMixin and "InSecureActionButtonTemplate, BackdropTemplate" or nil)
+	local frame = _G[name] or CreateFrame('Button', name, parent, BackdropTemplateMixin and "InSecureActionButtonTemplate, BackdropTemplate" or nil)
 	frame:SetBackdrop(backdrop)
+	frame:SetHeight(0)
+	frame:ClearAllPoints()
 	frame:SetPoint('LEFT', 8, 0)
 	frame:SetPoint('RIGHT', -8, 0)
 	frame:SetAttribute('type', 'macro')
@@ -61,19 +63,27 @@ function CreateAction(titleText, descriptionText, parent, previousAction)
 	action.frame = frame
 
 	-- Count
-	local countFrame = CreateFrame('Frame', nil, frame)
+	local name = frame:GetName()..'CountFrame'
+	local countFrame = _G[name] or CreateFrame('Frame', name, frame)
+	countFrame:ClearAllPoints()
 	countFrame:SetPoint('BOTTOMRIGHT', 3, -3)
 	countFrame:Hide()
-	local texture = countFrame:CreateTexture(nil, 'OVERLAY', 'Talent-PointBg')
+
+	name = countFrame:GetName()..'Texture'
+	local texture = _G[name] or countFrame:CreateTexture(name, 'OVERLAY', 'Talent-PointBg')
 	texture:ClearAllPoints()
 	texture:SetPoint('CENTER', 0, 0)
-	local count = countFrame:CreateFontString(nil, 'OVERLAY', 'GameFontNormalSmall')
+
+	name = countFrame:GetName()..'NumberText'
+	local count = _G[name] or countFrame:CreateFontString(name, 'OVERLAY', 'GameFontNormalSmall')
 	count:SetPoint('CENTER', texture, 0, 0)
 	countFrame.number = count
 	countFrame:SetSize(texture:GetSize())
 	action.countFrame = countFrame
 
-	local title = frame:CreateFontString()
+	name = frame:GetName()..'TitleText'
+	local title = _G[name] or frame:CreateFontString(name)
+	title:ClearAllPoints()
 	title:SetFont(GameFontNormal:GetFont(), 11)
 	title:SetText(titleText)
 	title:SetPoint('LEFT', frame, 'LEFT', 8, 0)
@@ -85,17 +95,20 @@ function CreateAction(titleText, descriptionText, parent, previousAction)
 	title:SetWordWrap(false)
 	action.title = title
 
-	local description = frame:CreateFontString()
+	name = frame:GetName()..'DescriptionText'
+	local description = _G[name] or frame:CreateFontString(name)
+	description:ClearAllPoints()
 	description:SetFont(GameFontNormal:GetFont(), 9)
 	description:SetPoint('LEFT', frame, 'LEFT', 16, 0)
 	description:SetPoint('RIGHT', frame, 'RIGHT', -16, 0)
 	description:SetPoint('TOP', title, 'BOTTOM', 0, -4)
-	description:SetPoint('BOTTOM', frame, 'BOTTOM', 0, 8)
+	-- description:SetPoint('BOTTOM', frame, 'BOTTOM', 0, 8)
 	description:SetJustifyH('CENTER')
 	action.description = description
 	action:SetDescription(descriptionText)
 
-	local line = frame:CreateLine()
+	name = frame:GetName()..'Line'
+	local line = _G[name] or frame:CreateLine(name)
 	line:SetDrawLayer("ARTWORK",2)
 	line:SetThickness(6)
 	line:SetStartPoint("TOP", 0, 0)
@@ -106,14 +119,16 @@ function CreateAction(titleText, descriptionText, parent, previousAction)
 		line:Show()
 	end
 
-	local contextMenuFrame = CreateFrame(
+	name = frame:GetName()..'ContextMenuFrame'
+	local contextMenuFrame = _G[name] or CreateFrame(
 		'Frame',
-		nil,
+		name,
 		frame,
 		'UIDropDownMenuTemplate'
 	)
 	contextMenuFrame:Hide()
 	action.contextMenuFrame = contextMenuFrame
+
 	return action
 end
 
@@ -210,7 +225,7 @@ function Action:SetScript(event, script)
 				EasyMenu(action.contextMenu, action.contextMenuFrame, 'cursor', 0 , 0, 'MENU')
 				return
 			end
-			
+
 			if not action.isEnabled then return end
 			script(self, button)
 		end)
@@ -258,4 +273,12 @@ end
 
 function Action:SetContextMenu(menu)
 	self.contextMenu = menu
+end
+
+function Action:Show()
+	self.frame:Show()
+end
+
+function Action:Hide()
+	self.frame:Hide()
 end

@@ -88,16 +88,13 @@ function CreateEnchantWork(targetName, message, enchants, parent)
 	frame:Hide()
 
     work:SetTitle('Enchant')
-
-	-- Item
-	local itemNames = table.map(info.enchants, function(enchant)
-		return enchant.name
-	end)
-	local itemName = table.concat(itemNames,' + ')
-	local texture = GetSpellTexture(info.enchants[1].itemID)
-	work:SetItem(texture, itemName, info.enchants[1].itemLink)
 	work:SetMessage(info.targetName, message)
 
+	-- Item List
+	work.itemList:SetItems(work:GetItems())
+	work.itemList:SetAllowsMultipleSelection(true)
+
+	-- End Button
 	work.endButton:SetScript('OnClick', function(self)
 		work:End(work.state == 'FINISHING', true)
 	end)
@@ -111,6 +108,7 @@ function CreateEnchantWork(targetName, message, enchants, parent)
 		info.isLazy,
 		'Contact',
 		'|c60808080Invite |r|cffffd100'..info.targetName..'|r|c60808080 into the party|r',
+		frame:GetName()..'ContactAction',
 		actionListContent
 	)
 	work.contactAction:SetScript('OnStateChange', function(self)
@@ -130,6 +128,7 @@ function CreateEnchantWork(targetName, message, enchants, parent)
 		WORK_INTERECT_DISTANCE_TRADE,
 		'Move',
 		'|c60808080Waiting for contact|r',
+		frame:GetName()..'MoveAction',
 		actionListContent,
 	 	work.contactAction
 	)
@@ -144,6 +143,7 @@ function CreateEnchantWork(targetName, message, enchants, parent)
 	work.gatherAction = CreateAction(
 		'Gather',
 		nil,
+		frame:GetName()..'GatherAction',
 		actionListContent,
 		work.moveAction
 	)
@@ -155,7 +155,8 @@ function CreateEnchantWork(targetName, message, enchants, parent)
 	work.gatherAction:SetContextMenu({
 		{
 			text = 'Gather',
-			isTitle = true
+			isTitle = true,
+			notCheckable = true
 		},
 		{
 			text = 'Return Reagents',
@@ -170,62 +171,11 @@ function CreateEnchantWork(targetName, message, enchants, parent)
 		}
 	})
 
-	local enchantActions = {}
-	local previousAction = work.gatherAction
-	local totalEnchantActionsHeight = 0
-	for i, enchant in ipairs(info.enchants) do
-		local action = CreateAction(
-			'Enchant',
-			nil,
-			actionListContent,
-			previousAction
-		)
-		previousAction = action
-		action:SetItemLink(enchant.itemLink)
-		action:SetSpell('Enchanting')
-		action:HookScript('OnClick', function(self, button)
-			if button == 'LeftButton' then
-				work.activeEnchantAction = action
-				work.activeEnchant = enchant
-				work:SetState('ENCHANTING')
-				return
-			end
-		end)
-		action:SetContextMenu({
-			{
-				text = 'Enchant',
-				isTitle = true
-			},
-			{
-				text = 'Report Missing',
-				notCheckable = true,
-				func = function()
-					work:ReportMissingReagents(enchant)
-				end
-			},
-			{
-				text = 'Close',
-				notCheckable = true
-			}
-		})
-		action:Disable()
-		totalEnchantActionsHeight = totalEnchantActionsHeight + action.frame:GetHeight()
-		table.insert(enchantActions, action)
-	end
-	work.enchantActions = enchantActions
+	work:UpdateEnchants()
 
-	actionListContent:SetSize(
-		WORK_WIDTH - 30,
-		work.contactAction.frame:GetHeight()
-		+ work.moveAction.frame:GetHeight()
-		+ work.gatherAction.frame:GetHeight()
-		+ totalEnchantActionsHeight
-	)
 	work.moveAction:Disable()
 	work.gatherAction:Disable()
 	work.contactAction:Enable()
-
-	work:UpdateGather()
 	return work
 end
 
@@ -373,9 +323,9 @@ function EnchantWork:UpdateGather()
 	-- Gather Action
 	local description = '|c60808080No received reagents|r'
 	if not table.isEmpty(self.info.receivedReagents) then
-		local description = '|c60808080Received Reagents:|r'
+	 	description = '|c60808080Received:|r'
 		for _, reagent in pairs(self.info.receivedReagents) do
-			description = description..'|r|cfffffff0'..reagent.numHave..' x |r\n|cffffd100'..(reagent.name or '')
+			description = description..'\n|r|cfffffff0'..reagent.numHave..' x |r|cffffd100'..(reagent.name or '')
 		end
 	end
 	self.gatherAction:SetDescription(description)
@@ -386,7 +336,7 @@ function EnchantWork:UpdateGather()
 		local action = self.enchantActions[i]
 		action:SetCount(enchant.numAvailable)
 
-		local description = self:GetEnchantName(enchant)..'\n\n|c60808080Required Reagents:|r'
+		local description = self:GetEnchantName(enchant)..'\n\n|c60808080Required:|r'
 		for _, reagent in ipairs(enchant.reagents) do
 			local receivedReagent = self.info.receivedReagents[reagent.name] or {}
 			description = description
@@ -540,6 +490,112 @@ function EnchantWork:ReturnReagens()
 		end
 	end
 	AcceptTrade()
+end
+
+function EnchantWork:GetItems()
+	local work = self
+	local enchants = WorkWorkProfessionScanner:GetData('Enchanting')
+	local items = {}
+	for i, enchant in ipairs(enchants or {}) do
+		local checked = false
+		local matchedIndex
+		for i, matchedEnchant in ipairs(self.info.enchants) do
+			if matchedEnchant.name == enchant.name then
+				checked = true
+				matchedIndex = i
+				break
+			end
+		end
+		table.insert(items, {
+			name = enchant.name,
+			checked = checked,
+			func = function(checked)
+				local enchants = work.info.enchants
+				for _, action in ipairs(work.enchantActions) do
+					action:Hide()
+				end
+				if checked then
+					table.insert(enchants, enchant)
+				else
+					table.remove(enchants, matchedIndex)
+				end
+				work:UpdateEnchants()
+			end
+		})
+	end
+
+	return items
+end
+
+function EnchantWork:UpdateEnchants()
+	local work = self
+	local enchantActions = {}
+	local previousAction = self.gatherAction
+	local totalEnchantActionsHeight = 0
+	self.activeEnchantAction = nil
+	self.activeEnchant = nil
+
+	-- Item
+	local itemNames = table.map(self.info.enchants, function(enchant)
+		return enchant.name
+	end)
+	local itemName = table.concat(itemNames,' + ')
+	local texture = self.info.enchants[1] and GetSpellTexture(self.info.enchants[1].itemID) or nil
+	local itemLink = #self.info.enchants == 1 and self.info.enchants[1].itemLink or nil
+	work:SetItem(texture, itemName, itemLink)
+
+	for i, enchant in ipairs(self.info.enchants) do
+		local action = CreateAction(
+			'Enchant',
+			nil,
+			self.frame:GetName()..'EnchantAction'..i,
+			work.actionListContent,
+			previousAction
+		)
+		previousAction = action
+		action:SetItemLink(enchant.itemLink)
+		action:SetSpell('Enchanting')
+		action:HookScript('OnClick', function(self, button)
+			if button == 'LeftButton' then
+				work.activeEnchantAction = action
+				work.activeEnchant = enchant
+				work:SetState('ENCHANTING')
+				return
+			end
+		end)
+		action:SetContextMenu({
+			{
+				text = 'Enchant',
+				isTitle = true,
+				notCheckable = true
+			},
+			{
+				text = 'Report Missing',
+				notCheckable = true,
+				func = function()
+					work:ReportMissingReagents(enchant)
+				end
+			},
+			{
+				text = 'Close',
+				notCheckable = true
+			}
+		})
+		action:Disable()
+		action:Show()
+		totalEnchantActionsHeight = totalEnchantActionsHeight + action.frame:GetHeight()
+		table.insert(enchantActions, action)
+	end
+	work.enchantActions = enchantActions
+
+	 work.actionListContent:SetSize(
+		WORK_WIDTH - 30,
+		work.contactAction.frame:GetHeight()
+		+ work.moveAction.frame:GetHeight()
+		+ work.gatherAction.frame:GetHeight()
+		+ totalEnchantActionsHeight
+	)
+	work:UpdateGather()
 end
 
 -- Events

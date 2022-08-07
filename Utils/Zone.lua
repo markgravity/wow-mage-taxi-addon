@@ -36,40 +36,21 @@ end
 function GetZoneByPlayerName(playerName, callback)
 	WorkWorkZoneFrame.lookupName = playerName
 	WorkWorkZoneFrame.callback = callback
-	WorkWorkZoneFrame.isWhoFrameShown = FriendsFrame:IsShown()
-	C_FriendList.SetWhoToUi(true)
 	C_FriendList.SendWho('n-"'..playerName..'"')
 end
 
 WorkWorkZoneFrame = CreateFrame('Frame')
-WorkWorkZoneFrame:RegisterEvent('WHO_LIST_UPDATE')
+WorkWorkZoneFrame:RegisterEvent('CHAT_MSG_SYSTEM')
 WorkWorkZoneFrame:SetScript('OnEvent', function(self, event, ...)
 	self[event](self, ...)
 end)
 
-function WorkWorkZoneFrame:WHO_LIST_UPDATE()
-	C_FriendList.SetWhoToUi(false)
-	if not self.isWhoFrameShown then
-		FriendsFrameCloseButton:Click()
-	end
-
-	local info = C_FriendList.GetWhoInfo(1)
-	if not info then
-		self.callback(nil)
-		return
-	end
-
-	for i = 1, 10 do
-		local info = C_FriendList.GetWhoInfo(i)
-		if info == nil then
-			self.callback(nil)
-			return
-		end
-
-		local shortName = info.fullName:gsub('-.*', '')
-		if shortName == self.lookupName then
-			self.callback(info.area)
-			return
-		end
-	end
+function WorkWorkZoneFrame:CHAT_MSG_SYSTEM(text)
+	if self.lookupName == nil
+		or self.callback == nil
+	 	or text:match('%['..self.lookupName..'%]') == nil then return end
+	local area = text:match('- .*'):gsub('- ', '')
+	self.callback(area)
+	self.lookupName = nil
+	self.callback = nil
 end

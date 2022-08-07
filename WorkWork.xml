@@ -31,6 +31,8 @@
 	<Script file="UIs\Works\EnchantWork.lua"/>
 	<Script file="UIs\WorkList\WorkList.lua"/>
 	<Script file="UIs\WorkList\WorkListItem.lua"/>
+	<Script file="UIs\ItemList\ItemList.lua"/>
+	<Script file="UIs\ItemList\ItemListItem.lua"/>
     <Script file="Peon.lua"/>
 	<Script file="MinimapButton.lua"/>
 </Ui>

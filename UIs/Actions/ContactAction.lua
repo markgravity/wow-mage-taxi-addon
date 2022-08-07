@@ -7,10 +7,11 @@ function CreateContactAction(
 	isLazy,
 	titleText,
 	descriptionText,
+	name,
 	parent,
 	previousAction
 )
-	local action = CreateAction(titleText, descriptionText, parent, previousAction)
+	local action = CreateAction(titleText, descriptionText, name, parent, previousAction)
 	extends(action, ContactAction)
 
 	-- DEBUG

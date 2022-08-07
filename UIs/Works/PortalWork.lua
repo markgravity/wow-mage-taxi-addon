@@ -98,15 +98,15 @@ function CreatePortalWork(targetName, message, portal, parent)
 	work:SetTitle('Portal')
 	work.frame:Hide()
 
-	local texture = GetSpellTexture(info.sellingPortal.portalSpellID)
-	local itemLink = GetSpellLink(info.sellingPortal.portalSpellID)
-	work:SetItem(texture, info.sellingPortal.name, itemLink)
 	work:SetMessage(info.targetName, message)
 
+	-- Item List
+	work.itemList:SetItems(work:GetItems())
+
+	-- End Button
 	work.endButton:SetScript('OnClick', function(self)
 		work:End(work.state == 'WAITING_FOR_TARGET_ENTER_PORTAL', true)
 	end)
-
 
 	-- Create actions
 	local actionListContent = work.actionListContent
@@ -117,6 +117,7 @@ function CreatePortalWork(targetName, message, portal, parent)
 		info.isLazy,
 		'Contact',
 		'|c60808080Invite |r|cffffd100'..info.targetName..'|r|c60808080 into the party|r',
+		work.frame:GetName()..'ContactAction',
 		actionListContent
 	)
 	work.contactAction:SetScript('OnStateChange', function(self)
@@ -136,6 +137,7 @@ function CreatePortalWork(targetName, message, portal, parent)
 		WORK_INTERECT_DISTANCE_INSPECT,
 		'Move',
 		'|c60808080Waiting for contact|r',
+		work.frame:GetName()..'MoveAction',
 		actionListContent,
 	 	work.contactAction
 	)
@@ -150,6 +152,7 @@ function CreatePortalWork(targetName, message, portal, parent)
 	work.makeAction = CreateAction(
 		'Make',
 		'|c60808080Create a |r|cffffd100'..info.sellingPortal.name..'|r|c60808080 portal|r',
+		work.frame:GetName()..'MakeAction',
 		actionListContent,
 		work.moveAction
 	)
@@ -161,6 +164,7 @@ function CreatePortalWork(targetName, message, portal, parent)
 	work.finishAction = CreateAction(
 		'Finish',
 		'|c60808080Waiting for |r|cffffd100'..info.targetName..'|r|c60808080 to enter the portal|r',
+		work.frame:GetName()..'FinishAction',
 		actionListContent,
 		work.makeAction
 	)
@@ -177,6 +181,7 @@ function CreatePortalWork(targetName, message, portal, parent)
 	work.finishAction:Disable(true)
 	work.contactAction:Enable()
 
+	work:UpdateSellingPortal()
 	return work
 end
 
@@ -288,6 +293,57 @@ function PortalWork:WaitingForTargetEnterPortal()
 		return
 	end
 	self:End(true, true)
+end
+
+function PortalWork:GetItems()
+	local work = self
+	local portals = WorkWork.portals
+	local items = {}
+	for i, portal in ipairs(portals or {}) do
+		local checked = portal.name == self.info.sellingPortal.name
+		table.insert(items, {
+			name = portal.name,
+			checked = checked,
+			func = function(checked)
+				if checked then
+					work.info.sellingPortal = portal
+					work:UpdateSellingPortal()
+					return
+				end
+
+				if not checked
+					and work.info.sellingPortal ~= nil
+				 	and work.info.sellingPortal.name == portal.name then
+					work.info.sellingPortal = nil
+					work:UpdateSellingPortal()
+					return
+				end
+			end
+		})
+	end
+
+	return items
+end
+
+function PortalWork:UpdateSellingPortal()
+	local info = self.info
+
+	-- Item
+	local texture = info.sellingPortal and GetSpellTexture(info.sellingPortal.portalSpellID) or nil
+	local itemLink = info.sellingPortal and GetSpellLink(info.sellingPortal.portalSpellID) or nil
+	local name = info.sellingPortal and info.sellingPortal.name or buk
+	self:SetItem(texture, name, itemLink)
+
+	--  Make Action
+	if info.sellingPortal then
+		self.makeAction:Show()
+		self.finishAction:Show()
+		self.makeAction:SetDescription('|c60808080Create a |r|cffffd100'..info.sellingPortal.name..'|r|c60808080 portal|r')
+		self.makeAction:SetSpell(info.sellingPortal.portalSpellName)
+	else
+		self.makeAction:Hide()
+		self.finishAction:Hide()
+	end
 end
 
 -- EVENTS
