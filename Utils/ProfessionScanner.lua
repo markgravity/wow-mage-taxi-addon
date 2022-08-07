@@ -24,44 +24,64 @@ function ProfessionScanner:Scan(profession)
 	local baseData = self.baseData[profession]
 	local data = {}
 	local numberOfCrafts = GetNumCrafts()
-	if numberOfCrafts < #oldData then
-		return
-	end
 
 	for craftID = 1, numberOfCrafts do
 		local craftName, _, craftType = GetCraftInfo(craftID)
-		local craftItemLink = GetCraftItemLink(craftID)
-		local _, _, craftItemID = GetItemLinkInfo(craftItemLink)
-		if craftType ~= 'header' then
-			local numberOfReagents = GetCraftNumReagents(craftID)
-			local reagents = {}
-			for reagentID = 1, numberOfReagents do
-				local name, texturePath, numberRequired = GetCraftReagentInfo(craftID, reagentID)
-				table.insert(reagents, {
-					name = name,
-					itemLink = name,
-					texturePath = texturePath,
-					numRequired = numberRequired
-				})
-			end
+		local oldCraft = oldData[craftName]
 
-			local craftItem = {
-				itemID = craftItemID,
-				name = craftName,
-				reagents = reagents,
-				itemLink = craftItemLink or craftName
-			}
+		if oldCraft == nil or not oldCraft.isCompleted then
+			local craftItemLink = GetCraftItemLink(craftID)
+			local _, _, craftItemID = GetItemLinkInfo(craftItemLink)
 
-			-- Append data from base data
-			for _, v in ipairs(baseData) do
-				if v.name == craftName then
-					table.merge(craftItem, v)
+			if craftType ~= 'header' then
+				local numberOfReagents = GetCraftNumReagents(craftID)
+				local reagents = {}
+				local isCompleted = true
+				if craftItemLink == nil then
+					isCompleted = false
+					craftItemLink = craftName
+				end
+
+				-- Regeants
+				local regeantsCount = 0
+				for reagentID = 1, numberOfReagents do
+					local name, texturePath, numberRequired = GetCraftReagentInfo(craftID, reagentID)
+					if name == nil then break end
+					local reagentItemLink = GetCraftReagentItemLink(craftID, reagentID)
+					local _, _, reagentItemID = GetItemLinkInfo(reagentItemLink)
+					if reagentItemLink == nil then
+						isCompleted = false
+						reagentItemLink = name
+					end
+					reagents[name] = {
+						itemID = reagentItemID,
+						name = name,
+						itemLink = reagentItemLink,
+						texturePath = texturePath,
+						numRequired = numberRequired
+					}
+					regeantsCount = regeantsCount + 1
+				end
+
+				if regeantsCount == numberOfReagents then
+					local craftItem = {
+						itemID = craftItemID,
+						name = craftName,
+						reagents = reagents,
+						itemLink = craftItemLink,
+						isCompleted = isCompleted
+					}
+
+					data[craftName] = craftItem
 				end
 			end
-			table.insert(data, craftItem)
+		else
+			data[craftName] = oldData[craftName]
 		end
-	end
 
+		-- Append data from base data
+		table.merge(data[craftName], baseData[craftName] or {})
+	end
 	self.config.data[profession] = data
 end
 
@@ -85,7 +105,7 @@ function ProfessionScanner:SetItemRef(link, text, button)
 	end
 
 	for p, data in pairs(ProfessionScanner.config.data) do
-		for _, item in ipairs(data) do
+		for _, item in pairs(data) do
 			if item.itemID == id then
 				ItemRefTooltip:AddLine('|c60808080Learned|r')
 				if ItemRefTooltipTextLeft4 then

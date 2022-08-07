@@ -1,25 +1,25 @@
 WorkWork.enchants = {
-	{
+	["Enchant 2H Weapon - Major Agility"] = {
 		name = "Enchant 2H Weapon - Major Agility",
 		keywords = {
 			"35 agi",
 			"35%+ agi"
 		}
 	},
-	{
+	["Enchant 2H Weapon - Savagery"] = {
 		name = "Enchant 2H Weapon - Savagery",
 		keywords = {
 			"savagery"
 		}
 	},
-	{
+	["Enchant Boots - Boar's Speed"] = {
 		name = "Enchant Boots - Boar's Speed",
 		keywords = {
 			"boar",
 			"boars speed"
 		}
 	},
-	{
+	["Enchant Boots - Cat's Swiftness"] = {
 		name = "Enchant Boots - Cat's Swiftness",
 		keywords = {
 			"cats",
@@ -27,7 +27,7 @@ WorkWork.enchants = {
 			"cat swift"
 		}
 	},
-	{
+	["Enchant Boots - Dexterity"] = {
 		name = "Enchant Boots - Dexterity",
 		keywords = {
 			"dex to boots",
@@ -39,7 +39,7 @@ WorkWork.enchants = {
 			"boots agil"
 		}
 	},
-	{
+	["Enchant Boots - Fortitude"] = {
 		name = "Enchant Boots - Fortitude",
 		keywords = {
 			"fortitude to boots",
@@ -51,7 +51,7 @@ WorkWork.enchants = {
 			"boots stamina"
 		}
 	},
-	{
+	["Enchant Boots - Minor Speed"] = {
 		name = "Enchant Boots - Minor Speed",
 		keywords = {
 			"minor speed",
@@ -62,20 +62,20 @@ WorkWork.enchants = {
 			"minor movespeed"
 		}
 	},
-	{
+	["Enchant Boots - Surefooted"] = {
 		name = "Enchant Boots - Surefooted",
 		keywords = {
 			"surefoot"
 		}
 	},
-	{
+	["Enchant Boots - Vitality"] = {
 		name = "Enchant Boots - Vitality",
 		keywords = {
 			"vitality to feet",
 			"vitality to boots"
 		}
 	},
-	{
+	["Enchant Bracer - Assault"] = {
 		name = "Enchant Bracer - Assault",
 		keywords = {
 			"bracers assault",
@@ -86,7 +86,7 @@ WorkWork.enchants = {
 			"ap to bracer"
 		}
 	},
-	{
+	["Enchant Bracer - Brawn"] = {
 		name = "Enchant Bracer - Brawn",
 		keywords = {
 			"12 strength",
@@ -96,7 +96,7 @@ WorkWork.enchants = {
 			"strength to bracer"
 		}
 	},
-	{
+	["Enchant Bracer - Fortitude"] = {
 		name = "Enchant Bracer - Fortitude",
 		keywords = {
 			"fortitude to wrist",
@@ -107,7 +107,7 @@ WorkWork.enchants = {
 			"12 stamina to bracer"
 		}
 	},
-	{
+	["Enchant Bracer - Healing Power"] = {
 		name = "Enchant Bracer - Healing Power",
 		keywords = {
 			"24 healing",
@@ -116,7 +116,7 @@ WorkWork.enchants = {
 			"healing power to bracer"
 		}
 	},
-	{
+	["Enchant Bracer - Major Defense"] = {
 		name = "Enchant Bracer - Major Defense",
 		keywords = {
 			"12 def",
@@ -125,7 +125,7 @@ WorkWork.enchants = {
 			"defense to bracer"
 		}
 	},
-	{
+	["Enchant Bracer - Major Intellect"] = {
 		name = "Enchant Bracer - Major Intellect",
 		keywords = {
 			"12 int to wrist",
@@ -134,7 +134,7 @@ WorkWork.enchants = {
 			"major intellect to wrist"
 		}
 	},
-	{
+	["Enchant Bracer - Restore Mana Prime"] = {
 		name = "Enchant Bracer - Restore Mana Prime",
 		keywords = {
 			"mp5 to wrist",
@@ -142,7 +142,7 @@ WorkWork.enchants = {
 			"restore mana prime"
 		}
 	},
-	{
+	["Enchant Bracer - Spellpower"] = {
 		name = "Enchant Bracer - Spellpower",
 		keywords = {
 			"sp to wrist",
@@ -159,14 +159,14 @@ WorkWork.enchants = {
 			"15 spell power"
 		}
 	},
-	{
+	["Enchant Bracer - Stats"] = {
 		name = "Enchant Bracer - Stats",
 		keywords = {
 			"stats to bracer",
 			"stats to wrist"
 		}
 	},
-	{
+	["Enchant Bracer - Superior Healing"] = {
 		name = "Enchant Bracer - Superior Healing",
 		keywords = {
 			"healing to bracer",
@@ -180,7 +180,7 @@ WorkWork.enchants = {
 			"30 healing to wrist"
 		}
 	},
-	{
+	["Enchant Chest - Exceptional Health"] = {
 		name = "Enchant Chest - Exceptional Health",
 		keywords = {
 			"150 hp",
@@ -191,7 +191,7 @@ WorkWork.enchants = {
 			"150%+ health"
 		}
 	},
-	{
+	["Enchant Chest - Exceptional Stats"] = {
 		name = "Enchant Chest - Exceptional Stats",
 		keywords = {
 			"6 stat",
@@ -200,7 +200,7 @@ WorkWork.enchants = {
 			"exceptional stats"
 		}
 	},
-	{
+	["Enchant Chest - Greater Stats"] = {
 		name = "Enchant Chest - Greater Stats",
 		keywords = {
 			"%+4 stat",
@@ -211,7 +211,7 @@ WorkWork.enchants = {
 			"4 stat"
 		}
 	},
-	{
+	["Enchant Chest - Major Resilience"] = {
 		name = "Enchant Chest - Major Resilience",
 		keywords = {
 			"resil to chest",
@@ -226,7 +226,7 @@ WorkWork.enchants = {
 			"major resil"
 		}
 	},
-	{
+	["Enchant Chest - Major Spirit"] = {
 		name = "Enchant Chest - Major Spirit",
 		keywords = {
 			"major spirit chest",
@@ -235,19 +235,19 @@ WorkWork.enchants = {
 			"15%+ spirit"
 		}
 	},
-	{
+	["Enchant Chest - Restore Mana Prime"] = {
 		name = "Enchant Chest - Restore Mana Prime",
 		keywords = {
 			"mp5 to chest"
 		}
 	},
-	{
+	["Enchant Cloak - Dodge"] = {
 		name = "Enchant Cloak - Dodge",
 		keywords = {
 			"dodge"
 		}
 	},
-	{
+	["Enchant Cloak - Greater Agility"] = {
 		name = "Enchant Cloak - Greater Agility",
 		keywords = {
 			"greater agility to back",
@@ -261,31 +261,31 @@ WorkWork.enchants = {
 			"agility to back"
 		}
 	},
-	{
+	["Enchant Cloak - Greater Arcane Resistance"] = {
 		name = "Enchant Cloak - Greater Arcane Resistance",
 		keywords = {
 			"arcane res"
 		}
 	},
-	{
+	["Enchant Cloak - Greater Fire Resistance"] = {
 		name = "Enchant Cloak - Greater Fire Resistance",
 		keywords = {
 			"fire res"
 		}
 	},
-	{
+	["Enchant Cloak - Greater Nature Resistance"] = {
 		name = "Enchant Cloak - Greater Nature Resistance",
 		keywords = {
 			"nature res"
 		}
 	},
-	{
+	["Enchant Cloak - Greater Shadow Resistance"] = {
 		name = "Enchant Cloak - Greater Shadow Resistance",
 		keywords = {
 			"shadow res"
 		}
 	},
-	{
+	["Enchant Cloak - Major Armor"] = {
 		name = "Enchant Cloak - Major Armor",
 		keywords = {
 			"major armor",
@@ -294,7 +294,7 @@ WorkWork.enchants = {
 			"120%+"
 		}
 	},
-	{
+	["Enchant Cloak - Major Resistance"] = {
 		name = "Enchant Cloak - Major Resistance",
 		keywords = {
 			"major resis",
@@ -302,7 +302,7 @@ WorkWork.enchants = {
 			"major res to cloak"
 		}
 	},
-	{
+	["Enchant Cloak - Spell Penetration"] = {
 		name = "Enchant Cloak - Spell Penetration",
 		keywords = {
 			"spell pen",
@@ -310,20 +310,20 @@ WorkWork.enchants = {
 			"pen to back"
 		}
 	},
-	{
+	["Enchant Cloak - Stealth"] = {
 		name = "Enchant Cloak - Stealth",
 		keywords = {
 			"stealth"
 		}
 	},
-	{
+	["Enchant Cloak - Subtlety"] = {
 		name = "Enchant Cloak - Subtlety",
 		keywords = {
 			"subtlety",
 			"2%%"
 		}
 	},
-	{
+	["Enchant Gloves - Advanced Herbalism"] = {
 		name = "Enchant Gloves - Advanced Herbalism",
 		keywords = {
 			"advanced herb",
@@ -335,7 +335,7 @@ WorkWork.enchants = {
 			"herbalism to glove"
 		}
 	},
-	{
+	["Enchant Gloves - Advanced Mining"] = {
 		name = "Enchant Gloves - Advanced Mining",
 		keywords = {
 			"advanced mining",
@@ -343,7 +343,7 @@ WorkWork.enchants = {
 			" mining to glove"
 		}
 	},
-	{
+	["Enchant Gloves - Assault"] = {
 		name = "Enchant Gloves - Assault",
 		keywords = {
 			"assault to glove",
@@ -354,7 +354,7 @@ WorkWork.enchants = {
 			"26 attack power"
 		}
 	},
-	{
+	["Enchant Gloves - Blasting"] = {
 		name = "Enchant Gloves - Blasting",
 		keywords = {
 			"blasting to gloves",
@@ -363,28 +363,28 @@ WorkWork.enchants = {
 			"crit to hand"
 		}
 	},
-	{
+	["Enchant Gloves - Fire Power"] = {
 		name = "Enchant Gloves - Fire Power",
 		keywords = {
 			"fire power",
 			"20 fire"
 		}
 	},
-	{
+	["Enchant Gloves - Frost Power"] = {
 		name = "Enchant Gloves - Frost Power",
 		keywords = {
 			"frost power",
 			"20 frost"
 		}
 	},
-	{
+	["Enchant Gloves - Healing Power"] = {
 		name = "Enchant Gloves - Healing Power",
 		keywords = {
 			"%+30 healing",
 			"30%+ heal"
 		}
 	},
-	{
+	["Enchant Gloves - Major Healing"] = {
 		name = "Enchant Gloves - Major Healing",
 		keywords = {
 			"35 heal",
@@ -394,7 +394,7 @@ WorkWork.enchants = {
 			"heal to hand"
 		}
 	},
-	{
+	["Enchant Gloves - Major Spellpower"] = {
 		name = "Enchant Gloves - Major Spellpower",
 		keywords = {
 			"major spellpower",
@@ -407,7 +407,7 @@ WorkWork.enchants = {
 			""
 		}
 	},
-	{
+	["Enchant Gloves - Major Strength"] = {
 		name = "Enchant Gloves - Major Strength",
 		keywords = {
 			"major str",
@@ -416,7 +416,7 @@ WorkWork.enchants = {
 			"str glove"
 		}
 	},
-	{
+	["Enchant Gloves - Riding Skill"] = {
 		name = "Enchant Gloves - Riding Skill",
 		keywords = {
 			"riding speed",
@@ -424,14 +424,14 @@ WorkWork.enchants = {
 			"%+riding"
 		}
 	},
-	{
+	["Enchant Gloves - Shadow Power"] = {
 		name = "Enchant Gloves - Shadow Power",
 		keywords = {
 			"shadow power",
 			"20 shadow"
 		}
 	},
-	{
+	["Enchant Gloves - Spell Strike"] = {
 		name = "Enchant Gloves - Spell Strike",
 		keywords = {
 			"spell strike",
@@ -442,7 +442,7 @@ WorkWork.enchants = {
 			"15 spell hit"
 		}
 	},
-	{
+	["Enchant Gloves - Superior Agility"] = {
 		name = "Enchant Gloves - Superior Agility",
 		keywords = {
 			"superior agility",
@@ -451,13 +451,13 @@ WorkWork.enchants = {
 			"15%+ agi"
 		}
 	},
-	{
+	["Enchant Gloves - Threat"] = {
 		name = "Enchant Gloves - Threat",
 		keywords = {
 			"threat"
 		}
 	},
-	{
+	["Enchant Shield - Intellect"] = {
 		name = "Enchant Shield - Intellect",
 		keywords = {
 			"12 int to shield",
@@ -466,7 +466,7 @@ WorkWork.enchants = {
 			"12 intellect shield"
 		}
 	},
-	{
+	["Enchant Shield - Major Stamina"] = {
 		name = "Enchant Shield - Major Stamina",
 		keywords = {
 			"stam to shield",
@@ -475,7 +475,7 @@ WorkWork.enchants = {
 			"stamina to shield"
 		}
 	},
-	{
+	["Enchant Shield - Resilience"] = {
 		name = "Enchant Shield - Resilience",
 		keywords = {
 			"res to shield",
@@ -483,11 +483,11 @@ WorkWork.enchants = {
 			"12 res"
 		}
 	},
-	{
+	["Enchant Shield - Resistance"] = {
 		name = "Enchant Shield - Resistance",
 		keywords = {}
 	},
-	{
+	["Enchant Shield - Shield Block"] = {
 		name = "Enchant Shield - Shield Block",
 		keywords = {
 			"shield block",
@@ -495,7 +495,7 @@ WorkWork.enchants = {
 			"block rating"
 		}
 	},
-	{
+	["Enchant Shield - Tough Shield"] = {
 		name = "Enchant Shield - Tough Shield",
 		keywords = {
 			"block value",
@@ -503,40 +503,40 @@ WorkWork.enchants = {
 			"18 value"
 		}
 	},
-	{
+	["Enchant Weapon - Battlemaster"] = {
 		name = "Enchant Weapon - Battlemaster",
 		keywords = {
 			"battlemaster"
 		}
 	},
-	{
+	["Enchant Weapon - Crusader"] = {
 		name = "Enchant Weapon - Crusader",
 		keywords = {
 			"crusader",
 			"crusade"
 		}
 	},
-	{
+	["Enchant Weapon - Fiery Weapon"] = {
 		name = "Enchant Weapon - Fiery Weapon",
 		keywords = {
 			"fiery"
 		}
 	},
-	{
+	["Enchant Weapon - Healing Power"] = {
 		name = "Enchant Weapon - Healing Power",
 		keywords = {
 			"55 heal",
 			"55%+"
 		}
 	},
-	{
+	["Enchant Weapon - Lifestealing"] = {
 		name = "Enchant Weapon - Lifestealing",
 		keywords = {
 			"lifesteal",
 			"life steal"
 		}
 	},
-	{
+	["Enchant Weapon - Major Healing"] = {
 		name = "Enchant Weapon - Major Healing",
 		keywords = {
 			"81 heal",
@@ -545,14 +545,14 @@ WorkWork.enchants = {
 			"weapon major healing"
 		}
 	},
-	{
+	["Enchant Weapon - Major Intellect"] = {
 		name = "Enchant Weapon - Major Intellect",
 		keywords = {
 			"30 int",
 			"30%+ int"
 		}
 	},
-	{
+	["Enchant Weapon - Major Spellpower"] = {
 		name = "Enchant Weapon - Major Spellpower",
 		keywords = {
 			"spellpower to weapon",
@@ -561,54 +561,54 @@ WorkWork.enchants = {
 			"40%+ spell"
 		}
 	},
-	{
+	["Enchant Weapon - Mighty Spirit"] = {
 		name = "Enchant Weapon - Mighty Spirit",
 		keywords = {
 			"20 spirit",
 			"20%+ spirit"
 		}
 	},
-	{
+	["Enchant Weapon - Mongoose"] = {
 		name = "Enchant Weapon - Mongoose",
 		keywords = {
 			"mongoose"
 		}
 	},
-	{
+	["Enchant Weapon - Potency"] = {
 		name = "Enchant Weapon - Potency",
 		keywords = {
 			"potency"
 		}
 	},
-	{
+	["Enchant Weapon - Soulfrost"] = {
 		name = "Enchant Weapon - Soulfrost",
 		keywords = {
 			"soulfrost",
 			"soul frost"
 		}
 	},
-	{
+	["Enchant Weapon - Spell Power"] = {
 		name = "Enchant Weapon - Spell Power",
 		keywords = {
 			"30 sp",
 			"30%+ sp"
 		}
 	},
-	{
+	["Enchant Weapon - Spellsurge"] = {
 		name = "Enchant Weapon - Spellsurge",
 		keywords = {
 			"spellsurge",
 			"spell surge"
 		}
 	},
-	{
+	["Enchant Weapon - Sunfire"] = {
 		name = "Enchant Weapon - Sunfire",
 		keywords = {
 			"sunfire",
 			"sun fire"
 		}
 	},
-	{
+	["Enchant Weapon - Greater Agility"] = {
 		name = "Enchant Weapon - Greater Agility",
 		keywords = {
 			"20 agi"

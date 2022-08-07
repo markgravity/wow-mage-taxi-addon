@@ -31,20 +31,8 @@ function DetectEnchantWork(targetName, guid, message, parent)
 
 	local enchants = WorkWorkProfessionScanner:GetData('Enchanting')
 	local matchedEnchants = {}
-	for _, enchant in ipairs(enchants) do
-		local numNeeds = 1
-		for i = 1, 10 do
-			if message:match('x'..i) ~= nil
-				or message:match(i..'x') ~= nil
-				or message:match(i..' x') ~= nil
-				or message:match('x '..i) ~= nil then
-				numNeeds = i
-				break
-			end
-		end
-		enchant.numNeeds = numNeeds
-
-
+	for _, enchant in pairs(enchants) do
+		-- print("logging", enchant.keywords)
 		if message:match('henchant:'..enchant.itemID) ~= nil then
 			table.insert(matchedEnchants, enchant)
 		else
@@ -233,13 +221,6 @@ function EnchantWork:SetState(super, state)
 					return
 				end
 				ClickTargetTradeButton(TRADE_ENCHANT_SLOT)
-				-- C_Timer.After(1, function()
-				-- 	local _, _, _, _, enchantment = GetTradeTargetItemInfo(TRADE_ENCHANT_SLOT)
-				-- 	print("logging", enchant, GetTradeTargetName() ~= work.info.targetName)
-				-- 	if enchantment and GetTradeTargetName() ~= work.info.targetName then
-				--
-				-- 	end
-				-- end)
 				work:SetState('ENCHANTED')
 			end)
 		end
@@ -432,6 +413,7 @@ function EnchantWork:ReportMissingReagents(enchant)
 	end
 
 	if #messages <= 0 then return end
+	SendSmartMessage(self.info.targetName, enchant.itemLink, 0)
 	SendSmartMessage(self.info.targetName, 'Missing Reagents:', 0)
 	for _, message in ipairs(messages) do
 		SendSmartMessage(self.info.targetName, message, 0)
@@ -495,7 +477,7 @@ function EnchantWork:GetItems()
 	local work = self
 	local enchants = WorkWorkProfessionScanner:GetData('Enchanting')
 	local items = {}
-	for i, enchant in ipairs(enchants or {}) do
+	for i, enchant in pairs(enchants or {}) do
 		local checked = false
 		local matchedIndex
 		for i, matchedEnchant in ipairs(self.info.enchants) do
