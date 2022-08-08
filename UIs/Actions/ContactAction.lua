@@ -11,8 +11,18 @@ function CreateContactAction(
 	parent,
 	previousAction
 )
-	local action = CreateAction(titleText, descriptionText, name, parent, previousAction)
-	extends(action, ContactAction)
+	local oldFrame = _G[name]
+	local action = oldFrame and oldFrame.action
+		or CreateAction(
+			titleText,
+			descriptionText,
+			name,
+			parent,
+			previousAction
+		)
+	if not oldFrame then
+		extends(action, ContactAction)
+	end
 
 	-- DEBUG
 	if WorkWork.isDebug and targetName == 'Iina' then
@@ -71,6 +81,12 @@ function ContactAction:GetState()
 end
 
 function ContactAction:InviteTarget()
+	-- Already in the party
+	if GetUnitPartyID(self.info.targetName) then
+		self:SetState('CONTACTED_TARGET')
+		return
+	end
+
 	InviteUnit(self.info.targetName)
 	self:BeginInviteTimeout()
 end

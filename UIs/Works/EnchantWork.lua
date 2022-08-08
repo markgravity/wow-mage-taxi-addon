@@ -59,9 +59,9 @@ function CreateEnchantWork(targetName, message, enchants, parent)
 
 	work.isAutoContact = true
 	work.info = info
-	work:SetState('INITIALIZED')
 	work:RegisterEvents({
 		'TRADE_ACCEPT_UPDATE',
+		'TRADE_CLOSE',
 		'CRAFT_SHOW',
 		'TRADE_TARGET_ITEM_CHANGED',
 		'CHAT_MSG_SYSTEM'
@@ -300,8 +300,16 @@ function EnchantWork:UpdateGather()
 	local description = '|c60808080No received reagents|r'
 	if not table.isEmpty(self.info.receivedReagents) then
 	 	description = '|c60808080Received:|r'
+		local isAllUsed = true
 		for _, reagent in pairs(self.info.receivedReagents) do
-			description = description..'\n|r|cfffffff0'..reagent.numHave..' x |r|cffffd100'..(reagent.name or '')
+			if reagent.numHave > 0 then
+				description = description..'\n|cffffd100'..(reagent.name or '')..'|r|cfffffff0 x '..reagent.numHave..'|r'
+				isAllUsed = false
+			end
+		end
+
+		if isAllUsed then
+			description = '|c60808080Used all received reagents|r'
 		end
 	end
 	self.gatherAction:SetDescription(description)
@@ -603,6 +611,14 @@ function EnchantWork:TRADE_ACCEPT_UPDATE(playerAccepted, targetAccepted)
 
 		if playerAccepted == 1 and targetAccepted == 1 then
 			self:SetState('DELIVERED')
+			local money = GetTargetTradeMoney()
+			if money > 0 then
+				local message = 'ty'
+				if money > 10*100*100 then
+					message = 'Wow!! Thank you so much :D'
+				end
+				SendSmartMessage(self.info.targetName, message)
+			end
 			return
 		end
 		return
@@ -639,7 +655,7 @@ function EnchantWork:CHAT_MSG_SYSTEM(text)
 	if text == 'Your group has been disbanded.'
 		or text == 'You leave the group.'
 		or (self.info ~= nil and text == self.info.targetName..' leaves the party.') then
-		self:End(true, true)
+		self.endButton:Click()
 		return
 	end
 end

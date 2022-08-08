@@ -88,10 +88,10 @@ function CreatePortalWork(targetName, message, portal, parent)
 
 	work.isAutoContact = true
 	work.info = info
-	work:SetState('INITIALIZED')
 	work:RegisterEvents({
 		'UNIT_SPELLCAST_SUCCEEDED',
 		'CHAT_MSG_SYSTEM',
+		'TRADE_CLOSED',
 		'TRADE_ACCEPT_UPDATE',
 		'TRADE_MONEY_CHANGED'
 	})
@@ -358,8 +358,16 @@ function PortalWork:CHAT_MSG_SYSTEM(text)
 	if text == 'Your group has been disbanded.'
 		or text == 'You leave the group.'
 		or (self.info ~= nil and text == self.info.targetName..' leaves the party.') then
-		self:End(true, true)
+		self.endButton:Click()
 		return
+	end
+end
+
+function PortalWork:TRADE_CLOSED()
+	if self.state == 'MOVED_TO_TARGET_ZONE'
+		or self.state == 'CREATING_PORTAL'
+		or self.state == 'WAITING_FOR_TARGET_ENTER_PORTAL' then
+		print("logging", 'TRADE CLOSE')
 	end
 end
 
@@ -372,6 +380,7 @@ function PortalWork:TRADE_ACCEPT_UPDATE(playerAccepted, targetAccepted)
 	if self.state == 'MOVED_TO_TARGET_ZONE'
 		or self.state == 'CREATING_PORTAL'
 		or self.state == 'WAITING_FOR_TARGET_ENTER_PORTAL' then
+		print("logging", playerAccepted, targetAccepted)
 		if playerAccepted == 0 and targetAccepted == 1 then
 			AcceptTrade()
 			PlaySound(891)

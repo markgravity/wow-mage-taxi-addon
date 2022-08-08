@@ -10,8 +10,19 @@ function CreateMoveAction(
 	parent,
 	previousAction
 )
-	local action = CreateAction(titleText, descriptionText, name, parent, previousAction)
-	extends(action, MoveAction)
+	local oldFrame = _G[name]
+	local action = oldFrame and oldFrame.action
+		or CreateAction(
+			titleText,
+			descriptionText,
+			name,
+			parent,
+			previousAction
+		)
+	if not oldFrame then
+		extends(action, MoveAction)
+	end
+
 	action.info = {
 		targetName = targetName,
 		isRequestToMove = isRequestToMove,

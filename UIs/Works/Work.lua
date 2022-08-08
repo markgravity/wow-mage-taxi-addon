@@ -120,6 +120,8 @@ function CreateWork(name, parent)
 	scrollContent:SetPoint('TOPLEFT', scrollFrame, 0, 0)
 	scrollFrame:SetScrollChild(scrollContent)
 	work.actionListContent = scrollContent
+
+	work:SetState('INITIALIZED')
 	return work
 end
 
@@ -201,6 +203,10 @@ function Work:GetStateText(state)
 end
 
 function Work:End(isCompleted, wantsLeave, isLazy)
+	local work = self
+	if self.state == 'ENDED' then return end
+
+	self:SetState('ENDED')
 	self:UnregisterEvents()
 	if self.info == nil then
 		return
@@ -210,7 +216,9 @@ function Work:End(isCompleted, wantsLeave, isLazy)
 		if GetNumGroupMembers() <= 2 and UnitName('party1') == self.info.targetName then
 			LeaveParty()
 		else
-			pcall(UninviteUnit, self.info.targetName)
+			pcall(function()
+				UninviteUnit(work.info.targetName)
+			end)
 		end
 	else
 		if wantsLeave then
