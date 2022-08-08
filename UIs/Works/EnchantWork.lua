@@ -61,7 +61,6 @@ function CreateEnchantWork(targetName, message, enchants, parent)
 	work.info = info
 	work:RegisterEvents({
 		'TRADE_ACCEPT_UPDATE',
-		'TRADE_CLOSE',
 		'CRAFT_SHOW',
 		'TRADE_TARGET_ITEM_CHANGED',
 		'CHAT_MSG_SYSTEM'
