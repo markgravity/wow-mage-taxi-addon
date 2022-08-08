@@ -123,6 +123,7 @@ function ItemList:Reload()
 		previousItem = item
 		item:Show()
 		item.onSelect = function()
+			itemList.searchInput:ClearFocus()
 			if not itemList.info.allowsMultipleSelection then
 				for _, frame in ipairs(itemList.info.itemFrames or {}) do
 					if frame ~= item then
