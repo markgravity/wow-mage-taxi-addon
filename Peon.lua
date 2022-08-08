@@ -46,7 +46,7 @@ function Peon:Init()
 		peon:ToggleWorkList()
 	end)
 	self.toggleWorkListButton = toggleWorkListButton
-	self:ToggleWorkList(not WorkWork.charConfigs.isWorkListCollaged)
+	self:ToggleWorkList(WorkWork.charConfigs.isWorkListCollaged)
 
 	if WorkWork.isDebug then
 		workList:TryAdd('Iina', nil, 'wtb theramore port', self)
@@ -112,17 +112,19 @@ function Peon:Toggle()
 	end
 end
 
-function Peon:ToggleWorkList(isShown)
+function Peon:ToggleWorkList(isCollaged)
 	local configs = WorkWork.charConfigs
-	local isShown = isShown or configs.isWorkListCollaged
-	local degree = isShown and 90 or -90
-	local rotation = math.rad(degree)
+	if isCollaged == nil then
+		isCollaged = not configs.isWorkListCollaged
+	end
 
+	local degree = isCollaged and 90 or -90
+	local rotation = math.rad(degree)
 	self.toggleWorkListButton:GetNormalTexture():SetRotation(rotation)
 	self.toggleWorkListButton:GetPushedTexture():SetRotation(rotation)
+	configs.isWorkListCollaged = isCollaged
 
-	configs.isWorkListCollaged = not isShown
- 	if configs.isWorkListCollaged then
+ 	if not isCollaged then
 		self.workList:Show()
 	else
 		self.workList:Hide()
