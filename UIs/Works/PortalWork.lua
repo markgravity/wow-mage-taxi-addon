@@ -102,6 +102,12 @@ function CreatePortalWork(targetName, message, portal, parent)
 
 	-- Item List
 	work.itemList:SetItems(work:GetItems())
+	if info.sellingPortal == nil then
+		work:ToggleItemList(true)
+		C_Timer.After(0.1, function()
+			work.itemList:FocusSearch()
+		end)
+	end
 
 	-- End Button
 	work.endButton:SetScript('OnClick', function(self)

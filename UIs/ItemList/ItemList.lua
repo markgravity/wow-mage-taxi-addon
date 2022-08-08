@@ -166,3 +166,7 @@ end
 function ItemList:Hide()
 	self.frame:Hide()
 end
+
+function ItemList:FocusSearch()
+	self.searchInput:SetFocus()
+end

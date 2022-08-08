@@ -75,6 +75,12 @@ function CreateEnchantWork(targetName, message, enchants, parent)
 	-- Item List
 	work.itemList:SetItems(work:GetItems())
 	work.itemList:SetAllowsMultipleSelection(true)
+	if #info.enchants == 0 then
+		work:ToggleItemList(true)
+		C_Timer.After(0.1, function()
+			work.itemList:FocusSearch()
+		end)
+	end
 
 	-- End Button
 	work.endButton:SetScript('OnClick', function(self)
@@ -94,6 +100,8 @@ function CreateEnchantWork(targetName, message, enchants, parent)
 		actionListContent
 	)
 	work.contactAction:SetScript('OnStateChange', function(self)
+		if work.state == 'ENDED' then return end
+		
 		local state = work.contactAction:GetState()
 		if state == 'WAITING_FOR_CONTACT_RESPONSE'
 			or state == 'CONTACTED_TARGET'

@@ -156,7 +156,9 @@ function Work:SetItem(iconTexture, name, itemLink)
 end
 
 function Work:ToggleItemList(isShown)
-	local isShown = isShown or self.isItemListCollaged
+	if isShown == nil then
+		isShown = self.isItemListCollaged
+	end
 	local degree = isShown and -90 or 90
 	local rotation = math.rad(degree)
 
@@ -164,7 +166,7 @@ function Work:ToggleItemList(isShown)
 	self.toggleItemListButton:GetPushedTexture():SetRotation(rotation)
 
 	self.isItemListCollaged = not isShown
- 	if self.isItemListCollaged then
+ 	if isShown then
 		self.itemList:Show()
 	else
 		self.itemList:Hide()

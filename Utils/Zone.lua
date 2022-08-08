@@ -48,7 +48,7 @@ WorkWorkZoneFrame:SetScript('OnEvent', function(self, event, ...)
 end)
 
 function WorkWorkZoneFrame:CHAT_MSG_SYSTEM(text)
-	FriendsFrame:RegisterEvent('WHO_LIST_UPDATE')
+	-- FriendsFrame:RegisterEvent('WHO_LIST_UPDATE')
 	if self.lookupName == nil
 		or self.callback == nil
 	 	or text:match('%['..self.lookupName..'%]') == nil then return end
