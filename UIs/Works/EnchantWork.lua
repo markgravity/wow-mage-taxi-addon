@@ -2,11 +2,6 @@ local Eventable = WorkWork.Trails.Eventable
 local EnchantWork = {}
 
 function DetectEnchantWork(targetName, guid, message, parent)
-	local begin = GetTime()
-	if targetName == 'Magemagic' then
-		return
-	end
-
 	if not WorkWork.isDebug then
 		if playerName == UnitName('player') then
 			return nil
@@ -68,7 +63,8 @@ function CreateEnchantWork(targetName, message, enchants, parent)
 	work:RegisterEvents({
 		'TRADE_ACCEPT_UPDATE',
 		'CRAFT_SHOW',
-		'TRADE_TARGET_ITEM_CHANGED'
+		'TRADE_TARGET_ITEM_CHANGED',
+		'CHAT_MSG_SYSTEM'
 	})
 
 	local frame = work.frame
@@ -637,4 +633,13 @@ function EnchantWork:TRADE_TARGET_ITEM_CHANGED()
 		return
 	end
 
+end
+
+function EnchantWork:CHAT_MSG_SYSTEM(text)
+	if text == 'Your group has been disbanded.'
+		or text == 'You leave the group.'
+		or (self.info ~= nil and text == self.info.targetName..' leaves the party.') then
+		self:End(true, true)
+		return
+	end
 end

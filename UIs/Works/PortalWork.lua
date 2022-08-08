@@ -355,13 +355,11 @@ function PortalWork:UNIT_SPELLCAST_SUCCEEDED(target, castGUID, spellID)
 end
 
 function PortalWork:CHAT_MSG_SYSTEM(text)
-	local work = self
-
-	if self.state == 'WAITING_FOR_TARGET_ENTER_PORTAL' then
-		if text == 'Your group has been disbanded.' then
-			self:End(true, true)
-			return
-		end
+	if text == 'Your group has been disbanded.'
+		or text == 'You leave the group.'
+		or (self.info ~= nil and text == self.info.targetName..' leaves the party.') then
+		self:End(true, true)
+		return
 	end
 end
 
