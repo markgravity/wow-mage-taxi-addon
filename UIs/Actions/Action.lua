@@ -2,8 +2,11 @@ local Eventable = WorkWork.Trails.Eventable
 local Action = {}
 
 function CreateAction(titleText, descriptionText, name, parent, previousAction)
-	local action = {}
-	extends(action, Action, Eventable)
+	local oldFrame = _G[name]
+	local action = oldFrame and oldFrame.action or {}
+	if not oldFrame then
+		extends(action, Action, Eventable)
+	end
 
 	action.isCompleted = false
 	action.isEnabled = true
@@ -16,7 +19,8 @@ function CreateAction(titleText, descriptionText, name, parent, previousAction)
 		insets = { left = 3, right = 3, top = 3, bottom = 3 }
 	}
 
-	local frame = _G[name] or CreateFrame('Button', name, parent, BackdropTemplateMixin and "InSecureActionButtonTemplate, BackdropTemplate" or nil)
+	local frame = oldFrame or CreateFrame('Button', name, parent, BackdropTemplateMixin and "InSecureActionButtonTemplate, BackdropTemplate" or nil)
+	frame.action = action
 	frame:SetBackdrop(backdrop)
 	frame:SetHeight(0)
 	frame:ClearAllPoints()
@@ -49,17 +53,19 @@ function CreateAction(titleText, descriptionText, name, parent, previousAction)
 		GameTooltip:Hide()
 	end)
 
-	frame:HookScript('OnClick', function(self, button)
-		if button == 'LeftButton' and IsShiftKeyDown() and action.itemLink then
-			ChatEdit_InsertLink(action.itemLink)
-			return
-		end
+	if not oldFrame then
+		frame:HookScript('OnClick', function(self, button)
+			if button == 'LeftButton' and IsShiftKeyDown() and action.itemLink then
+				ChatEdit_InsertLink(action.itemLink)
+				return
+			end
 
-		if button == 'RightButton' and action.contextMenu then
-			EasyMenu(action.contextMenu, action.contextMenuFrame, 'cursor', 0 , 0, 'MENU')
-			return
-		end
-	end)
+			if button == 'RightButton' and action.contextMenu then
+				EasyMenu(action.contextMenu, action.contextMenuFrame, 'cursor', 0 , 0, 'MENU')
+				return
+			end
+		end)
+	end
 	action.frame = frame
 
 	-- Count

@@ -155,13 +155,14 @@ function WorkList:Add(targetName, controller, type)
 	table.insert(self.works, work)
 
 	controller.frame:SetPoint('TOPLEFT', self.frame, 'TOPRIGHT', -11, 0)
-	controller:Start()
 
 	self:Reload()
 	self:AutoAssign()
 	if self.onWorksUpdate then
 		self.onWorksUpdate()
 	end
+
+	controller:Start()
 end
 
 function WorkList:Remove(work)

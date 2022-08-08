@@ -195,7 +195,6 @@ end
 
 function PortalWork:SetState(super, state)
 	super(state)
-
 	local work = self
 
 	if state == 'CONTACT_FAILED' then

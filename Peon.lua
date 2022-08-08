@@ -49,7 +49,7 @@ function Peon:Init()
 	self:ToggleWorkList(not WorkWork.charConfigs.isWorkListCollaged)
 
 	if WorkWork.isDebug then
-		-- workList:TryAdd('Iina', nil, 'wtb theramore port', self)
+		workList:TryAdd('Iina', nil, 'wtb theramore port', self)
 		-- workList:TryAdd('Iina', nil, 'WTB fiery', self)
 		WorkWorkMinimapButton:OnClick()
 	end
