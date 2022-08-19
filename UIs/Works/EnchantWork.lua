@@ -101,7 +101,7 @@ function CreateEnchantWork(targetName, message, enchants, parent)
 	)
 	work.contactAction:SetScript('OnStateChange', function(self)
 		if work.state == 'ENDED' then return end
-		
+
 		local state = work.contactAction:GetState()
 		if state == 'WAITING_FOR_CONTACT_RESPONSE'
 			or state == 'CONTACTED_TARGET'
@@ -219,7 +219,7 @@ function EnchantWork:SetState(super, state)
 		end
 		if CraftCreateButton then
 			CraftCreateButton:HookScript('OnClick', function()
-				if work.state ~= 'ENCHANTING' then
+				if work.state ~= 'ENCHANTING' or work.state ~= 'READY_TO_ENCHANT' then
 					return
 				end
 				ClickTargetTradeButton(TRADE_ENCHANT_SLOT)

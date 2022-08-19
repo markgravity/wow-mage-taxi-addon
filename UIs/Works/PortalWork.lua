@@ -373,7 +373,6 @@ function PortalWork:TRADE_CLOSED()
 	if self.state == 'MOVED_TO_TARGET_ZONE'
 		or self.state == 'CREATING_PORTAL'
 		or self.state == 'WAITING_FOR_TARGET_ENTER_PORTAL' then
-		print("logging", 'TRADE CLOSE')
 	end
 end
 
@@ -386,7 +385,6 @@ function PortalWork:TRADE_ACCEPT_UPDATE(playerAccepted, targetAccepted)
 	if self.state == 'MOVED_TO_TARGET_ZONE'
 		or self.state == 'CREATING_PORTAL'
 		or self.state == 'WAITING_FOR_TARGET_ENTER_PORTAL' then
-		print("logging", playerAccepted, targetAccepted)
 		if playerAccepted == 0 and targetAccepted == 1 then
 			AcceptTrade()
 			PlaySound(891)
@@ -414,7 +412,6 @@ function PortalWork:TRADE_MONEY_CHANGED()
 	if self.state == 'MOVED_TO_TARGET_ZONE'
 		or self.state == 'CREATING_PORTAL'
 		or self.state == 'WAITING_FOR_TARGET_ENTER_PORTAL' then
-		-- AcceptTrade()
 		return
 	end
 end
