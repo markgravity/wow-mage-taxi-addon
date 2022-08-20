@@ -28,15 +28,7 @@ function CreateWorkListItem(index, work, parent, columnHeaders, previousItem)
 	icon:ClearAllPoints()
 	icon:SetPoint('LEFT', frame, 'LEFT', columnHeaders[1]:GetWidth() / 2 - 5, 0)
 	icon:SetSize(10, 10)
-	if work.type == 'portal' then
-		icon:SetNormalTexture('Interface\\ICONS\\Spell_Arcane_PortalShattrath')
-	end
-	if work.type == 'enchant' then
-		icon:SetNormalTexture(135913)
-	end
-	if work.type == 'prospecting' then
-		icon:SetNormalTexture(134081)
-	end
+	icon:SetNormalTexture(work.icon)
 	icon:EnableMouse(false)
 	icon:Disable()
 

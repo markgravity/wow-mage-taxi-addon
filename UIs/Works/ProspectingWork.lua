@@ -1,5 +1,12 @@
 local Eventable = WorkWork.Trails.Eventable
 local ProspectingWork = {}
+local prospecting = {
+	name = 'Prospecting',
+	icon = 134081,
+	supportedUnitPopupMenus = { 'SELF' }
+}
+
+WorkWork.works['prospecting'] = prospecting
 
 function CreateProspectingWork(parent)
 	local info = {
@@ -27,8 +34,8 @@ function CreateProspectingWork(parent)
 	end)
 
 	-- Item
-	local itemLink = GetSpellLink(31252)
-	work:SetItem('134081', 'Prospecting', itemLink)
+	local itemLink = GetSpellLink(info.spellID)
+	work:SetItem(prospecting.icon, prospecting.name, itemLink)
 
 	-- Create actions
 	work.actions = {}

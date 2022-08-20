@@ -1,6 +1,14 @@
 local Eventable = WorkWork.Trails.Eventable
 local PortalWork = {}
 
+WorkWork.works['portal'] = {
+	name = 'Portal',
+	icon = 'Interface\\ICONS\\Spell_Arcane_PortalShattrath',
+	supportedUnitPopupMenus = {
+		'PARTY', 'RAID_PLAYER', 'PLAYER', 'FRIEND'
+	}
+}
+
 local function MatchPortal(matcher)
 	for _, portal in ipairs(WorkWork.portals) do
 		for _, keyword in ipairs(portal.keywords) do

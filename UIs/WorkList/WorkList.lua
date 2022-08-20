@@ -160,6 +160,7 @@ function WorkList:Add(targetName, controller, type)
 		targetName = targetName,
 		status = controller:GetStateText(),
 		type = type,
+		icon = WorkWork.works[type].icon,
 		controller = controller,
 		createdAt = GetTime()
 	}

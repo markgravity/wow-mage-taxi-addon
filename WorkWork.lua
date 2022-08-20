@@ -6,6 +6,7 @@ WorkWork.Resources = {}
 WorkWork.Utils = {}
 
 WorkWork.isDebug = true
+WorkWork.works = {}
 
 WORK_LIST_WIDTH = 200
 WORK_LIST_HEIGHT = 400

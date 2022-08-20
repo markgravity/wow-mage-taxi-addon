@@ -1,6 +1,14 @@
 local Eventable = WorkWork.Trails.Eventable
 local EnchantWork = {}
 
+WorkWork.works['enchant'] = {
+	name = 'Enchant',
+	icon = 135913,
+	supportedUnitPopupMenus = {
+		'PARTY', 'RAID_PLAYER', 'PLAYER', 'FRIEND'
+	}
+}
+
 function DetectEnchantWork(targetName, guid, message, parent)
 	if not WorkWork.isDebug then
 		if playerName == UnitName('player') then

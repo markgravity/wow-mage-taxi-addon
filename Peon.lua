@@ -59,36 +59,7 @@ function Peon:Init()
 	end
 
 	-- Hook UnitPopup
-	UnitPopupButtons['ADD_WORK'] = { text = 'Add Work', dist = 0, nested = 1 }
-	UnitPopupButtons['PORTAL_WORK'] = { text = 'Portal', dist = 0, icon = 'Interface\\ICONS\\Spell_Arcane_PortalShattrath' }
-	UnitPopupButtons['ENCHANT_WORK'] = { text = 'Enchant', dist = 0, icon = 135913 }
-	UnitPopupButtons['PROSPECTING_WORK'] = { text = 'Prospecting', dist = 0, icon = 134081 }
-	UnitPopupMenus['ADD_WORK'] = { 'PORTAL_WORK', 'ENCHANT_WORK', 'PROSPECTING_WORK'}
-
-	-- DEBUG
-	if WorkWork.isDebug then
-		table.insert(UnitPopupMenus['SELF'], 1, 'ADD_WORK')
-	end
-
-	-- PARTY
-	local index = table.indexOf(UnitPopupMenus['PARTY'], 'ADD_FRIEND') + 2
-	table.insert(UnitPopupMenus['PARTY'], index, 'ADD_WORK')
-
-	-- RAID_PLAYER
-	local index = table.indexOf(UnitPopupMenus['RAID_PLAYER'], 'ADD_FRIEND') + 2
-	table.insert(UnitPopupMenus['RAID_PLAYER'], index, 'ADD_WORK')
-
-	-- PLAYER
-	local index = table.indexOf(UnitPopupMenus['PLAYER'], 'ADD_FRIEND') + 2
-	table.insert(UnitPopupMenus['PLAYER'], index, 'ADD_WORK')
-
-	-- FRIEND
-	local index = table.indexOf(UnitPopupMenus['FRIEND'], 'TARGET') + 2
-	table.insert(UnitPopupMenus['FRIEND'], index, 'ADD_WORK')
-
-	hooksecurefunc('UnitPopup_OnClick', function(...)
-		peon:UnitPopupOnClickCalled(...)
-	end)
+	self:HookUnitPopup()
 end
 
 function Peon:On()
@@ -156,6 +127,68 @@ function Peon:UnitPopupOnClickCalled(dropdownMenu)
 		self.workList:ManualyAdd(targetName, 'prospecting', self)
 		return
 	end
+end
+
+function Peon:HookUnitPopup()
+	local peon = self
+	local works = WorkWork.works
+	local menus = {}
+
+	for type, work in pairs(works) do
+		local key = string.upper(type)..'_WORK'
+		UnitPopupButtons[key] = {
+			text = work.name,
+			dist = 0,
+			icon = work.icon
+		}
+
+		for _, menuKey in ipairs(work.supportedUnitPopupMenus) do
+			local menu = menus['ADD_WORK_'..menuKey]
+			if menu == nil then
+				menu = {}
+				menus['ADD_WORK_'..menuKey] = menu
+				UnitPopupButtons['ADD_WORK_'..menuKey] = { text = 'Add Work', dist = 0, nested = 1 }
+			end
+			table.insert(menu, key)
+		end
+	end
+
+	for key, menu in pairs(menus) do
+		UnitPopupMenus[key] = menu
+		
+		-- SELF
+		if string.find(key, 'SELF') then
+			table.insert(UnitPopupMenus['SELF'], 1, key)
+		end
+
+		-- PARTY
+		if string.find(key, 'PARTY') then
+			local index = table.indexOf(UnitPopupMenus['PARTY'], 'ADD_FRIEND') + 2
+			table.insert(UnitPopupMenus['PARTY'], index, key)
+		end
+
+		-- RAID_PLAYER
+		if string.find(key, 'RAID_PLAYER') then
+			local index = table.indexOf(UnitPopupMenus['RAID_PLAYER'], 'ADD_FRIEND') + 2
+			table.insert(UnitPopupMenus['RAID_PLAYER'], index, key)
+		end
+
+		-- PLAYER
+		if string.find(key, 'PLAYER') then
+			local index = table.indexOf(UnitPopupMenus['PLAYER'], 'ADD_FRIEND') + 2
+			table.insert(UnitPopupMenus['PLAYER'], index, key)
+		end
+
+		-- FRIEND
+		if string.find(key, 'FRIEND') then
+			local index = table.indexOf(UnitPopupMenus['FRIEND'], 'TARGET') + 2
+			table.insert(UnitPopupMenus['FRIEND'], index, key)
+		end
+	end
+
+	hooksecurefunc('UnitPopup_OnClick', function(...)
+		peon:UnitPopupOnClickCalled(...)
+	end)
 end
 
 -- EVENTS
