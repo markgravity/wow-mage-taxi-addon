@@ -13,6 +13,7 @@
 	<Script file="WorkWork.lua"/>
 	<Script file="Data\Enchants.lua"/>
 	<Script file="Data\Portals.lua"/>
+	<Script file="Data\Ores.lua"/>
 	<Script file="Utils\Table.lua"/>
 	<Script file="Utils\Class.lua"/>
 	<Script file="Utils\UnitID.lua"/>
@@ -29,6 +30,7 @@
 	<Script file="UIs\Works\Work.lua"/>
 	<Script file="UIs\Works\PortalWork.lua"/>
 	<Script file="UIs\Works\EnchantWork.lua"/>
+	<Script file="UIs\Works\ProspectingWork.lua"/>
 	<Script file="UIs\WorkList\WorkList.lua"/>
 	<Script file="UIs\WorkList\WorkListItem.lua"/>
 	<Script file="UIs\ItemList\ItemList.lua"/>

@@ -219,7 +219,7 @@ function EnchantWork:SetState(super, state)
 		end
 		if CraftCreateButton then
 			CraftCreateButton:HookScript('OnClick', function()
-				if work.state ~= 'ENCHANTING' or work.state ~= 'READY_TO_ENCHANT' then
+				if work.state ~= 'ENCHANTING' and work.state ~= 'READY_TO_ENCHANT' then
 					return
 				end
 				ClickTargetTradeButton(TRADE_ENCHANT_SLOT)
@@ -462,7 +462,7 @@ function EnchantWork:ReturnReagens()
 		        local numSlots = GetContainerNumSlots(bag)
 		        if numSlots > 0 then
 		            for slot = 1, numSlots do
- 						local _, itemCount, _, _, _, _, itemLink = GetContainerItemInfo(bagID, slot)
+ 						local _, itemCount, _, _, _, _, itemLink = GetContainerItemInfo(bag, slot)
 		                local _, _, _, _, _, _, _, _, _, _, _, name = GetItemLinkInfo(itemLink)
 		                if name == reagent.name then
 							local numTake = itemCount > reagent.numHave and reagent.numHave or itemCount
@@ -579,7 +579,7 @@ function EnchantWork:UpdateEnchants()
 	end
 	work.enchantActions = enchantActions
 
-	 work.actionListContent:SetSize(
+	work.actionListContent:SetSize(
 		WORK_WIDTH - 30,
 		work.contactAction.frame:GetHeight()
 		+ work.moveAction.frame:GetHeight()

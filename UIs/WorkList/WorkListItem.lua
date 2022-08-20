@@ -34,6 +34,9 @@ function CreateWorkListItem(index, work, parent, columnHeaders, previousItem)
 	if work.type == 'enchant' then
 		icon:SetNormalTexture(135913)
 	end
+	if work.type == 'prospecting' then
+		icon:SetNormalTexture(134081)
+	end
 	icon:EnableMouse(false)
 	icon:Disable()
 

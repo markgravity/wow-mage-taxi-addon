@@ -51,6 +51,10 @@ function Peon:Init()
 	if WorkWork.isDebug then
 		-- workList:TryAdd('Iina', nil, 'wtb theramore port', self)
 		-- workList:TryAdd('Iina', nil, 'WTB fiery', self)
+		-- C_Timer.After(5, function()
+		-- 	workList:ManualyAdd('Iina', 'prospecting', self)
+		-- end)
+
 		WorkWorkMinimapButton:OnClick()
 	end
 
@@ -58,7 +62,8 @@ function Peon:Init()
 	UnitPopupButtons['ADD_WORK'] = { text = 'Add Work', dist = 0, nested = 1 }
 	UnitPopupButtons['PORTAL_WORK'] = { text = 'Portal', dist = 0, icon = 'Interface\\ICONS\\Spell_Arcane_PortalShattrath' }
 	UnitPopupButtons['ENCHANT_WORK'] = { text = 'Enchant', dist = 0, icon = 135913 }
-	UnitPopupMenus['ADD_WORK'] = { 'PORTAL_WORK', 'ENCHANT_WORK'}
+	UnitPopupButtons['PROSPECTING_WORK'] = { text = 'Prospecting', dist = 0, icon = 134081 }
+	UnitPopupMenus['ADD_WORK'] = { 'PORTAL_WORK', 'ENCHANT_WORK', 'PROSPECTING_WORK'}
 
 	-- DEBUG
 	if WorkWork.isDebug then
@@ -144,6 +149,11 @@ function Peon:UnitPopupOnClickCalled(dropdownMenu)
 
 	if button == 'ENCHANT_WORK' then
 		self.workList:ManualyAdd(targetName, 'enchant', self)
+		return
+	end
+
+	if button == 'PROSPECTING_WORK' then
+		self.workList:ManualyAdd(targetName, 'prospecting', self)
 		return
 	end
 end

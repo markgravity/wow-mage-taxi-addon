@@ -126,17 +126,28 @@ function WorkList:ManualyAdd(targetName, type, parent)
 	local creators = {
 		portal = {
 			type = 'portal',
-			func = CreatePortalWork,
+			makeController = function()
+				return CreatePortalWork(targetName, '', nil, parent)
+			end,
 			item = nil
 		},
 		enchant = {
 			type = 'enchant',
-			func = CreateEnchantWork,
+			makeController = function()
+				return CreateEnchantWork(targetName, '', nil, parent)
+			end,
+			item = {}
+		},
+		prospecting = {
+			type = 'prospecting',
+			makeController = function()
+				return CreateProspectingWork(parent)
+			end,
 			item = {}
 		}
 	}
 	local creator = creators[type]
-	local controller = creator.func(targetName, '', creator.item, parent)
+	local controller = creator.makeController()
 	if controller then
 		self:Add(targetName, controller, type)
 		return
