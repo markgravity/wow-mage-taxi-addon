@@ -5,7 +5,7 @@ WorkWork.works['enchant'] = {
 	name = 'Enchant',
 	icon = 135913,
 	supportedUnitPopupMenus = {
-		'PARTY', 'RAID_PLAYER', 'PLAYER', 'FRIEND'
+		'PARTY', 'RAID_PLAYER', 'PLAYER', 'FRIEND', 'SELF'
 	}
 }
 
@@ -60,7 +60,8 @@ function CreateEnchantWork(targetName, message, enchants, parent)
 
 	local info = {
 		targetName = targetName,
-		enchants = enchants,
+		isSelfEnchant = targetName == UnitName('player'),
+		enchants = enchants or {},
 		receivedReagents = {},
 		isLazy = WorkWork.charConfigs.lazyMode.enchant
 	}
@@ -97,47 +98,48 @@ function CreateEnchantWork(targetName, message, enchants, parent)
 
 	-- Create actions
 	local actionListContent = work.actionListContent
-	work.contactAction = CreateContactAction(
-		info.targetName,
-		"i can do it",
-		120,
-		info.isLazy,
-		'Contact',
-		'|c60808080Invite |r|cffffd100'..info.targetName..'|r|c60808080 into the party|r',
-		frame:GetName()..'ContactAction',
-		actionListContent
-	)
-	work.contactAction:SetScript('OnStateChange', function(self)
-		if work.state == 'ENDED' then return end
+	if not info.isSelfEnchant then
+		work.contactAction = CreateContactAction(
+			info.targetName,
+			"i can do it",
+			120,
+			info.isLazy,
+			'Contact',
+			'|c60808080Invite |r|cffffd100'..info.targetName..'|r|c60808080 into the party|r',
+			frame:GetName()..'ContactAction',
+			actionListContent
+		)
+		work.contactAction:SetScript('OnStateChange', function(self)
+			if work.state == 'ENDED' then return end
 
-		local state = work.contactAction:GetState()
-		if state == 'WAITING_FOR_CONTACT_RESPONSE'
-			or state == 'CONTACTED_TARGET'
-			or state == 'CONTACT_FAILED' then
-			work:SetState(state)
-			return
-		end
-	end)
-	work.contactAction:SetPoint('TOP', actionListContent, 'TOP', 0, 0)
+			local state = work.contactAction:GetState()
+			if state == 'WAITING_FOR_CONTACT_RESPONSE'
+				or state == 'CONTACTED_TARGET'
+				or state == 'CONTACT_FAILED' then
+				work:SetState(state)
+				return
+			end
+		end)
+		work.contactAction:SetPoint('TOP', actionListContent, 'TOP', 0, 0)
 
-	work.moveAction = CreateMoveAction(
-		info.targetName,
-		false,
-		WORK_INTERECT_DISTANCE_TRADE,
-		'Move',
-		'|c60808080Waiting for contact|r',
-		frame:GetName()..'MoveAction',
-		actionListContent,
-	 	work.contactAction
-	)
-	work.moveAction:SetScript('OnStateChange', function(self)
-		local state = work.moveAction:GetState()
-		if state == 'MOVING_TO_TARGET_ZONE' or state == 'MOVED_TO_TARGET_ZONE' then
-			work:SetState(state)
-			return
-		end
-	end)
-
+		work.moveAction = CreateMoveAction(
+			info.targetName,
+			false,
+			WORK_INTERECT_DISTANCE_TRADE,
+			'Move',
+			'|c60808080Waiting for contact|r',
+			frame:GetName()..'MoveAction',
+			actionListContent,
+		 	work.contactAction
+		)
+		work.moveAction:SetScript('OnStateChange', function(self)
+			local state = work.moveAction:GetState()
+			if state == 'MOVING_TO_TARGET_ZONE' or state == 'MOVED_TO_TARGET_ZONE' then
+				work:SetState(state)
+				return
+			end
+		end)
+	end
 	work.gatherAction = CreateAction(
 		'Gather',
 		nil,
@@ -164,6 +166,13 @@ function CreateEnchantWork(targetName, message, enchants, parent)
 			end
 		},
 		{
+			text = 'Buy Reagents',
+			notCheckable = true,
+			func = function()
+				work:ReturnReagens()
+			end
+		},
+		{
 			text = 'Close',
 			notCheckable = true
 		}
@@ -171,14 +180,16 @@ function CreateEnchantWork(targetName, message, enchants, parent)
 
 	work:UpdateEnchants()
 
-	work.moveAction:Disable()
+	if not info.isSelfEnchant then
+		work.moveAction:Disable()
+		work.contactAction:Enable()
+	end
 	work.gatherAction:Disable()
-	work.contactAction:Enable()
 	return work
 end
 
 function EnchantWork:Start(super)
-	if self.isAutoContact then
+	if self.contactAction and self.isAutoContact then
 		self.contactAction:Excute()
 	end
 	super()
@@ -498,7 +509,7 @@ function EnchantWork:GetItems()
 	for i, enchant in pairs(enchants or {}) do
 		local checked = false
 		local matchedIndex
-		for i, matchedEnchant in ipairs(self.info.enchants) do
+		for i, matchedEnchant in ipairs(self.info.enchants or {}) do
 			if matchedEnchant.name == enchant.name then
 				checked = true
 				matchedIndex = i
@@ -587,12 +598,15 @@ function EnchantWork:UpdateEnchants()
 	end
 	work.enchantActions = enchantActions
 
+	local actionsHeight = work.gatherAction.frame:GetHeight() + totalEnchantActionsHeight
+	if not self.info.isSelfEnchant then
+		actionsHeight = actionsHeight
+		 + work.contactAction.frame:GetHeight()
+		 + work.moveAction.frame:GetHeight()
+   	end
 	work.actionListContent:SetSize(
 		WORK_WIDTH - 30,
-		work.contactAction.frame:GetHeight()
-		+ work.moveAction.frame:GetHeight()
-		+ work.gatherAction.frame:GetHeight()
-		+ totalEnchantActionsHeight
+		actionsHeight
 	)
 	work:UpdateGather()
 end

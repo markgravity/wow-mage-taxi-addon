@@ -155,7 +155,7 @@ function Peon:HookUnitPopup()
 
 	for key, menu in pairs(menus) do
 		UnitPopupMenus[key] = menu
-		
+
 		-- SELF
 		if string.find(key, 'SELF') then
 			table.insert(UnitPopupMenus['SELF'], 1, key)

@@ -218,9 +218,7 @@ function Work:End(isCompleted, wantsLeave, isLazy)
 		if GetNumGroupMembers() <= 2 and UnitName('party1') == self.info.targetName then
 			LeaveParty()
 		else
-			pcall(function()
-				UninviteUnit(work.info.targetName)
-			end)
+			UninviteUnit(self.info.targetName)
 		end
 	else
 		if wantsLeave then
